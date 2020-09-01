@@ -2,29 +2,53 @@
 
 package machine
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the machine type in the database.
 	Label = "machine"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldMachineId holds the string denoting the machineid field in the database.
 	FieldMachineId = "machine_id"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
-	// FieldToken holds the string denoting the token field in the database.
-	FieldToken = "token"
 	// FieldIpAddress holds the string denoting the ipaddress field in the database.
 	FieldIpAddress = "ip_address"
 
+	// EdgeSignals holds the string denoting the signals edge name in mutations.
+	EdgeSignals = "signals"
+
 	// Table holds the table name of the machine in the database.
 	Table = "machines"
+	// SignalsTable is the table the holds the signals relation/edge.
+	SignalsTable = "signals"
+	// SignalsInverseTable is the table name for the Signal entity.
+	// It exists in this package in order to avoid circular dependency with the "signal" package.
+	SignalsInverseTable = "signals"
+	// SignalsColumn is the table column denoting the signals relation/edge.
+	SignalsColumn = "machine_signals"
 )
 
 // Columns holds all SQL columns for machine fields.
 var Columns = []string{
 	FieldID,
+	FieldCreatedAt,
+	FieldUpdatedAt,
 	FieldMachineId,
 	FieldPassword,
-	FieldToken,
 	FieldIpAddress,
 }
+
+var (
+	// DefaultCreatedAt holds the default value on creation for the created_at field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	DefaultUpdatedAt func() time.Time
+)

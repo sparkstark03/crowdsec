@@ -4,12 +4,11 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
 
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
@@ -17,56 +16,57 @@ import (
 	"github.com/facebook/ent/schema/field"
 )
 
-// MachineQuery is the builder for querying Machine entities.
-type MachineQuery struct {
+// MetaQuery is the builder for querying Meta entities.
+type MetaQuery struct {
 	config
 	limit      *int
 	offset     *int
 	order      []OrderFunc
 	unique     []string
-	predicates []predicate.Machine
+	predicates []predicate.Meta
 	// eager-loading edges.
-	withSignals *SignalQuery
+	withOwner *SignalQuery
+	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
 // Where adds a new predicate for the builder.
-func (mq *MachineQuery) Where(ps ...predicate.Machine) *MachineQuery {
+func (mq *MetaQuery) Where(ps ...predicate.Meta) *MetaQuery {
 	mq.predicates = append(mq.predicates, ps...)
 	return mq
 }
 
 // Limit adds a limit step to the query.
-func (mq *MachineQuery) Limit(limit int) *MachineQuery {
+func (mq *MetaQuery) Limit(limit int) *MetaQuery {
 	mq.limit = &limit
 	return mq
 }
 
 // Offset adds an offset step to the query.
-func (mq *MachineQuery) Offset(offset int) *MachineQuery {
+func (mq *MetaQuery) Offset(offset int) *MetaQuery {
 	mq.offset = &offset
 	return mq
 }
 
 // Order adds an order step to the query.
-func (mq *MachineQuery) Order(o ...OrderFunc) *MachineQuery {
+func (mq *MetaQuery) Order(o ...OrderFunc) *MetaQuery {
 	mq.order = append(mq.order, o...)
 	return mq
 }
 
-// QuerySignals chains the current query on the signals edge.
-func (mq *MachineQuery) QuerySignals() *SignalQuery {
+// QueryOwner chains the current query on the owner edge.
+func (mq *MetaQuery) QueryOwner() *SignalQuery {
 	query := &SignalQuery{config: mq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := mq.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(machine.Table, machine.FieldID, mq.sqlQuery()),
+			sqlgraph.From(meta.Table, meta.FieldID, mq.sqlQuery()),
 			sqlgraph.To(signal.Table, signal.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, machine.SignalsTable, machine.SignalsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, meta.OwnerTable, meta.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -74,20 +74,20 @@ func (mq *MachineQuery) QuerySignals() *SignalQuery {
 	return query
 }
 
-// First returns the first Machine entity in the query. Returns *NotFoundError when no machine was found.
-func (mq *MachineQuery) First(ctx context.Context) (*Machine, error) {
+// First returns the first Meta entity in the query. Returns *NotFoundError when no meta was found.
+func (mq *MetaQuery) First(ctx context.Context) (*Meta, error) {
 	ms, err := mq.Limit(1).All(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if len(ms) == 0 {
-		return nil, &NotFoundError{machine.Label}
+		return nil, &NotFoundError{meta.Label}
 	}
 	return ms[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (mq *MachineQuery) FirstX(ctx context.Context) *Machine {
+func (mq *MetaQuery) FirstX(ctx context.Context) *Meta {
 	m, err := mq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -95,21 +95,21 @@ func (mq *MachineQuery) FirstX(ctx context.Context) *Machine {
 	return m
 }
 
-// FirstID returns the first Machine id in the query. Returns *NotFoundError when no id was found.
-func (mq *MachineQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Meta id in the query. Returns *NotFoundError when no id was found.
+func (mq *MetaQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = mq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstXID is like FirstID, but panics if an error occurs.
-func (mq *MachineQuery) FirstXID(ctx context.Context) int {
+func (mq *MetaQuery) FirstXID(ctx context.Context) int {
 	id, err := mq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -117,8 +117,8 @@ func (mq *MachineQuery) FirstXID(ctx context.Context) int {
 	return id
 }
 
-// Only returns the only Machine entity in the query, returns an error if not exactly one entity was returned.
-func (mq *MachineQuery) Only(ctx context.Context) (*Machine, error) {
+// Only returns the only Meta entity in the query, returns an error if not exactly one entity was returned.
+func (mq *MetaQuery) Only(ctx context.Context) (*Meta, error) {
 	ms, err := mq.Limit(2).All(ctx)
 	if err != nil {
 		return nil, err
@@ -127,14 +127,14 @@ func (mq *MachineQuery) Only(ctx context.Context) (*Machine, error) {
 	case 1:
 		return ms[0], nil
 	case 0:
-		return nil, &NotFoundError{machine.Label}
+		return nil, &NotFoundError{meta.Label}
 	default:
-		return nil, &NotSingularError{machine.Label}
+		return nil, &NotSingularError{meta.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (mq *MachineQuery) OnlyX(ctx context.Context) *Machine {
+func (mq *MetaQuery) OnlyX(ctx context.Context) *Meta {
 	m, err := mq.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -142,8 +142,8 @@ func (mq *MachineQuery) OnlyX(ctx context.Context) *Machine {
 	return m
 }
 
-// OnlyID returns the only Machine id in the query, returns an error if not exactly one id was returned.
-func (mq *MachineQuery) OnlyID(ctx context.Context) (id int, err error) {
+// OnlyID returns the only Meta id in the query, returns an error if not exactly one id was returned.
+func (mq *MetaQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = mq.Limit(2).IDs(ctx); err != nil {
 		return
@@ -152,15 +152,15 @@ func (mq *MachineQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = &NotSingularError{machine.Label}
+		err = &NotSingularError{meta.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (mq *MachineQuery) OnlyIDX(ctx context.Context) int {
+func (mq *MetaQuery) OnlyIDX(ctx context.Context) int {
 	id, err := mq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -168,8 +168,8 @@ func (mq *MachineQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Machines.
-func (mq *MachineQuery) All(ctx context.Context) ([]*Machine, error) {
+// All executes the query and returns a list of MetaSlice.
+func (mq *MetaQuery) All(ctx context.Context) ([]*Meta, error) {
 	if err := mq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (mq *MachineQuery) All(ctx context.Context) ([]*Machine, error) {
 }
 
 // AllX is like All, but panics if an error occurs.
-func (mq *MachineQuery) AllX(ctx context.Context) []*Machine {
+func (mq *MetaQuery) AllX(ctx context.Context) []*Meta {
 	ms, err := mq.All(ctx)
 	if err != nil {
 		panic(err)
@@ -185,17 +185,17 @@ func (mq *MachineQuery) AllX(ctx context.Context) []*Machine {
 	return ms
 }
 
-// IDs executes the query and returns a list of Machine ids.
-func (mq *MachineQuery) IDs(ctx context.Context) ([]int, error) {
+// IDs executes the query and returns a list of Meta ids.
+func (mq *MetaQuery) IDs(ctx context.Context) ([]int, error) {
 	var ids []int
-	if err := mq.Select(machine.FieldID).Scan(ctx, &ids); err != nil {
+	if err := mq.Select(meta.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (mq *MachineQuery) IDsX(ctx context.Context) []int {
+func (mq *MetaQuery) IDsX(ctx context.Context) []int {
 	ids, err := mq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -204,7 +204,7 @@ func (mq *MachineQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (mq *MachineQuery) Count(ctx context.Context) (int, error) {
+func (mq *MetaQuery) Count(ctx context.Context) (int, error) {
 	if err := mq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -212,7 +212,7 @@ func (mq *MachineQuery) Count(ctx context.Context) (int, error) {
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (mq *MachineQuery) CountX(ctx context.Context) int {
+func (mq *MetaQuery) CountX(ctx context.Context) int {
 	count, err := mq.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -221,7 +221,7 @@ func (mq *MachineQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (mq *MachineQuery) Exist(ctx context.Context) (bool, error) {
+func (mq *MetaQuery) Exist(ctx context.Context) (bool, error) {
 	if err := mq.prepareQuery(ctx); err != nil {
 		return false, err
 	}
@@ -229,7 +229,7 @@ func (mq *MachineQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (mq *MachineQuery) ExistX(ctx context.Context) bool {
+func (mq *MetaQuery) ExistX(ctx context.Context) bool {
 	exist, err := mq.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -239,28 +239,28 @@ func (mq *MachineQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the query builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (mq *MachineQuery) Clone() *MachineQuery {
-	return &MachineQuery{
+func (mq *MetaQuery) Clone() *MetaQuery {
+	return &MetaQuery{
 		config:     mq.config,
 		limit:      mq.limit,
 		offset:     mq.offset,
 		order:      append([]OrderFunc{}, mq.order...),
 		unique:     append([]string{}, mq.unique...),
-		predicates: append([]predicate.Machine{}, mq.predicates...),
+		predicates: append([]predicate.Meta{}, mq.predicates...),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
 	}
 }
 
-//  WithSignals tells the query-builder to eager-loads the nodes that are connected to
-// the "signals" edge. The optional arguments used to configure the query builder of the edge.
-func (mq *MachineQuery) WithSignals(opts ...func(*SignalQuery)) *MachineQuery {
+//  WithOwner tells the query-builder to eager-loads the nodes that are connected to
+// the "owner" edge. The optional arguments used to configure the query builder of the edge.
+func (mq *MetaQuery) WithOwner(opts ...func(*SignalQuery)) *MetaQuery {
 	query := &SignalQuery{config: mq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	mq.withSignals = query
+	mq.withOwner = query
 	return mq
 }
 
@@ -274,13 +274,13 @@ func (mq *MachineQuery) WithSignals(opts ...func(*SignalQuery)) *MachineQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Machine.Query().
-//		GroupBy(machine.FieldCreatedAt).
+//	client.Meta.Query().
+//		GroupBy(meta.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
-func (mq *MachineQuery) GroupBy(field string, fields ...string) *MachineGroupBy {
-	group := &MachineGroupBy{config: mq.config}
+func (mq *MetaQuery) GroupBy(field string, fields ...string) *MetaGroupBy {
+	group := &MetaGroupBy{config: mq.config}
 	group.fields = append([]string{field}, fields...)
 	group.path = func(ctx context.Context) (prev *sql.Selector, err error) {
 		if err := mq.prepareQuery(ctx); err != nil {
@@ -299,12 +299,12 @@ func (mq *MachineQuery) GroupBy(field string, fields ...string) *MachineGroupBy 
 //		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
-//	client.Machine.Query().
-//		Select(machine.FieldCreatedAt).
+//	client.Meta.Query().
+//		Select(meta.FieldCreatedAt).
 //		Scan(ctx, &v)
 //
-func (mq *MachineQuery) Select(field string, fields ...string) *MachineSelect {
-	selector := &MachineSelect{config: mq.config}
+func (mq *MetaQuery) Select(field string, fields ...string) *MetaSelect {
+	selector := &MetaSelect{config: mq.config}
 	selector.fields = append([]string{field}, fields...)
 	selector.path = func(ctx context.Context) (prev *sql.Selector, err error) {
 		if err := mq.prepareQuery(ctx); err != nil {
@@ -315,7 +315,7 @@ func (mq *MachineQuery) Select(field string, fields ...string) *MachineSelect {
 	return selector
 }
 
-func (mq *MachineQuery) prepareQuery(ctx context.Context) error {
+func (mq *MetaQuery) prepareQuery(ctx context.Context) error {
 	if mq.path != nil {
 		prev, err := mq.path(ctx)
 		if err != nil {
@@ -326,18 +326,28 @@ func (mq *MachineQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (mq *MachineQuery) sqlAll(ctx context.Context) ([]*Machine, error) {
+func (mq *MetaQuery) sqlAll(ctx context.Context) ([]*Meta, error) {
 	var (
-		nodes       = []*Machine{}
+		nodes       = []*Meta{}
+		withFKs     = mq.withFKs
 		_spec       = mq.querySpec()
 		loadedTypes = [1]bool{
-			mq.withSignals != nil,
+			mq.withOwner != nil,
 		}
 	)
+	if mq.withOwner != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, meta.ForeignKeys...)
+	}
 	_spec.ScanValues = func() []interface{} {
-		node := &Machine{config: mq.config}
+		node := &Meta{config: mq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
+		if withFKs {
+			values = append(values, node.fkValues()...)
+		}
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -355,43 +365,40 @@ func (mq *MachineQuery) sqlAll(ctx context.Context) ([]*Machine, error) {
 		return nodes, nil
 	}
 
-	if query := mq.withSignals; query != nil {
-		fks := make([]driver.Value, 0, len(nodes))
-		nodeids := make(map[int]*Machine)
+	if query := mq.withOwner; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Meta)
 		for i := range nodes {
-			fks = append(fks, nodes[i].ID)
-			nodeids[nodes[i].ID] = nodes[i]
+			if fk := nodes[i].signal_metas; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
 		}
-		query.withFKs = true
-		query.Where(predicate.Signal(func(s *sql.Selector) {
-			s.Where(sql.InValues(machine.SignalsColumn, fks...))
-		}))
+		query.Where(signal.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			fk := n.machine_signals
-			if fk == nil {
-				return nil, fmt.Errorf(`foreign-key "machine_signals" is nil for node %v`, n.ID)
-			}
-			node, ok := nodeids[*fk]
+			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "machine_signals" returned %v for node %v`, *fk, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "signal_metas" returned %v`, n.ID)
 			}
-			node.Edges.Signals = append(node.Edges.Signals, n)
+			for i := range nodes {
+				nodes[i].Edges.Owner = n
+			}
 		}
 	}
 
 	return nodes, nil
 }
 
-func (mq *MachineQuery) sqlCount(ctx context.Context) (int, error) {
+func (mq *MetaQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
 	return sqlgraph.CountNodes(ctx, mq.driver, _spec)
 }
 
-func (mq *MachineQuery) sqlExist(ctx context.Context) (bool, error) {
+func (mq *MetaQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := mq.sqlCount(ctx)
 	if err != nil {
 		return false, fmt.Errorf("ent: check existence: %v", err)
@@ -399,14 +406,14 @@ func (mq *MachineQuery) sqlExist(ctx context.Context) (bool, error) {
 	return n > 0, nil
 }
 
-func (mq *MachineQuery) querySpec() *sqlgraph.QuerySpec {
+func (mq *MetaQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := &sqlgraph.QuerySpec{
 		Node: &sqlgraph.NodeSpec{
-			Table:   machine.Table,
-			Columns: machine.Columns,
+			Table:   meta.Table,
+			Columns: meta.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: machine.FieldID,
+				Column: meta.FieldID,
 			},
 		},
 		From:   mq.sql,
@@ -435,13 +442,13 @@ func (mq *MachineQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (mq *MachineQuery) sqlQuery() *sql.Selector {
+func (mq *MetaQuery) sqlQuery() *sql.Selector {
 	builder := sql.Dialect(mq.driver.Dialect())
-	t1 := builder.Table(machine.Table)
-	selector := builder.Select(t1.Columns(machine.Columns...)...).From(t1)
+	t1 := builder.Table(meta.Table)
+	selector := builder.Select(t1.Columns(meta.Columns...)...).From(t1)
 	if mq.sql != nil {
 		selector = mq.sql
-		selector.Select(selector.Columns(machine.Columns...)...)
+		selector.Select(selector.Columns(meta.Columns...)...)
 	}
 	for _, p := range mq.predicates {
 		p(selector)
@@ -460,8 +467,8 @@ func (mq *MachineQuery) sqlQuery() *sql.Selector {
 	return selector
 }
 
-// MachineGroupBy is the builder for group-by Machine entities.
-type MachineGroupBy struct {
+// MetaGroupBy is the builder for group-by Meta entities.
+type MetaGroupBy struct {
 	config
 	fields []string
 	fns    []AggregateFunc
@@ -471,13 +478,13 @@ type MachineGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (mgb *MachineGroupBy) Aggregate(fns ...AggregateFunc) *MachineGroupBy {
+func (mgb *MetaGroupBy) Aggregate(fns ...AggregateFunc) *MetaGroupBy {
 	mgb.fns = append(mgb.fns, fns...)
 	return mgb
 }
 
 // Scan applies the group-by query and scan the result into the given value.
-func (mgb *MachineGroupBy) Scan(ctx context.Context, v interface{}) error {
+func (mgb *MetaGroupBy) Scan(ctx context.Context, v interface{}) error {
 	query, err := mgb.path(ctx)
 	if err != nil {
 		return err
@@ -487,16 +494,16 @@ func (mgb *MachineGroupBy) Scan(ctx context.Context, v interface{}) error {
 }
 
 // ScanX is like Scan, but panics if an error occurs.
-func (mgb *MachineGroupBy) ScanX(ctx context.Context, v interface{}) {
+func (mgb *MetaGroupBy) ScanX(ctx context.Context, v interface{}) {
 	if err := mgb.Scan(ctx, v); err != nil {
 		panic(err)
 	}
 }
 
 // Strings returns list of strings from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) Strings(ctx context.Context) ([]string, error) {
+func (mgb *MetaGroupBy) Strings(ctx context.Context) ([]string, error) {
 	if len(mgb.fields) > 1 {
-		return nil, errors.New("ent: MachineGroupBy.Strings is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: MetaGroupBy.Strings is not achievable when grouping more than 1 field")
 	}
 	var v []string
 	if err := mgb.Scan(ctx, &v); err != nil {
@@ -506,7 +513,7 @@ func (mgb *MachineGroupBy) Strings(ctx context.Context) ([]string, error) {
 }
 
 // StringsX is like Strings, but panics if an error occurs.
-func (mgb *MachineGroupBy) StringsX(ctx context.Context) []string {
+func (mgb *MetaGroupBy) StringsX(ctx context.Context) []string {
 	v, err := mgb.Strings(ctx)
 	if err != nil {
 		panic(err)
@@ -515,7 +522,7 @@ func (mgb *MachineGroupBy) StringsX(ctx context.Context) []string {
 }
 
 // String returns a single string from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) String(ctx context.Context) (_ string, err error) {
+func (mgb *MetaGroupBy) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = mgb.Strings(ctx); err != nil {
 		return
@@ -524,15 +531,15 @@ func (mgb *MachineGroupBy) String(ctx context.Context) (_ string, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineGroupBy.Strings returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaGroupBy.Strings returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // StringX is like String, but panics if an error occurs.
-func (mgb *MachineGroupBy) StringX(ctx context.Context) string {
+func (mgb *MetaGroupBy) StringX(ctx context.Context) string {
 	v, err := mgb.String(ctx)
 	if err != nil {
 		panic(err)
@@ -541,9 +548,9 @@ func (mgb *MachineGroupBy) StringX(ctx context.Context) string {
 }
 
 // Ints returns list of ints from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) Ints(ctx context.Context) ([]int, error) {
+func (mgb *MetaGroupBy) Ints(ctx context.Context) ([]int, error) {
 	if len(mgb.fields) > 1 {
-		return nil, errors.New("ent: MachineGroupBy.Ints is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: MetaGroupBy.Ints is not achievable when grouping more than 1 field")
 	}
 	var v []int
 	if err := mgb.Scan(ctx, &v); err != nil {
@@ -553,7 +560,7 @@ func (mgb *MachineGroupBy) Ints(ctx context.Context) ([]int, error) {
 }
 
 // IntsX is like Ints, but panics if an error occurs.
-func (mgb *MachineGroupBy) IntsX(ctx context.Context) []int {
+func (mgb *MetaGroupBy) IntsX(ctx context.Context) []int {
 	v, err := mgb.Ints(ctx)
 	if err != nil {
 		panic(err)
@@ -562,7 +569,7 @@ func (mgb *MachineGroupBy) IntsX(ctx context.Context) []int {
 }
 
 // Int returns a single int from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) Int(ctx context.Context) (_ int, err error) {
+func (mgb *MetaGroupBy) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = mgb.Ints(ctx); err != nil {
 		return
@@ -571,15 +578,15 @@ func (mgb *MachineGroupBy) Int(ctx context.Context) (_ int, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineGroupBy.Ints returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaGroupBy.Ints returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // IntX is like Int, but panics if an error occurs.
-func (mgb *MachineGroupBy) IntX(ctx context.Context) int {
+func (mgb *MetaGroupBy) IntX(ctx context.Context) int {
 	v, err := mgb.Int(ctx)
 	if err != nil {
 		panic(err)
@@ -588,9 +595,9 @@ func (mgb *MachineGroupBy) IntX(ctx context.Context) int {
 }
 
 // Float64s returns list of float64s from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) Float64s(ctx context.Context) ([]float64, error) {
+func (mgb *MetaGroupBy) Float64s(ctx context.Context) ([]float64, error) {
 	if len(mgb.fields) > 1 {
-		return nil, errors.New("ent: MachineGroupBy.Float64s is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: MetaGroupBy.Float64s is not achievable when grouping more than 1 field")
 	}
 	var v []float64
 	if err := mgb.Scan(ctx, &v); err != nil {
@@ -600,7 +607,7 @@ func (mgb *MachineGroupBy) Float64s(ctx context.Context) ([]float64, error) {
 }
 
 // Float64sX is like Float64s, but panics if an error occurs.
-func (mgb *MachineGroupBy) Float64sX(ctx context.Context) []float64 {
+func (mgb *MetaGroupBy) Float64sX(ctx context.Context) []float64 {
 	v, err := mgb.Float64s(ctx)
 	if err != nil {
 		panic(err)
@@ -609,7 +616,7 @@ func (mgb *MachineGroupBy) Float64sX(ctx context.Context) []float64 {
 }
 
 // Float64 returns a single float64 from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) Float64(ctx context.Context) (_ float64, err error) {
+func (mgb *MetaGroupBy) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = mgb.Float64s(ctx); err != nil {
 		return
@@ -618,15 +625,15 @@ func (mgb *MachineGroupBy) Float64(ctx context.Context) (_ float64, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineGroupBy.Float64s returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaGroupBy.Float64s returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // Float64X is like Float64, but panics if an error occurs.
-func (mgb *MachineGroupBy) Float64X(ctx context.Context) float64 {
+func (mgb *MetaGroupBy) Float64X(ctx context.Context) float64 {
 	v, err := mgb.Float64(ctx)
 	if err != nil {
 		panic(err)
@@ -635,9 +642,9 @@ func (mgb *MachineGroupBy) Float64X(ctx context.Context) float64 {
 }
 
 // Bools returns list of bools from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) Bools(ctx context.Context) ([]bool, error) {
+func (mgb *MetaGroupBy) Bools(ctx context.Context) ([]bool, error) {
 	if len(mgb.fields) > 1 {
-		return nil, errors.New("ent: MachineGroupBy.Bools is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: MetaGroupBy.Bools is not achievable when grouping more than 1 field")
 	}
 	var v []bool
 	if err := mgb.Scan(ctx, &v); err != nil {
@@ -647,7 +654,7 @@ func (mgb *MachineGroupBy) Bools(ctx context.Context) ([]bool, error) {
 }
 
 // BoolsX is like Bools, but panics if an error occurs.
-func (mgb *MachineGroupBy) BoolsX(ctx context.Context) []bool {
+func (mgb *MetaGroupBy) BoolsX(ctx context.Context) []bool {
 	v, err := mgb.Bools(ctx)
 	if err != nil {
 		panic(err)
@@ -656,7 +663,7 @@ func (mgb *MachineGroupBy) BoolsX(ctx context.Context) []bool {
 }
 
 // Bool returns a single bool from group-by. It is only allowed when querying group-by with one field.
-func (mgb *MachineGroupBy) Bool(ctx context.Context) (_ bool, err error) {
+func (mgb *MetaGroupBy) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = mgb.Bools(ctx); err != nil {
 		return
@@ -665,15 +672,15 @@ func (mgb *MachineGroupBy) Bool(ctx context.Context) (_ bool, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineGroupBy.Bools returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaGroupBy.Bools returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // BoolX is like Bool, but panics if an error occurs.
-func (mgb *MachineGroupBy) BoolX(ctx context.Context) bool {
+func (mgb *MetaGroupBy) BoolX(ctx context.Context) bool {
 	v, err := mgb.Bool(ctx)
 	if err != nil {
 		panic(err)
@@ -681,7 +688,7 @@ func (mgb *MachineGroupBy) BoolX(ctx context.Context) bool {
 	return v
 }
 
-func (mgb *MachineGroupBy) sqlScan(ctx context.Context, v interface{}) error {
+func (mgb *MetaGroupBy) sqlScan(ctx context.Context, v interface{}) error {
 	rows := &sql.Rows{}
 	query, args := mgb.sqlQuery().Query()
 	if err := mgb.driver.Query(ctx, query, args, rows); err != nil {
@@ -691,7 +698,7 @@ func (mgb *MachineGroupBy) sqlScan(ctx context.Context, v interface{}) error {
 	return sql.ScanSlice(rows, v)
 }
 
-func (mgb *MachineGroupBy) sqlQuery() *sql.Selector {
+func (mgb *MetaGroupBy) sqlQuery() *sql.Selector {
 	selector := mgb.sql
 	columns := make([]string, 0, len(mgb.fields)+len(mgb.fns))
 	columns = append(columns, mgb.fields...)
@@ -701,8 +708,8 @@ func (mgb *MachineGroupBy) sqlQuery() *sql.Selector {
 	return selector.Select(columns...).GroupBy(mgb.fields...)
 }
 
-// MachineSelect is the builder for select fields of Machine entities.
-type MachineSelect struct {
+// MetaSelect is the builder for select fields of Meta entities.
+type MetaSelect struct {
 	config
 	fields []string
 	// intermediate query (i.e. traversal path).
@@ -711,7 +718,7 @@ type MachineSelect struct {
 }
 
 // Scan applies the selector query and scan the result into the given value.
-func (ms *MachineSelect) Scan(ctx context.Context, v interface{}) error {
+func (ms *MetaSelect) Scan(ctx context.Context, v interface{}) error {
 	query, err := ms.path(ctx)
 	if err != nil {
 		return err
@@ -721,16 +728,16 @@ func (ms *MachineSelect) Scan(ctx context.Context, v interface{}) error {
 }
 
 // ScanX is like Scan, but panics if an error occurs.
-func (ms *MachineSelect) ScanX(ctx context.Context, v interface{}) {
+func (ms *MetaSelect) ScanX(ctx context.Context, v interface{}) {
 	if err := ms.Scan(ctx, v); err != nil {
 		panic(err)
 	}
 }
 
 // Strings returns list of strings from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) Strings(ctx context.Context) ([]string, error) {
+func (ms *MetaSelect) Strings(ctx context.Context) ([]string, error) {
 	if len(ms.fields) > 1 {
-		return nil, errors.New("ent: MachineSelect.Strings is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: MetaSelect.Strings is not achievable when selecting more than 1 field")
 	}
 	var v []string
 	if err := ms.Scan(ctx, &v); err != nil {
@@ -740,7 +747,7 @@ func (ms *MachineSelect) Strings(ctx context.Context) ([]string, error) {
 }
 
 // StringsX is like Strings, but panics if an error occurs.
-func (ms *MachineSelect) StringsX(ctx context.Context) []string {
+func (ms *MetaSelect) StringsX(ctx context.Context) []string {
 	v, err := ms.Strings(ctx)
 	if err != nil {
 		panic(err)
@@ -749,7 +756,7 @@ func (ms *MachineSelect) StringsX(ctx context.Context) []string {
 }
 
 // String returns a single string from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) String(ctx context.Context) (_ string, err error) {
+func (ms *MetaSelect) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = ms.Strings(ctx); err != nil {
 		return
@@ -758,15 +765,15 @@ func (ms *MachineSelect) String(ctx context.Context) (_ string, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineSelect.Strings returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaSelect.Strings returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // StringX is like String, but panics if an error occurs.
-func (ms *MachineSelect) StringX(ctx context.Context) string {
+func (ms *MetaSelect) StringX(ctx context.Context) string {
 	v, err := ms.String(ctx)
 	if err != nil {
 		panic(err)
@@ -775,9 +782,9 @@ func (ms *MachineSelect) StringX(ctx context.Context) string {
 }
 
 // Ints returns list of ints from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) Ints(ctx context.Context) ([]int, error) {
+func (ms *MetaSelect) Ints(ctx context.Context) ([]int, error) {
 	if len(ms.fields) > 1 {
-		return nil, errors.New("ent: MachineSelect.Ints is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: MetaSelect.Ints is not achievable when selecting more than 1 field")
 	}
 	var v []int
 	if err := ms.Scan(ctx, &v); err != nil {
@@ -787,7 +794,7 @@ func (ms *MachineSelect) Ints(ctx context.Context) ([]int, error) {
 }
 
 // IntsX is like Ints, but panics if an error occurs.
-func (ms *MachineSelect) IntsX(ctx context.Context) []int {
+func (ms *MetaSelect) IntsX(ctx context.Context) []int {
 	v, err := ms.Ints(ctx)
 	if err != nil {
 		panic(err)
@@ -796,7 +803,7 @@ func (ms *MachineSelect) IntsX(ctx context.Context) []int {
 }
 
 // Int returns a single int from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) Int(ctx context.Context) (_ int, err error) {
+func (ms *MetaSelect) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = ms.Ints(ctx); err != nil {
 		return
@@ -805,15 +812,15 @@ func (ms *MachineSelect) Int(ctx context.Context) (_ int, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineSelect.Ints returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaSelect.Ints returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // IntX is like Int, but panics if an error occurs.
-func (ms *MachineSelect) IntX(ctx context.Context) int {
+func (ms *MetaSelect) IntX(ctx context.Context) int {
 	v, err := ms.Int(ctx)
 	if err != nil {
 		panic(err)
@@ -822,9 +829,9 @@ func (ms *MachineSelect) IntX(ctx context.Context) int {
 }
 
 // Float64s returns list of float64s from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) Float64s(ctx context.Context) ([]float64, error) {
+func (ms *MetaSelect) Float64s(ctx context.Context) ([]float64, error) {
 	if len(ms.fields) > 1 {
-		return nil, errors.New("ent: MachineSelect.Float64s is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: MetaSelect.Float64s is not achievable when selecting more than 1 field")
 	}
 	var v []float64
 	if err := ms.Scan(ctx, &v); err != nil {
@@ -834,7 +841,7 @@ func (ms *MachineSelect) Float64s(ctx context.Context) ([]float64, error) {
 }
 
 // Float64sX is like Float64s, but panics if an error occurs.
-func (ms *MachineSelect) Float64sX(ctx context.Context) []float64 {
+func (ms *MetaSelect) Float64sX(ctx context.Context) []float64 {
 	v, err := ms.Float64s(ctx)
 	if err != nil {
 		panic(err)
@@ -843,7 +850,7 @@ func (ms *MachineSelect) Float64sX(ctx context.Context) []float64 {
 }
 
 // Float64 returns a single float64 from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) Float64(ctx context.Context) (_ float64, err error) {
+func (ms *MetaSelect) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = ms.Float64s(ctx); err != nil {
 		return
@@ -852,15 +859,15 @@ func (ms *MachineSelect) Float64(ctx context.Context) (_ float64, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineSelect.Float64s returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaSelect.Float64s returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // Float64X is like Float64, but panics if an error occurs.
-func (ms *MachineSelect) Float64X(ctx context.Context) float64 {
+func (ms *MetaSelect) Float64X(ctx context.Context) float64 {
 	v, err := ms.Float64(ctx)
 	if err != nil {
 		panic(err)
@@ -869,9 +876,9 @@ func (ms *MachineSelect) Float64X(ctx context.Context) float64 {
 }
 
 // Bools returns list of bools from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) Bools(ctx context.Context) ([]bool, error) {
+func (ms *MetaSelect) Bools(ctx context.Context) ([]bool, error) {
 	if len(ms.fields) > 1 {
-		return nil, errors.New("ent: MachineSelect.Bools is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: MetaSelect.Bools is not achievable when selecting more than 1 field")
 	}
 	var v []bool
 	if err := ms.Scan(ctx, &v); err != nil {
@@ -881,7 +888,7 @@ func (ms *MachineSelect) Bools(ctx context.Context) ([]bool, error) {
 }
 
 // BoolsX is like Bools, but panics if an error occurs.
-func (ms *MachineSelect) BoolsX(ctx context.Context) []bool {
+func (ms *MetaSelect) BoolsX(ctx context.Context) []bool {
 	v, err := ms.Bools(ctx)
 	if err != nil {
 		panic(err)
@@ -890,7 +897,7 @@ func (ms *MachineSelect) BoolsX(ctx context.Context) []bool {
 }
 
 // Bool returns a single bool from selector. It is only allowed when selecting one field.
-func (ms *MachineSelect) Bool(ctx context.Context) (_ bool, err error) {
+func (ms *MetaSelect) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = ms.Bools(ctx); err != nil {
 		return
@@ -899,15 +906,15 @@ func (ms *MachineSelect) Bool(ctx context.Context) (_ bool, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{machine.Label}
+		err = &NotFoundError{meta.Label}
 	default:
-		err = fmt.Errorf("ent: MachineSelect.Bools returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: MetaSelect.Bools returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // BoolX is like Bool, but panics if an error occurs.
-func (ms *MachineSelect) BoolX(ctx context.Context) bool {
+func (ms *MetaSelect) BoolX(ctx context.Context) bool {
 	v, err := ms.Bool(ctx)
 	if err != nil {
 		panic(err)
@@ -915,7 +922,7 @@ func (ms *MachineSelect) BoolX(ctx context.Context) bool {
 	return v
 }
 
-func (ms *MachineSelect) sqlScan(ctx context.Context, v interface{}) error {
+func (ms *MetaSelect) sqlScan(ctx context.Context, v interface{}) error {
 	rows := &sql.Rows{}
 	query, args := ms.sqlQuery().Query()
 	if err := ms.driver.Query(ctx, query, args, rows); err != nil {
@@ -925,7 +932,7 @@ func (ms *MachineSelect) sqlScan(ctx context.Context, v interface{}) error {
 	return sql.ScanSlice(rows, v)
 }
 
-func (ms *MachineSelect) sqlQuery() sql.Querier {
+func (ms *MetaSelect) sqlQuery() sql.Querier {
 	selector := ms.sql
 	selector.Select(selector.Columns(ms.fields...)...)
 	return selector

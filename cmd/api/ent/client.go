@@ -9,10 +9,15 @@ import (
 
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/migrate"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 
 	"github.com/facebook/ent/dialect"
 	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -20,8 +25,16 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Decision is the client for interacting with the Decision builders.
+	Decision *DecisionClient
+	// Event is the client for interacting with the Event builders.
+	Event *EventClient
 	// Machine is the client for interacting with the Machine builders.
 	Machine *MachineClient
+	// Meta is the client for interacting with the Meta builders.
+	Meta *MetaClient
+	// Signal is the client for interacting with the Signal builders.
+	Signal *SignalClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -35,7 +48,11 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Decision = NewDecisionClient(c.config)
+	c.Event = NewEventClient(c.config)
 	c.Machine = NewMachineClient(c.config)
+	c.Meta = NewMetaClient(c.config)
+	c.Signal = NewSignalClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -66,9 +83,13 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	}
 	cfg := config{driver: tx, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Machine: NewMachineClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		Decision: NewDecisionClient(cfg),
+		Event:    NewEventClient(cfg),
+		Machine:  NewMachineClient(cfg),
+		Meta:     NewMetaClient(cfg),
+		Signal:   NewSignalClient(cfg),
 	}, nil
 }
 
@@ -83,15 +104,19 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	}
 	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		config:  cfg,
-		Machine: NewMachineClient(cfg),
+		config:   cfg,
+		Decision: NewDecisionClient(cfg),
+		Event:    NewEventClient(cfg),
+		Machine:  NewMachineClient(cfg),
+		Meta:     NewMetaClient(cfg),
+		Signal:   NewSignalClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Machine.
+//		Decision.
 //		Query().
 //		Count(ctx)
 //
@@ -113,7 +138,219 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Decision.Use(hooks...)
+	c.Event.Use(hooks...)
 	c.Machine.Use(hooks...)
+	c.Meta.Use(hooks...)
+	c.Signal.Use(hooks...)
+}
+
+// DecisionClient is a client for the Decision schema.
+type DecisionClient struct {
+	config
+}
+
+// NewDecisionClient returns a client for the Decision from the given config.
+func NewDecisionClient(c config) *DecisionClient {
+	return &DecisionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `decision.Hooks(f(g(h())))`.
+func (c *DecisionClient) Use(hooks ...Hook) {
+	c.hooks.Decision = append(c.hooks.Decision, hooks...)
+}
+
+// Create returns a create builder for Decision.
+func (c *DecisionClient) Create() *DecisionCreate {
+	mutation := newDecisionMutation(c.config, OpCreate)
+	return &DecisionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// BulkCreate returns a builder for creating a bulk of Decision entities.
+func (c *DecisionClient) CreateBulk(builders ...*DecisionCreate) *DecisionCreateBulk {
+	return &DecisionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Decision.
+func (c *DecisionClient) Update() *DecisionUpdate {
+	mutation := newDecisionMutation(c.config, OpUpdate)
+	return &DecisionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DecisionClient) UpdateOne(d *Decision) *DecisionUpdateOne {
+	mutation := newDecisionMutation(c.config, OpUpdateOne, withDecision(d))
+	return &DecisionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DecisionClient) UpdateOneID(id int) *DecisionUpdateOne {
+	mutation := newDecisionMutation(c.config, OpUpdateOne, withDecisionID(id))
+	return &DecisionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Decision.
+func (c *DecisionClient) Delete() *DecisionDelete {
+	mutation := newDecisionMutation(c.config, OpDelete)
+	return &DecisionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *DecisionClient) DeleteOne(d *Decision) *DecisionDeleteOne {
+	return c.DeleteOneID(d.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *DecisionClient) DeleteOneID(id int) *DecisionDeleteOne {
+	builder := c.Delete().Where(decision.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DecisionDeleteOne{builder}
+}
+
+// Query returns a query builder for Decision.
+func (c *DecisionClient) Query() *DecisionQuery {
+	return &DecisionQuery{config: c.config}
+}
+
+// Get returns a Decision entity by its id.
+func (c *DecisionClient) Get(ctx context.Context, id int) (*Decision, error) {
+	return c.Query().Where(decision.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DecisionClient) GetX(ctx context.Context, id int) *Decision {
+	d, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return d
+}
+
+// QueryOwner queries the owner edge of a Decision.
+func (c *DecisionClient) QueryOwner(d *Decision) *SignalQuery {
+	query := &SignalQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(decision.Table, decision.FieldID, id),
+			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, decision.OwnerTable, decision.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DecisionClient) Hooks() []Hook {
+	return c.hooks.Decision
+}
+
+// EventClient is a client for the Event schema.
+type EventClient struct {
+	config
+}
+
+// NewEventClient returns a client for the Event from the given config.
+func NewEventClient(c config) *EventClient {
+	return &EventClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `event.Hooks(f(g(h())))`.
+func (c *EventClient) Use(hooks ...Hook) {
+	c.hooks.Event = append(c.hooks.Event, hooks...)
+}
+
+// Create returns a create builder for Event.
+func (c *EventClient) Create() *EventCreate {
+	mutation := newEventMutation(c.config, OpCreate)
+	return &EventCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// BulkCreate returns a builder for creating a bulk of Event entities.
+func (c *EventClient) CreateBulk(builders ...*EventCreate) *EventCreateBulk {
+	return &EventCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Event.
+func (c *EventClient) Update() *EventUpdate {
+	mutation := newEventMutation(c.config, OpUpdate)
+	return &EventUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EventClient) UpdateOne(e *Event) *EventUpdateOne {
+	mutation := newEventMutation(c.config, OpUpdateOne, withEvent(e))
+	return &EventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EventClient) UpdateOneID(id int) *EventUpdateOne {
+	mutation := newEventMutation(c.config, OpUpdateOne, withEventID(id))
+	return &EventUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Event.
+func (c *EventClient) Delete() *EventDelete {
+	mutation := newEventMutation(c.config, OpDelete)
+	return &EventDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *EventClient) DeleteOne(e *Event) *EventDeleteOne {
+	return c.DeleteOneID(e.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *EventClient) DeleteOneID(id int) *EventDeleteOne {
+	builder := c.Delete().Where(event.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EventDeleteOne{builder}
+}
+
+// Query returns a query builder for Event.
+func (c *EventClient) Query() *EventQuery {
+	return &EventQuery{config: c.config}
+}
+
+// Get returns a Event entity by its id.
+func (c *EventClient) Get(ctx context.Context, id int) (*Event, error) {
+	return c.Query().Where(event.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EventClient) GetX(ctx context.Context, id int) *Event {
+	e, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return e
+}
+
+// QueryOwner queries the owner edge of a Event.
+func (c *EventClient) QueryOwner(e *Event) *SignalQuery {
+	query := &SignalQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := e.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, id),
+			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, event.OwnerTable, event.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(e.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *EventClient) Hooks() []Hook {
+	return c.hooks.Event
 }
 
 // MachineClient is a client for the Machine schema.
@@ -199,7 +436,279 @@ func (c *MachineClient) GetX(ctx context.Context, id int) *Machine {
 	return m
 }
 
+// QuerySignals queries the signals edge of a Machine.
+func (c *MachineClient) QuerySignals(m *Machine) *SignalQuery {
+	query := &SignalQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(machine.Table, machine.FieldID, id),
+			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, machine.SignalsTable, machine.SignalsColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *MachineClient) Hooks() []Hook {
 	return c.hooks.Machine
+}
+
+// MetaClient is a client for the Meta schema.
+type MetaClient struct {
+	config
+}
+
+// NewMetaClient returns a client for the Meta from the given config.
+func NewMetaClient(c config) *MetaClient {
+	return &MetaClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `meta.Hooks(f(g(h())))`.
+func (c *MetaClient) Use(hooks ...Hook) {
+	c.hooks.Meta = append(c.hooks.Meta, hooks...)
+}
+
+// Create returns a create builder for Meta.
+func (c *MetaClient) Create() *MetaCreate {
+	mutation := newMetaMutation(c.config, OpCreate)
+	return &MetaCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// BulkCreate returns a builder for creating a bulk of Meta entities.
+func (c *MetaClient) CreateBulk(builders ...*MetaCreate) *MetaCreateBulk {
+	return &MetaCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Meta.
+func (c *MetaClient) Update() *MetaUpdate {
+	mutation := newMetaMutation(c.config, OpUpdate)
+	return &MetaUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MetaClient) UpdateOne(m *Meta) *MetaUpdateOne {
+	mutation := newMetaMutation(c.config, OpUpdateOne, withMeta(m))
+	return &MetaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MetaClient) UpdateOneID(id int) *MetaUpdateOne {
+	mutation := newMetaMutation(c.config, OpUpdateOne, withMetaID(id))
+	return &MetaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Meta.
+func (c *MetaClient) Delete() *MetaDelete {
+	mutation := newMetaMutation(c.config, OpDelete)
+	return &MetaDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *MetaClient) DeleteOne(m *Meta) *MetaDeleteOne {
+	return c.DeleteOneID(m.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *MetaClient) DeleteOneID(id int) *MetaDeleteOne {
+	builder := c.Delete().Where(meta.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MetaDeleteOne{builder}
+}
+
+// Query returns a query builder for Meta.
+func (c *MetaClient) Query() *MetaQuery {
+	return &MetaQuery{config: c.config}
+}
+
+// Get returns a Meta entity by its id.
+func (c *MetaClient) Get(ctx context.Context, id int) (*Meta, error) {
+	return c.Query().Where(meta.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MetaClient) GetX(ctx context.Context, id int) *Meta {
+	m, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return m
+}
+
+// QueryOwner queries the owner edge of a Meta.
+func (c *MetaClient) QueryOwner(m *Meta) *SignalQuery {
+	query := &SignalQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(meta.Table, meta.FieldID, id),
+			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, meta.OwnerTable, meta.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MetaClient) Hooks() []Hook {
+	return c.hooks.Meta
+}
+
+// SignalClient is a client for the Signal schema.
+type SignalClient struct {
+	config
+}
+
+// NewSignalClient returns a client for the Signal from the given config.
+func NewSignalClient(c config) *SignalClient {
+	return &SignalClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `signal.Hooks(f(g(h())))`.
+func (c *SignalClient) Use(hooks ...Hook) {
+	c.hooks.Signal = append(c.hooks.Signal, hooks...)
+}
+
+// Create returns a create builder for Signal.
+func (c *SignalClient) Create() *SignalCreate {
+	mutation := newSignalMutation(c.config, OpCreate)
+	return &SignalCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// BulkCreate returns a builder for creating a bulk of Signal entities.
+func (c *SignalClient) CreateBulk(builders ...*SignalCreate) *SignalCreateBulk {
+	return &SignalCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Signal.
+func (c *SignalClient) Update() *SignalUpdate {
+	mutation := newSignalMutation(c.config, OpUpdate)
+	return &SignalUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SignalClient) UpdateOne(s *Signal) *SignalUpdateOne {
+	mutation := newSignalMutation(c.config, OpUpdateOne, withSignal(s))
+	return &SignalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SignalClient) UpdateOneID(id int) *SignalUpdateOne {
+	mutation := newSignalMutation(c.config, OpUpdateOne, withSignalID(id))
+	return &SignalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Signal.
+func (c *SignalClient) Delete() *SignalDelete {
+	mutation := newSignalMutation(c.config, OpDelete)
+	return &SignalDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *SignalClient) DeleteOne(s *Signal) *SignalDeleteOne {
+	return c.DeleteOneID(s.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *SignalClient) DeleteOneID(id int) *SignalDeleteOne {
+	builder := c.Delete().Where(signal.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SignalDeleteOne{builder}
+}
+
+// Query returns a query builder for Signal.
+func (c *SignalClient) Query() *SignalQuery {
+	return &SignalQuery{config: c.config}
+}
+
+// Get returns a Signal entity by its id.
+func (c *SignalClient) Get(ctx context.Context, id int) (*Signal, error) {
+	return c.Query().Where(signal.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SignalClient) GetX(ctx context.Context, id int) *Signal {
+	s, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return s
+}
+
+// QueryOwner queries the owner edge of a Signal.
+func (c *SignalClient) QueryOwner(s *Signal) *MachineQuery {
+	query := &MachineQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(signal.Table, signal.FieldID, id),
+			sqlgraph.To(machine.Table, machine.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, signal.OwnerTable, signal.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDecisions queries the decisions edge of a Signal.
+func (c *SignalClient) QueryDecisions(s *Signal) *DecisionQuery {
+	query := &DecisionQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(signal.Table, signal.FieldID, id),
+			sqlgraph.To(decision.Table, decision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, signal.DecisionsTable, signal.DecisionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEvents queries the events edge of a Signal.
+func (c *SignalClient) QueryEvents(s *Signal) *EventQuery {
+	query := &EventQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(signal.Table, signal.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, signal.EventsTable, signal.EventsColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMetas queries the metas edge of a Signal.
+func (c *SignalClient) QueryMetas(s *Signal) *MetaQuery {
+	query := &MetaQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(signal.Table, signal.FieldID, id),
+			sqlgraph.To(meta.Table, meta.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, signal.MetasTable, signal.MetasColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *SignalClient) Hooks() []Hook {
+	return c.hooks.Signal
 }

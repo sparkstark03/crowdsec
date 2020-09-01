@@ -8,27 +8,27 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 )
 
-// MachineCreate is the builder for creating a Machine entity.
-type MachineCreate struct {
+// MetaCreate is the builder for creating a Meta entity.
+type MetaCreate struct {
 	config
-	mutation *MachineMutation
+	mutation *MetaMutation
 	hooks    []Hook
 }
 
 // SetCreatedAt sets the created_at field.
-func (mc *MachineCreate) SetCreatedAt(t time.Time) *MachineCreate {
+func (mc *MetaCreate) SetCreatedAt(t time.Time) *MetaCreate {
 	mc.mutation.SetCreatedAt(t)
 	return mc
 }
 
 // SetNillableCreatedAt sets the created_at field if the given value is not nil.
-func (mc *MachineCreate) SetNillableCreatedAt(t *time.Time) *MachineCreate {
+func (mc *MetaCreate) SetNillableCreatedAt(t *time.Time) *MetaCreate {
 	if t != nil {
 		mc.SetCreatedAt(*t)
 	}
@@ -36,71 +36,69 @@ func (mc *MachineCreate) SetNillableCreatedAt(t *time.Time) *MachineCreate {
 }
 
 // SetUpdatedAt sets the updated_at field.
-func (mc *MachineCreate) SetUpdatedAt(t time.Time) *MachineCreate {
+func (mc *MetaCreate) SetUpdatedAt(t time.Time) *MetaCreate {
 	mc.mutation.SetUpdatedAt(t)
 	return mc
 }
 
 // SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (mc *MachineCreate) SetNillableUpdatedAt(t *time.Time) *MachineCreate {
+func (mc *MetaCreate) SetNillableUpdatedAt(t *time.Time) *MetaCreate {
 	if t != nil {
 		mc.SetUpdatedAt(*t)
 	}
 	return mc
 }
 
-// SetMachineId sets the machineId field.
-func (mc *MachineCreate) SetMachineId(s string) *MachineCreate {
-	mc.mutation.SetMachineId(s)
+// SetKey sets the key field.
+func (mc *MetaCreate) SetKey(s string) *MetaCreate {
+	mc.mutation.SetKey(s)
 	return mc
 }
 
-// SetPassword sets the password field.
-func (mc *MachineCreate) SetPassword(s string) *MachineCreate {
-	mc.mutation.SetPassword(s)
+// SetValue sets the value field.
+func (mc *MetaCreate) SetValue(s string) *MetaCreate {
+	mc.mutation.SetValue(s)
 	return mc
 }
 
-// SetIpAddress sets the ipAddress field.
-func (mc *MachineCreate) SetIpAddress(s string) *MachineCreate {
-	mc.mutation.SetIpAddress(s)
+// SetOwnerID sets the owner edge to Signal by id.
+func (mc *MetaCreate) SetOwnerID(id int) *MetaCreate {
+	mc.mutation.SetOwnerID(id)
 	return mc
 }
 
-// AddSignalIDs adds the signals edge to Signal by ids.
-func (mc *MachineCreate) AddSignalIDs(ids ...int) *MachineCreate {
-	mc.mutation.AddSignalIDs(ids...)
-	return mc
-}
-
-// AddSignals adds the signals edges to Signal.
-func (mc *MachineCreate) AddSignals(s ...*Signal) *MachineCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+func (mc *MetaCreate) SetNillableOwnerID(id *int) *MetaCreate {
+	if id != nil {
+		mc = mc.SetOwnerID(*id)
 	}
-	return mc.AddSignalIDs(ids...)
+	return mc
 }
 
-// Mutation returns the MachineMutation object of the builder.
-func (mc *MachineCreate) Mutation() *MachineMutation {
+// SetOwner sets the owner edge to Signal.
+func (mc *MetaCreate) SetOwner(s *Signal) *MetaCreate {
+	return mc.SetOwnerID(s.ID)
+}
+
+// Mutation returns the MetaMutation object of the builder.
+func (mc *MetaCreate) Mutation() *MetaMutation {
 	return mc.mutation
 }
 
-// Save creates the Machine in the database.
-func (mc *MachineCreate) Save(ctx context.Context) (*Machine, error) {
+// Save creates the Meta in the database.
+func (mc *MetaCreate) Save(ctx context.Context) (*Meta, error) {
 	if err := mc.preSave(); err != nil {
 		return nil, err
 	}
 	var (
 		err  error
-		node *Machine
+		node *Meta
 	)
 	if len(mc.hooks) == 0 {
 		node, err = mc.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*MachineMutation)
+			mutation, ok := m.(*MetaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
@@ -120,7 +118,7 @@ func (mc *MachineCreate) Save(ctx context.Context) (*Machine, error) {
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (mc *MachineCreate) SaveX(ctx context.Context) *Machine {
+func (mc *MetaCreate) SaveX(ctx context.Context) *Meta {
 	v, err := mc.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -128,28 +126,25 @@ func (mc *MachineCreate) SaveX(ctx context.Context) *Machine {
 	return v
 }
 
-func (mc *MachineCreate) preSave() error {
+func (mc *MetaCreate) preSave() error {
 	if _, ok := mc.mutation.CreatedAt(); !ok {
-		v := machine.DefaultCreatedAt()
+		v := meta.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := mc.mutation.UpdatedAt(); !ok {
-		v := machine.DefaultUpdatedAt()
+		v := meta.DefaultUpdatedAt()
 		mc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := mc.mutation.MachineId(); !ok {
-		return &ValidationError{Name: "machineId", err: errors.New("ent: missing required field \"machineId\"")}
+	if _, ok := mc.mutation.Key(); !ok {
+		return &ValidationError{Name: "key", err: errors.New("ent: missing required field \"key\"")}
 	}
-	if _, ok := mc.mutation.Password(); !ok {
-		return &ValidationError{Name: "password", err: errors.New("ent: missing required field \"password\"")}
-	}
-	if _, ok := mc.mutation.IpAddress(); !ok {
-		return &ValidationError{Name: "ipAddress", err: errors.New("ent: missing required field \"ipAddress\"")}
+	if _, ok := mc.mutation.Value(); !ok {
+		return &ValidationError{Name: "value", err: errors.New("ent: missing required field \"value\"")}
 	}
 	return nil
 }
 
-func (mc *MachineCreate) sqlSave(ctx context.Context) (*Machine, error) {
+func (mc *MetaCreate) sqlSave(ctx context.Context) (*Meta, error) {
 	m, _spec := mc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, mc.driver, _spec); err != nil {
 		if cerr, ok := isSQLConstraintError(err); ok {
@@ -162,14 +157,14 @@ func (mc *MachineCreate) sqlSave(ctx context.Context) (*Machine, error) {
 	return m, nil
 }
 
-func (mc *MachineCreate) createSpec() (*Machine, *sqlgraph.CreateSpec) {
+func (mc *MetaCreate) createSpec() (*Meta, *sqlgraph.CreateSpec) {
 	var (
-		m     = &Machine{config: mc.config}
+		m     = &Meta{config: mc.config}
 		_spec = &sqlgraph.CreateSpec{
-			Table: machine.Table,
+			Table: meta.Table,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: machine.FieldID,
+				Column: meta.FieldID,
 			},
 		}
 	)
@@ -177,7 +172,7 @@ func (mc *MachineCreate) createSpec() (*Machine, *sqlgraph.CreateSpec) {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: machine.FieldCreatedAt,
+			Column: meta.FieldCreatedAt,
 		})
 		m.CreatedAt = value
 	}
@@ -185,40 +180,32 @@ func (mc *MachineCreate) createSpec() (*Machine, *sqlgraph.CreateSpec) {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: machine.FieldUpdatedAt,
+			Column: meta.FieldUpdatedAt,
 		})
 		m.UpdatedAt = value
 	}
-	if value, ok := mc.mutation.MachineId(); ok {
+	if value, ok := mc.mutation.Key(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: machine.FieldMachineId,
+			Column: meta.FieldKey,
 		})
-		m.MachineId = value
+		m.Key = value
 	}
-	if value, ok := mc.mutation.Password(); ok {
+	if value, ok := mc.mutation.Value(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: machine.FieldPassword,
+			Column: meta.FieldValue,
 		})
-		m.Password = value
+		m.Value = value
 	}
-	if value, ok := mc.mutation.IpAddress(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: machine.FieldIpAddress,
-		})
-		m.IpAddress = value
-	}
-	if nodes := mc.mutation.SignalsIDs(); len(nodes) > 0 {
+	if nodes := mc.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   machine.SignalsTable,
-			Columns: []string{machine.SignalsColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   meta.OwnerTable,
+			Columns: []string{meta.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -235,16 +222,16 @@ func (mc *MachineCreate) createSpec() (*Machine, *sqlgraph.CreateSpec) {
 	return m, _spec
 }
 
-// MachineCreateBulk is the builder for creating a bulk of Machine entities.
-type MachineCreateBulk struct {
+// MetaCreateBulk is the builder for creating a bulk of Meta entities.
+type MetaCreateBulk struct {
 	config
-	builders []*MachineCreate
+	builders []*MetaCreate
 }
 
-// Save creates the Machine entities in the database.
-func (mcb *MachineCreateBulk) Save(ctx context.Context) ([]*Machine, error) {
+// Save creates the Meta entities in the database.
+func (mcb *MetaCreateBulk) Save(ctx context.Context) ([]*Meta, error) {
 	specs := make([]*sqlgraph.CreateSpec, len(mcb.builders))
-	nodes := make([]*Machine, len(mcb.builders))
+	nodes := make([]*Meta, len(mcb.builders))
 	mutators := make([]Mutator, len(mcb.builders))
 	for i := range mcb.builders {
 		func(i int, root context.Context) {
@@ -253,7 +240,7 @@ func (mcb *MachineCreateBulk) Save(ctx context.Context) ([]*Machine, error) {
 				if err := builder.preSave(); err != nil {
 					return nil, err
 				}
-				mutation, ok := m.(*MachineMutation)
+				mutation, ok := m.(*MetaMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -293,7 +280,7 @@ func (mcb *MachineCreateBulk) Save(ctx context.Context) ([]*Machine, error) {
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (mcb *MachineCreateBulk) SaveX(ctx context.Context) []*Machine {
+func (mcb *MetaCreateBulk) SaveX(ctx context.Context) []*Meta {
 	v, err := mcb.Save(ctx)
 	if err != nil {
 		panic(err)

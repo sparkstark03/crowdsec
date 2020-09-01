@@ -9,6 +9,32 @@ import (
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent"
 )
 
+// The DecisionFunc type is an adapter to allow the use of ordinary
+// function as Decision mutator.
+type DecisionFunc func(context.Context, *ent.DecisionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DecisionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.DecisionMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DecisionMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The EventFunc type is an adapter to allow the use of ordinary
+// function as Event mutator.
+type EventFunc func(context.Context, *ent.EventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.EventMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The MachineFunc type is an adapter to allow the use of ordinary
 // function as Machine mutator.
 type MachineFunc func(context.Context, *ent.MachineMutation) (ent.Value, error)
@@ -18,6 +44,32 @@ func (f MachineFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	mv, ok := m.(*ent.MachineMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MachineMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The MetaFunc type is an adapter to allow the use of ordinary
+// function as Meta mutator.
+type MetaFunc func(context.Context, *ent.MetaMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MetaFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.MetaMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MetaMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The SignalFunc type is an adapter to allow the use of ordinary
+// function as Signal mutator.
+type SignalFunc func(context.Context, *ent.SignalMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SignalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.SignalMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SignalMutation", m)
 	}
 	return f(ctx, mv)
 }

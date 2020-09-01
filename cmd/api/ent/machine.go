@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
 	"github.com/facebook/ent/dialect/sql"
@@ -15,23 +16,47 @@ type Machine struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// MachineId holds the value of the "machineId" field.
 	MachineId string `json:"machineId,omitempty"`
 	// Password holds the value of the "password" field.
 	Password string `json:"password,omitempty"`
-	// Token holds the value of the "token" field.
-	Token string `json:"token,omitempty"`
 	// IpAddress holds the value of the "ipAddress" field.
 	IpAddress string `json:"ipAddress,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the MachineQuery when eager-loading is set.
+	Edges MachineEdges `json:"edges"`
+}
+
+// MachineEdges holds the relations/edges for other nodes in the graph.
+type MachineEdges struct {
+	// Signals holds the value of the signals edge.
+	Signals []*Signal
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// SignalsOrErr returns the Signals value or an error if the edge
+// was not loaded in eager-loading.
+func (e MachineEdges) SignalsOrErr() ([]*Signal, error) {
+	if e.loadedTypes[0] {
+		return e.Signals, nil
+	}
+	return nil, &NotLoadedError{edge: "signals"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Machine) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},  // id
+		&sql.NullTime{},   // created_at
+		&sql.NullTime{},   // updated_at
 		&sql.NullString{}, // machineId
 		&sql.NullString{}, // password
-		&sql.NullString{}, // token
 		&sql.NullString{}, // ipAddress
 	}
 }
@@ -48,27 +73,37 @@ func (m *Machine) assignValues(values ...interface{}) error {
 	}
 	m.ID = int(value.Int64)
 	values = values[1:]
-	if value, ok := values[0].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field machineId", values[0])
+	if value, ok := values[0].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[0])
+	} else if value.Valid {
+		m.CreatedAt = value.Time
+	}
+	if value, ok := values[1].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[1])
+	} else if value.Valid {
+		m.UpdatedAt = value.Time
+	}
+	if value, ok := values[2].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field machineId", values[2])
 	} else if value.Valid {
 		m.MachineId = value.String
 	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field password", values[1])
+	if value, ok := values[3].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field password", values[3])
 	} else if value.Valid {
 		m.Password = value.String
 	}
-	if value, ok := values[2].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field token", values[2])
-	} else if value.Valid {
-		m.Token = value.String
-	}
-	if value, ok := values[3].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field ipAddress", values[3])
+	if value, ok := values[4].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field ipAddress", values[4])
 	} else if value.Valid {
 		m.IpAddress = value.String
 	}
 	return nil
+}
+
+// QuerySignals queries the signals edge of the Machine.
+func (m *Machine) QuerySignals() *SignalQuery {
+	return (&MachineClient{config: m.config}).QuerySignals(m)
 }
 
 // Update returns a builder for updating this Machine.
@@ -94,12 +129,14 @@ func (m *Machine) String() string {
 	var builder strings.Builder
 	builder.WriteString("Machine(")
 	builder.WriteString(fmt.Sprintf("id=%v", m.ID))
+	builder.WriteString(", created_at=")
+	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(m.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", machineId=")
 	builder.WriteString(m.MachineId)
 	builder.WriteString(", password=")
 	builder.WriteString(m.Password)
-	builder.WriteString(", token=")
-	builder.WriteString(m.Token)
 	builder.WriteString(", ipAddress=")
 	builder.WriteString(m.IpAddress)
 	builder.WriteByte(')')

@@ -1,0 +1,156 @@
+{
+  "machines" : [
+    {
+      "machineId": "machine1",
+      "password": "machine1",
+      "ipAddress": "1.1.1.1"
+    },
+    {
+      "machineId": "machine2",
+      "password": "machine2",
+      "ipAddress": "2.2.2.2"
+    },
+    {
+      "machineId": "machine3",
+      "password": "machine3",
+      "ipAddress": "3.3.3.3"
+    }
+  ],
+  "signals": [
+    {
+      "machineId": 1,
+      "scenario": "crowdsecurity/scenario1",
+      "bucketId": "bucket1",
+      "alertMessage": "attacker1 performed scenario1 attack",
+      "eventCount": 2,
+      "startedAt": "2020-08-30T11:04:05Z",
+      "stoppedAt": "2020-08-30T11:04:05Z",
+      "sourceIp": "11.11.11.11",
+      "capacity": 5,
+      "leakSpeed": 1000,
+      "reprocess": false,
+      "events": [
+        {
+          "time": "2011-11-11T11:11:11Z",
+          "serialized": "{'name': 'serialized evt1'}"
+        },
+        {
+          "time": "2022-12-22T22:22:22Z",
+          "serialized": "{'name': 'serialized evt2'}"
+        }
+      ],
+      "metas": [
+        {
+          "key": "metakey1",
+          "value": "metavalue1"
+        },
+        {
+          "key": "metakey2",
+          "value": "metavalue2"
+        }
+      ],
+      "decisions": [
+        {
+          "until": "2011-11-11T11:11:11Z",
+          "reason": "attacker1 performed scenario1 attack",
+          "scenario": "crowdsecurity/scenario1",
+          "decisionType": "ban",
+          "SourceIpStart": 111111,
+          "SourceIpEnd": 111112,
+          "SourceStr": "1.1.1.1",
+          "Scope": "scope1"
+        }
+      ]
+    },
+    {
+      "machineId": 2,
+      "scenario": "crowdsecurity/scenario2",
+      "bucketId": "bucket2",
+      "alertMessage": "attacker2 performed scenario2 attack",
+      "eventCount": 2,
+      "startedAt": "2020-08-30T12:04:05Z",
+      "stoppedAt": "2020-08-30T12:04:05Z",
+      "sourceIp": "22.22.22.22",
+      "capacity": 5,
+      "leakSpeed": 1000,
+      "reprocess": false,
+      "events": [
+        {
+          "time": "2011-11-11T11:11:11Z",
+          "serialized": "{'name': 'serialized evt3'}"
+        },
+        {
+          "time": "2022-12-22T22:22:22Z",
+          "serialized": "{'name': 'serialized evt4'}"
+        }
+      ],
+      "metas": [
+        {
+          "key": "metakey3",
+          "value": "metavalue3"
+        },
+        {
+          "key": "metakey4",
+          "value": "metavalue4"
+        }
+      ],
+      "decisions": [
+        {
+          "until": "2022-12-22T22:22:22Z",
+          "reason": "attacker2 performed scenario2 attack",
+          "scenario": "crowdsecurity/scenario2",
+          "decisionType": "ban",
+          "SourceIpStart": 222222,
+          "SourceIpEnd": 222223,
+          "SourceStr": "2.2.2.2",
+          "Scope": "scope2"
+        }
+      ]
+    },
+    {
+      "machineId": 2,
+      "scenario": "crowdsecurity/scenario3",
+      "bucketId": "bucket3",
+      "alertMessage": "attacker3 performed scenario3 attack",
+      "eventCount": 2,
+      "startedAt": "2020-08-30T13:04:05Z",
+      "stoppedAt": "2020-08-30T13:04:05Z",
+      "sourceIp": "33.33.33.33",
+      "capacity": 5,
+      "leakSpeed": 1000,
+      "reprocess": false,
+      "events": [
+        {
+          "time": "2011-11-11T11:11:11Z",
+          "serialized": "{'name': 'serialized evt5'}"
+        },
+        {
+          "time": "2022-12-22T22:22:22Z",
+          "serialized": "{'name': 'serialized evt6'}"
+        }
+      ],
+      "metas": [
+        {
+          "key": "metakey5",
+          "value": "metavalue5"
+        },
+        {
+          "key": "metakey6",
+          "value": "metavalue6"
+        }
+      ],
+      "decisions": [
+        {
+          "until": "2033-12-13T13:33:33Z",
+          "reason": "attacker3 performed scenario3 attack",
+          "scenario": "crowdsecurity/scenario3",
+          "decisionType": "ban",
+          "SourceIpStart": 333333,
+          "SourceIpEnd": 333334,
+          "SourceStr": "3.3.3.3",
+          "Scope": "scope3"
+        }
+      ]
+    }
+  ]
+}

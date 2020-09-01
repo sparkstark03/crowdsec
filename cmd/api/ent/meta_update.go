@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
@@ -15,28 +15,28 @@ import (
 	"github.com/facebook/ent/schema/field"
 )
 
-// MachineUpdate is the builder for updating Machine entities.
-type MachineUpdate struct {
+// MetaUpdate is the builder for updating Meta entities.
+type MetaUpdate struct {
 	config
 	hooks      []Hook
-	mutation   *MachineMutation
-	predicates []predicate.Machine
+	mutation   *MetaMutation
+	predicates []predicate.Meta
 }
 
 // Where adds a new predicate for the builder.
-func (mu *MachineUpdate) Where(ps ...predicate.Machine) *MachineUpdate {
+func (mu *MetaUpdate) Where(ps ...predicate.Meta) *MetaUpdate {
 	mu.predicates = append(mu.predicates, ps...)
 	return mu
 }
 
 // SetCreatedAt sets the created_at field.
-func (mu *MachineUpdate) SetCreatedAt(t time.Time) *MachineUpdate {
+func (mu *MetaUpdate) SetCreatedAt(t time.Time) *MetaUpdate {
 	mu.mutation.SetCreatedAt(t)
 	return mu
 }
 
 // SetNillableCreatedAt sets the created_at field if the given value is not nil.
-func (mu *MachineUpdate) SetNillableCreatedAt(t *time.Time) *MachineUpdate {
+func (mu *MetaUpdate) SetNillableCreatedAt(t *time.Time) *MetaUpdate {
 	if t != nil {
 		mu.SetCreatedAt(*t)
 	}
@@ -44,74 +44,63 @@ func (mu *MachineUpdate) SetNillableCreatedAt(t *time.Time) *MachineUpdate {
 }
 
 // SetUpdatedAt sets the updated_at field.
-func (mu *MachineUpdate) SetUpdatedAt(t time.Time) *MachineUpdate {
+func (mu *MetaUpdate) SetUpdatedAt(t time.Time) *MetaUpdate {
 	mu.mutation.SetUpdatedAt(t)
 	return mu
 }
 
 // SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (mu *MachineUpdate) SetNillableUpdatedAt(t *time.Time) *MachineUpdate {
+func (mu *MetaUpdate) SetNillableUpdatedAt(t *time.Time) *MetaUpdate {
 	if t != nil {
 		mu.SetUpdatedAt(*t)
 	}
 	return mu
 }
 
-// SetMachineId sets the machineId field.
-func (mu *MachineUpdate) SetMachineId(s string) *MachineUpdate {
-	mu.mutation.SetMachineId(s)
+// SetKey sets the key field.
+func (mu *MetaUpdate) SetKey(s string) *MetaUpdate {
+	mu.mutation.SetKey(s)
 	return mu
 }
 
-// SetPassword sets the password field.
-func (mu *MachineUpdate) SetPassword(s string) *MachineUpdate {
-	mu.mutation.SetPassword(s)
+// SetValue sets the value field.
+func (mu *MetaUpdate) SetValue(s string) *MetaUpdate {
+	mu.mutation.SetValue(s)
 	return mu
 }
 
-// SetIpAddress sets the ipAddress field.
-func (mu *MachineUpdate) SetIpAddress(s string) *MachineUpdate {
-	mu.mutation.SetIpAddress(s)
+// SetOwnerID sets the owner edge to Signal by id.
+func (mu *MetaUpdate) SetOwnerID(id int) *MetaUpdate {
+	mu.mutation.SetOwnerID(id)
 	return mu
 }
 
-// AddSignalIDs adds the signals edge to Signal by ids.
-func (mu *MachineUpdate) AddSignalIDs(ids ...int) *MachineUpdate {
-	mu.mutation.AddSignalIDs(ids...)
-	return mu
-}
-
-// AddSignals adds the signals edges to Signal.
-func (mu *MachineUpdate) AddSignals(s ...*Signal) *MachineUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+func (mu *MetaUpdate) SetNillableOwnerID(id *int) *MetaUpdate {
+	if id != nil {
+		mu = mu.SetOwnerID(*id)
 	}
-	return mu.AddSignalIDs(ids...)
+	return mu
 }
 
-// Mutation returns the MachineMutation object of the builder.
-func (mu *MachineUpdate) Mutation() *MachineMutation {
+// SetOwner sets the owner edge to Signal.
+func (mu *MetaUpdate) SetOwner(s *Signal) *MetaUpdate {
+	return mu.SetOwnerID(s.ID)
+}
+
+// Mutation returns the MetaMutation object of the builder.
+func (mu *MetaUpdate) Mutation() *MetaMutation {
 	return mu.mutation
 }
 
-// RemoveSignalIDs removes the signals edge to Signal by ids.
-func (mu *MachineUpdate) RemoveSignalIDs(ids ...int) *MachineUpdate {
-	mu.mutation.RemoveSignalIDs(ids...)
+// ClearOwner clears the owner edge to Signal.
+func (mu *MetaUpdate) ClearOwner() *MetaUpdate {
+	mu.mutation.ClearOwner()
 	return mu
 }
 
-// RemoveSignals removes signals edges to Signal.
-func (mu *MachineUpdate) RemoveSignals(s ...*Signal) *MachineUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return mu.RemoveSignalIDs(ids...)
-}
-
 // Save executes the query and returns the number of rows/vertices matched by this operation.
-func (mu *MachineUpdate) Save(ctx context.Context) (int, error) {
+func (mu *MetaUpdate) Save(ctx context.Context) (int, error) {
 
 	var (
 		err      error
@@ -121,7 +110,7 @@ func (mu *MachineUpdate) Save(ctx context.Context) (int, error) {
 		affected, err = mu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*MachineMutation)
+			mutation, ok := m.(*MetaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
@@ -141,7 +130,7 @@ func (mu *MachineUpdate) Save(ctx context.Context) (int, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (mu *MachineUpdate) SaveX(ctx context.Context) int {
+func (mu *MetaUpdate) SaveX(ctx context.Context) int {
 	affected, err := mu.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -150,26 +139,26 @@ func (mu *MachineUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (mu *MachineUpdate) Exec(ctx context.Context) error {
+func (mu *MetaUpdate) Exec(ctx context.Context) error {
 	_, err := mu.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (mu *MachineUpdate) ExecX(ctx context.Context) {
+func (mu *MetaUpdate) ExecX(ctx context.Context) {
 	if err := mu.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (mu *MetaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
-			Table:   machine.Table,
-			Columns: machine.Columns,
+			Table:   meta.Table,
+			Columns: meta.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: machine.FieldID,
+				Column: meta.FieldID,
 			},
 		},
 	}
@@ -184,43 +173,36 @@ func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: machine.FieldCreatedAt,
+			Column: meta.FieldCreatedAt,
 		})
 	}
 	if value, ok := mu.mutation.UpdatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: machine.FieldUpdatedAt,
+			Column: meta.FieldUpdatedAt,
 		})
 	}
-	if value, ok := mu.mutation.MachineId(); ok {
+	if value, ok := mu.mutation.Key(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: machine.FieldMachineId,
+			Column: meta.FieldKey,
 		})
 	}
-	if value, ok := mu.mutation.Password(); ok {
+	if value, ok := mu.mutation.Value(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: machine.FieldPassword,
+			Column: meta.FieldValue,
 		})
 	}
-	if value, ok := mu.mutation.IpAddress(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: machine.FieldIpAddress,
-		})
-	}
-	if nodes := mu.mutation.RemovedSignalsIDs(); len(nodes) > 0 {
+	if mu.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   machine.SignalsTable,
-			Columns: []string{machine.SignalsColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   meta.OwnerTable,
+			Columns: []string{meta.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -229,17 +211,14 @@ func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				},
 			},
 		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mu.mutation.SignalsIDs(); len(nodes) > 0 {
+	if nodes := mu.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   machine.SignalsTable,
-			Columns: []string{machine.SignalsColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   meta.OwnerTable,
+			Columns: []string{meta.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -255,7 +234,7 @@ func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{machine.Label}
+			err = &NotFoundError{meta.Label}
 		} else if cerr, ok := isSQLConstraintError(err); ok {
 			err = cerr
 		}
@@ -264,21 +243,21 @@ func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	return n, nil
 }
 
-// MachineUpdateOne is the builder for updating a single Machine entity.
-type MachineUpdateOne struct {
+// MetaUpdateOne is the builder for updating a single Meta entity.
+type MetaUpdateOne struct {
 	config
 	hooks    []Hook
-	mutation *MachineMutation
+	mutation *MetaMutation
 }
 
 // SetCreatedAt sets the created_at field.
-func (muo *MachineUpdateOne) SetCreatedAt(t time.Time) *MachineUpdateOne {
+func (muo *MetaUpdateOne) SetCreatedAt(t time.Time) *MetaUpdateOne {
 	muo.mutation.SetCreatedAt(t)
 	return muo
 }
 
 // SetNillableCreatedAt sets the created_at field if the given value is not nil.
-func (muo *MachineUpdateOne) SetNillableCreatedAt(t *time.Time) *MachineUpdateOne {
+func (muo *MetaUpdateOne) SetNillableCreatedAt(t *time.Time) *MetaUpdateOne {
 	if t != nil {
 		muo.SetCreatedAt(*t)
 	}
@@ -286,84 +265,73 @@ func (muo *MachineUpdateOne) SetNillableCreatedAt(t *time.Time) *MachineUpdateOn
 }
 
 // SetUpdatedAt sets the updated_at field.
-func (muo *MachineUpdateOne) SetUpdatedAt(t time.Time) *MachineUpdateOne {
+func (muo *MetaUpdateOne) SetUpdatedAt(t time.Time) *MetaUpdateOne {
 	muo.mutation.SetUpdatedAt(t)
 	return muo
 }
 
 // SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (muo *MachineUpdateOne) SetNillableUpdatedAt(t *time.Time) *MachineUpdateOne {
+func (muo *MetaUpdateOne) SetNillableUpdatedAt(t *time.Time) *MetaUpdateOne {
 	if t != nil {
 		muo.SetUpdatedAt(*t)
 	}
 	return muo
 }
 
-// SetMachineId sets the machineId field.
-func (muo *MachineUpdateOne) SetMachineId(s string) *MachineUpdateOne {
-	muo.mutation.SetMachineId(s)
+// SetKey sets the key field.
+func (muo *MetaUpdateOne) SetKey(s string) *MetaUpdateOne {
+	muo.mutation.SetKey(s)
 	return muo
 }
 
-// SetPassword sets the password field.
-func (muo *MachineUpdateOne) SetPassword(s string) *MachineUpdateOne {
-	muo.mutation.SetPassword(s)
+// SetValue sets the value field.
+func (muo *MetaUpdateOne) SetValue(s string) *MetaUpdateOne {
+	muo.mutation.SetValue(s)
 	return muo
 }
 
-// SetIpAddress sets the ipAddress field.
-func (muo *MachineUpdateOne) SetIpAddress(s string) *MachineUpdateOne {
-	muo.mutation.SetIpAddress(s)
+// SetOwnerID sets the owner edge to Signal by id.
+func (muo *MetaUpdateOne) SetOwnerID(id int) *MetaUpdateOne {
+	muo.mutation.SetOwnerID(id)
 	return muo
 }
 
-// AddSignalIDs adds the signals edge to Signal by ids.
-func (muo *MachineUpdateOne) AddSignalIDs(ids ...int) *MachineUpdateOne {
-	muo.mutation.AddSignalIDs(ids...)
-	return muo
-}
-
-// AddSignals adds the signals edges to Signal.
-func (muo *MachineUpdateOne) AddSignals(s ...*Signal) *MachineUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+func (muo *MetaUpdateOne) SetNillableOwnerID(id *int) *MetaUpdateOne {
+	if id != nil {
+		muo = muo.SetOwnerID(*id)
 	}
-	return muo.AddSignalIDs(ids...)
+	return muo
 }
 
-// Mutation returns the MachineMutation object of the builder.
-func (muo *MachineUpdateOne) Mutation() *MachineMutation {
+// SetOwner sets the owner edge to Signal.
+func (muo *MetaUpdateOne) SetOwner(s *Signal) *MetaUpdateOne {
+	return muo.SetOwnerID(s.ID)
+}
+
+// Mutation returns the MetaMutation object of the builder.
+func (muo *MetaUpdateOne) Mutation() *MetaMutation {
 	return muo.mutation
 }
 
-// RemoveSignalIDs removes the signals edge to Signal by ids.
-func (muo *MachineUpdateOne) RemoveSignalIDs(ids ...int) *MachineUpdateOne {
-	muo.mutation.RemoveSignalIDs(ids...)
+// ClearOwner clears the owner edge to Signal.
+func (muo *MetaUpdateOne) ClearOwner() *MetaUpdateOne {
+	muo.mutation.ClearOwner()
 	return muo
 }
 
-// RemoveSignals removes signals edges to Signal.
-func (muo *MachineUpdateOne) RemoveSignals(s ...*Signal) *MachineUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return muo.RemoveSignalIDs(ids...)
-}
-
 // Save executes the query and returns the updated entity.
-func (muo *MachineUpdateOne) Save(ctx context.Context) (*Machine, error) {
+func (muo *MetaUpdateOne) Save(ctx context.Context) (*Meta, error) {
 
 	var (
 		err  error
-		node *Machine
+		node *Meta
 	)
 	if len(muo.hooks) == 0 {
 		node, err = muo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*MachineMutation)
+			mutation, ok := m.(*MetaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
@@ -383,7 +351,7 @@ func (muo *MachineUpdateOne) Save(ctx context.Context) (*Machine, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (muo *MachineUpdateOne) SaveX(ctx context.Context) *Machine {
+func (muo *MetaUpdateOne) SaveX(ctx context.Context) *Meta {
 	m, err := muo.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -392,75 +360,68 @@ func (muo *MachineUpdateOne) SaveX(ctx context.Context) *Machine {
 }
 
 // Exec executes the query on the entity.
-func (muo *MachineUpdateOne) Exec(ctx context.Context) error {
+func (muo *MetaUpdateOne) Exec(ctx context.Context) error {
 	_, err := muo.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (muo *MachineUpdateOne) ExecX(ctx context.Context) {
+func (muo *MetaUpdateOne) ExecX(ctx context.Context) {
 	if err := muo.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (muo *MachineUpdateOne) sqlSave(ctx context.Context) (m *Machine, err error) {
+func (muo *MetaUpdateOne) sqlSave(ctx context.Context) (m *Meta, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
-			Table:   machine.Table,
-			Columns: machine.Columns,
+			Table:   meta.Table,
+			Columns: meta.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: machine.FieldID,
+				Column: meta.FieldID,
 			},
 		},
 	}
 	id, ok := muo.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing Machine.ID for update")}
+		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing Meta.ID for update")}
 	}
 	_spec.Node.ID.Value = id
 	if value, ok := muo.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: machine.FieldCreatedAt,
+			Column: meta.FieldCreatedAt,
 		})
 	}
 	if value, ok := muo.mutation.UpdatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: machine.FieldUpdatedAt,
+			Column: meta.FieldUpdatedAt,
 		})
 	}
-	if value, ok := muo.mutation.MachineId(); ok {
+	if value, ok := muo.mutation.Key(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: machine.FieldMachineId,
+			Column: meta.FieldKey,
 		})
 	}
-	if value, ok := muo.mutation.Password(); ok {
+	if value, ok := muo.mutation.Value(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: machine.FieldPassword,
+			Column: meta.FieldValue,
 		})
 	}
-	if value, ok := muo.mutation.IpAddress(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: machine.FieldIpAddress,
-		})
-	}
-	if nodes := muo.mutation.RemovedSignalsIDs(); len(nodes) > 0 {
+	if muo.mutation.OwnerCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   machine.SignalsTable,
-			Columns: []string{machine.SignalsColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   meta.OwnerTable,
+			Columns: []string{meta.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -469,17 +430,14 @@ func (muo *MachineUpdateOne) sqlSave(ctx context.Context) (m *Machine, err error
 				},
 			},
 		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := muo.mutation.SignalsIDs(); len(nodes) > 0 {
+	if nodes := muo.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   machine.SignalsTable,
-			Columns: []string{machine.SignalsColumn},
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   meta.OwnerTable,
+			Columns: []string{meta.OwnerColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -493,12 +451,12 @@ func (muo *MachineUpdateOne) sqlSave(ctx context.Context) (m *Machine, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	m = &Machine{config: muo.config}
+	m = &Meta{config: muo.config}
 	_spec.Assign = m.assignValues
 	_spec.ScanValues = m.scanValues()
 	if err = sqlgraph.UpdateNode(ctx, muo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{machine.Label}
+			err = &NotFoundError{meta.Label}
 		} else if cerr, ok := isSQLConstraintError(err); ok {
 			err = cerr
 		}

@@ -210,6 +210,54 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	return OnMutationOperation(rule, op)
 }
 
+// The DecisionQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type DecisionQueryRuleFunc func(context.Context, *ent.DecisionQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f DecisionQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.DecisionQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.DecisionQuery", q)
+}
+
+// The DecisionMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type DecisionMutationRuleFunc func(context.Context, *ent.DecisionMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f DecisionMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.DecisionMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.DecisionMutation", m)
+}
+
+// The EventQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type EventQueryRuleFunc func(context.Context, *ent.EventQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f EventQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.EventQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.EventQuery", q)
+}
+
+// The EventMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type EventMutationRuleFunc func(context.Context, *ent.EventMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f EventMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.EventMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.EventMutation", m)
+}
+
 // The MachineQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type MachineQueryRuleFunc func(context.Context, *ent.MachineQuery) error
@@ -232,4 +280,52 @@ func (f MachineMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutatio
 		return f(ctx, m)
 	}
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.MachineMutation", m)
+}
+
+// The MetaQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type MetaQueryRuleFunc func(context.Context, *ent.MetaQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f MetaQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.MetaQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.MetaQuery", q)
+}
+
+// The MetaMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type MetaMutationRuleFunc func(context.Context, *ent.MetaMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f MetaMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.MetaMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.MetaMutation", m)
+}
+
+// The SignalQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type SignalQueryRuleFunc func(context.Context, *ent.SignalQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f SignalQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.SignalQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.SignalQuery", q)
+}
+
+// The SignalMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type SignalMutationRuleFunc func(context.Context, *ent.SignalMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f SignalMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.SignalMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.SignalMutation", m)
 }

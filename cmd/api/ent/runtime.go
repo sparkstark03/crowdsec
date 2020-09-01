@@ -2,8 +2,69 @@
 
 package ent
 
+import (
+	"time"
+
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/schema"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
+)
+
 // The init function reads all schema descriptors with runtime
 // code (default values, validators or hooks) and stitches it
 // to their package variables.
 func init() {
+	decisionFields := schema.Decision{}.Fields()
+	_ = decisionFields
+	// decisionDescCreatedAt is the schema descriptor for created_at field.
+	decisionDescCreatedAt := decisionFields[0].Descriptor()
+	// decision.DefaultCreatedAt holds the default value on creation for the created_at field.
+	decision.DefaultCreatedAt = decisionDescCreatedAt.Default.(func() time.Time)
+	// decisionDescUpdatedAt is the schema descriptor for updated_at field.
+	decisionDescUpdatedAt := decisionFields[1].Descriptor()
+	// decision.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	decision.DefaultUpdatedAt = decisionDescUpdatedAt.Default.(func() time.Time)
+	eventFields := schema.Event{}.Fields()
+	_ = eventFields
+	// eventDescCreatedAt is the schema descriptor for created_at field.
+	eventDescCreatedAt := eventFields[0].Descriptor()
+	// event.DefaultCreatedAt holds the default value on creation for the created_at field.
+	event.DefaultCreatedAt = eventDescCreatedAt.Default.(func() time.Time)
+	// eventDescUpdatedAt is the schema descriptor for updated_at field.
+	eventDescUpdatedAt := eventFields[1].Descriptor()
+	// event.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	event.DefaultUpdatedAt = eventDescUpdatedAt.Default.(func() time.Time)
+	machineFields := schema.Machine{}.Fields()
+	_ = machineFields
+	// machineDescCreatedAt is the schema descriptor for created_at field.
+	machineDescCreatedAt := machineFields[0].Descriptor()
+	// machine.DefaultCreatedAt holds the default value on creation for the created_at field.
+	machine.DefaultCreatedAt = machineDescCreatedAt.Default.(func() time.Time)
+	// machineDescUpdatedAt is the schema descriptor for updated_at field.
+	machineDescUpdatedAt := machineFields[1].Descriptor()
+	// machine.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	machine.DefaultUpdatedAt = machineDescUpdatedAt.Default.(func() time.Time)
+	metaFields := schema.Meta{}.Fields()
+	_ = metaFields
+	// metaDescCreatedAt is the schema descriptor for created_at field.
+	metaDescCreatedAt := metaFields[0].Descriptor()
+	// meta.DefaultCreatedAt holds the default value on creation for the created_at field.
+	meta.DefaultCreatedAt = metaDescCreatedAt.Default.(func() time.Time)
+	// metaDescUpdatedAt is the schema descriptor for updated_at field.
+	metaDescUpdatedAt := metaFields[1].Descriptor()
+	// meta.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	meta.DefaultUpdatedAt = metaDescUpdatedAt.Default.(func() time.Time)
+	signalFields := schema.Signal{}.Fields()
+	_ = signalFields
+	// signalDescCreatedAt is the schema descriptor for created_at field.
+	signalDescCreatedAt := signalFields[0].Descriptor()
+	// signal.DefaultCreatedAt holds the default value on creation for the created_at field.
+	signal.DefaultCreatedAt = signalDescCreatedAt.Default.(func() time.Time)
+	// signalDescUpdatedAt is the schema descriptor for updated_at field.
+	signalDescUpdatedAt := signalFields[1].Descriptor()
+	// signal.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	signal.DefaultUpdatedAt = signalDescUpdatedAt.Default.(func() time.Time)
 }

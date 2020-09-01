@@ -2,23 +2,29 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
-
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent"
 )
 
 type CreateMachineInput struct {
 	MachineId string `json:"machineId" binding:"required"`
 	Password  string `json:"password" binding:"required"`
 	IpAddress string `json:"ipAddress" binding:"required"`
-	Token     string `json:"token" binding:"required"`
 }
 
-type Controller struct {
-	Ectx   context.Context
-	Client *ent.Client
+func QueryMachine(ctx context.Context, client *ent.Client, machineId int) (*ent.Machine, error) {
+	machine, err := client.Machine.
+		Query().
+		Where(machine.IDEQ(machineId)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying user: %v", err)
+	}
+	return machine, nil
 }
 
 func (c *Controller) CreateMachine(gctx *gin.Context) {
@@ -32,7 +38,6 @@ func (c *Controller) CreateMachine(gctx *gin.Context) {
 		SetMachineId(input.MachineId).
 		SetPassword(input.Password).
 		SetIpAddress(input.IpAddress).
-		SetToken(input.Token).
 		Save(c.Ectx)
 	if err != nil {
 		log.Errorf("failed creating machine: %v", err)

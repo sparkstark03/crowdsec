@@ -29,6 +29,7 @@ func ConnectDatabase() *ent.Client {
 }
 
 func main() {
+
 	controller := controllers.Controller{
 		Ectx:   context.Background(),
 		Client: ConnectDatabase(),
@@ -62,6 +63,9 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"data": "hello world"})
 	})
 	router.POST("/machines", controller.CreateMachine)
+	router.POST("/signals", controller.CreateSignal)
+	router.GET("/signals", controller.FindSignals)
+	router.GET("/decisions/ip/:ipText", controller.FindDecisionByIp)
 
 	router.Run()
 }
