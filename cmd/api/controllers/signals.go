@@ -149,6 +149,9 @@ func (c *Controller) FindSignals(gctx *gin.Context) {
 		Where(machine.MachineIdEQ(machineId)).
 		QuerySignals().
 		Where(signal.ScenarioEQ(scenario)).
+		WithDecisions().
+		WithEvents().
+		WithMetas().
 		All(c.Ectx)
 	if err != nil {
 		log.Errorf("failed querying signal: %v", err)
