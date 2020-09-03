@@ -21,14 +21,24 @@
       "machineId": 1,
       "scenario": "crowdsecurity/scenario1",
       "bucketId": "bucket1",
-      "alertMessage": "attacker1 performed scenario1 attack",
+      "message": "attacker1 performed scenario1 attack",
       "eventCount": 2,
       "startedAt": "2020-08-30T11:04:05Z",
       "stoppedAt": "2020-08-30T11:04:05Z",
-      "sourceIp": "11.11.11.11",
       "capacity": 5,
       "leakSpeed": 1000,
       "reprocess": false,
+      "source": {
+        "scope": "ip",
+        "value": "11.11.11.11",
+        "ip": "11.11.11.11",
+        "range": "11.11.11.0/24",
+        "as_number": "1111",
+        "as_name": "toto",
+        "country": "FR",
+        "latitude": "1.4",
+        "longitude": "0.5"
+      },
       "events": [
         {
           "time": "2011-11-11T11:11:11Z",
@@ -57,7 +67,7 @@
           "decisionType": "ban",
           "SourceIpStart": 111111,
           "SourceIpEnd": 111112,
-          "SourceStr": "1.1.1.1",
+          "SourceStr": "11.11.11.11",
           "Scope": "scope1"
         }
       ]
@@ -70,10 +80,20 @@
       "eventCount": 2,
       "startedAt": "2020-08-30T12:04:05Z",
       "stoppedAt": "2020-08-30T12:04:05Z",
-      "sourceIp": "22.22.22.22",
       "capacity": 5,
       "leakSpeed": 1000,
       "reprocess": false,
+      "source": {
+        "scope": "ip",
+        "value": "22.22.22.22",
+        "ip": "22.22.22.22",
+        "range": "22.22.22.0/24",
+        "as_number": "2222",
+        "as_name": "tata",
+        "country": "EN",
+        "latitude": "1.4",
+        "longitude": "0.5"
+      },
       "events": [
         {
           "time": "2011-11-11T11:11:11Z",
@@ -102,7 +122,7 @@
           "decisionType": "ban",
           "SourceIpStart": 222222,
           "SourceIpEnd": 222223,
-          "SourceStr": "2.2.2.2",
+          "SourceStr": "22.22.22.22",
           "Scope": "scope2"
         }
       ]
@@ -115,10 +135,20 @@
       "eventCount": 2,
       "startedAt": "2020-08-30T13:04:05Z",
       "stoppedAt": "2020-08-30T13:04:05Z",
-      "sourceIp": "33.33.33.33",
       "capacity": 5,
       "leakSpeed": 1000,
       "reprocess": false,
+      "source": {
+        "scope": "ip",
+        "value": "33.33.33.33",
+        "ip": "33.33.33.33",
+        "range": "33.33.33.0/24",
+        "as_number": "3333",
+        "as_name": "titi",
+        "country": "US",
+        "latitude": "1.4",
+        "longitude": "0.5"
+      },
       "events": [
         {
           "time": "2011-11-11T11:11:11Z",
@@ -147,7 +177,7 @@
           "decisionType": "ban",
           "SourceIpStart": 333333,
           "SourceIpEnd": 333334,
-          "SourceStr": "3.3.3.3",
+          "SourceStr": "33.33.33.33",
           "Scope": "scope3"
         }
       ]
