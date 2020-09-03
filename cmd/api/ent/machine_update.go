@@ -81,6 +81,14 @@ func (mu *MachineUpdate) SetIsValidated(b bool) *MachineUpdate {
 	return mu
 }
 
+// SetNillableIsValidated sets the isValidated field if the given value is not nil.
+func (mu *MachineUpdate) SetNillableIsValidated(b *bool) *MachineUpdate {
+	if b != nil {
+		mu.SetIsValidated(*b)
+	}
+	return mu
+}
+
 // SetStatus sets the status field.
 func (mu *MachineUpdate) SetStatus(s string) *MachineUpdate {
 	mu.mutation.SetStatus(s)
@@ -366,6 +374,14 @@ func (muo *MachineUpdateOne) SetIpAddress(s string) *MachineUpdateOne {
 // SetIsValidated sets the isValidated field.
 func (muo *MachineUpdateOne) SetIsValidated(b bool) *MachineUpdateOne {
 	muo.mutation.SetIsValidated(b)
+	return muo
+}
+
+// SetNillableIsValidated sets the isValidated field if the given value is not nil.
+func (muo *MachineUpdateOne) SetNillableIsValidated(b *bool) *MachineUpdateOne {
+	if b != nil {
+		muo.SetIsValidated(*b)
+	}
 	return muo
 }
 

@@ -73,6 +73,14 @@ func (mc *MachineCreate) SetIsValidated(b bool) *MachineCreate {
 	return mc
 }
 
+// SetNillableIsValidated sets the isValidated field if the given value is not nil.
+func (mc *MachineCreate) SetNillableIsValidated(b *bool) *MachineCreate {
+	if b != nil {
+		mc.SetIsValidated(*b)
+	}
+	return mc
+}
+
 // SetStatus sets the status field.
 func (mc *MachineCreate) SetStatus(s string) *MachineCreate {
 	mc.mutation.SetStatus(s)
@@ -167,7 +175,8 @@ func (mc *MachineCreate) preSave() error {
 		return &ValidationError{Name: "ipAddress", err: errors.New("ent: missing required field \"ipAddress\"")}
 	}
 	if _, ok := mc.mutation.IsValidated(); !ok {
-		return &ValidationError{Name: "isValidated", err: errors.New("ent: missing required field \"isValidated\"")}
+		v := machine.DefaultIsValidated
+		mc.mutation.SetIsValidated(v)
 	}
 	return nil
 }

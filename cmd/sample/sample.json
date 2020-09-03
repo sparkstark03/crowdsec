@@ -16,7 +16,7 @@
       "ipAddress": "3.3.3.3"
     }
   ],
-  "signals": [
+  "alerts": [
     {
       "machineId": 1,
       "scenario": "crowdsecurity/scenario1",
@@ -75,7 +75,7 @@
       "machineId": 2,
       "scenario": "crowdsecurity/scenario2",
       "bucketId": "bucket2",
-      "alertMessage": "attacker2 performed scenario2 attack",
+      "message": "attacker2 performed scenario2 attack",
       "eventCount": 2,
       "startedAt": "2020-08-30T12:04:05Z",
       "stoppedAt": "2020-08-30T12:04:05Z",
@@ -129,7 +129,7 @@
       "machineId": 2,
       "scenario": "crowdsecurity/scenario3",
       "bucketId": "bucket3",
-      "alertMessage": "attacker3 performed scenario3 attack",
+      "message": "attacker3 performed scenario3 attack",
       "eventCount": 2,
       "startedAt": "2020-08-30T13:04:05Z",
       "stoppedAt": "2020-08-30T13:04:05Z",
