@@ -26,6 +26,10 @@ type Machine struct {
 	Password string `json:"password,omitempty"`
 	// IpAddress holds the value of the "ipAddress" field.
 	IpAddress string `json:"ipAddress,omitempty"`
+	// IsValidated holds the value of the "isValidated" field.
+	IsValidated bool `json:"isValidated,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MachineQuery when eager-loading is set.
 	Edges MachineEdges `json:"edges"`
@@ -34,7 +38,7 @@ type Machine struct {
 // MachineEdges holds the relations/edges for other nodes in the graph.
 type MachineEdges struct {
 	// Signals holds the value of the signals edge.
-	Signals []*Signal
+	Signals []*Alert
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
@@ -42,7 +46,7 @@ type MachineEdges struct {
 
 // SignalsOrErr returns the Signals value or an error if the edge
 // was not loaded in eager-loading.
-func (e MachineEdges) SignalsOrErr() ([]*Signal, error) {
+func (e MachineEdges) SignalsOrErr() ([]*Alert, error) {
 	if e.loadedTypes[0] {
 		return e.Signals, nil
 	}
@@ -58,6 +62,8 @@ func (*Machine) scanValues() []interface{} {
 		&sql.NullString{}, // machineId
 		&sql.NullString{}, // password
 		&sql.NullString{}, // ipAddress
+		&sql.NullBool{},   // isValidated
+		&sql.NullString{}, // status
 	}
 }
 
@@ -98,11 +104,21 @@ func (m *Machine) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		m.IpAddress = value.String
 	}
+	if value, ok := values[5].(*sql.NullBool); !ok {
+		return fmt.Errorf("unexpected type %T for field isValidated", values[5])
+	} else if value.Valid {
+		m.IsValidated = value.Bool
+	}
+	if value, ok := values[6].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field status", values[6])
+	} else if value.Valid {
+		m.Status = value.String
+	}
 	return nil
 }
 
 // QuerySignals queries the signals edge of the Machine.
-func (m *Machine) QuerySignals() *SignalQuery {
+func (m *Machine) QuerySignals() *AlertQuery {
 	return (&MachineClient{config: m.config}).QuerySignals(m)
 }
 
@@ -139,6 +155,10 @@ func (m *Machine) String() string {
 	builder.WriteString(m.Password)
 	builder.WriteString(", ipAddress=")
 	builder.WriteString(m.IpAddress)
+	builder.WriteString(", isValidated=")
+	builder.WriteString(fmt.Sprintf("%v", m.IsValidated))
+	builder.WriteString(", status=")
+	builder.WriteString(m.Status)
 	builder.WriteByte(')')
 	return builder.String()
 }

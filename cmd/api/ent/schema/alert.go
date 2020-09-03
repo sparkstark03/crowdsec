@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// Signal holds the schema definition for the Signal entity.
-type Signal struct {
+// Alert holds the schema definition for the Alert entity.
+type Alert struct {
 	ent.Schema
 }
 
-// Fields of the Signal.
-func (Signal) Fields() []ent.Field {
+// Fields of the Alert.
+func (Alert) Fields() []ent.Field {
 	return []ent.Field{
 		field.Time("created_at").
 			Default(time.Now),
@@ -21,7 +21,7 @@ func (Signal) Fields() []ent.Field {
 			Default(time.Now),
 		field.String("scenario"),
 		field.String("bucketId"),
-		field.String("alertMessage"),
+		field.String("message"),
 		field.Int("eventsCount"),
 		field.Time("startedAt"),
 		field.Time("stoppedAt"),
@@ -39,14 +39,16 @@ func (Signal) Fields() []ent.Field {
 			Optional(),
 		field.Float32("sourceLongitude").
 			Optional(),
-		field.Int("Capacity"),
+		field.String("sourceScope"),
+		field.String("sourceValue"),
+		field.Int("capacity"),
 		field.Int("leakSpeed"),
 		field.Bool("reprocess"),
 	}
 }
 
-// Edges of the Signal.
-func (Signal) Edges() []ent.Edge {
+// Edges of the Alert.
+func (Alert) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("owner", Machine.Type).
 			Ref("signals").

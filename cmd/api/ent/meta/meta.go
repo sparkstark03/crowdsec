@@ -27,11 +27,11 @@ const (
 	Table = "meta"
 	// OwnerTable is the table the holds the owner relation/edge.
 	OwnerTable = "meta"
-	// OwnerInverseTable is the table name for the Signal entity.
-	// It exists in this package in order to avoid circular dependency with the "signal" package.
-	OwnerInverseTable = "signals"
+	// OwnerInverseTable is the table name for the Alert entity.
+	// It exists in this package in order to avoid circular dependency with the "alert" package.
+	OwnerInverseTable = "alerts"
 	// OwnerColumn is the table column denoting the owner relation/edge.
-	OwnerColumn = "signal_metas"
+	OwnerColumn = "alert_metas"
 )
 
 // Columns holds all SQL columns for meta fields.
@@ -45,7 +45,7 @@ var Columns = []string{
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Meta type.
 var ForeignKeys = []string{
-	"signal_metas",
+	"alert_metas",
 }
 
 var (

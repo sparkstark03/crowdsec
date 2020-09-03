@@ -5,18 +5,28 @@ package ent
 import (
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/schema"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 )
 
 // The init function reads all schema descriptors with runtime
 // code (default values, validators or hooks) and stitches it
 // to their package variables.
 func init() {
+	alertFields := schema.Alert{}.Fields()
+	_ = alertFields
+	// alertDescCreatedAt is the schema descriptor for created_at field.
+	alertDescCreatedAt := alertFields[0].Descriptor()
+	// alert.DefaultCreatedAt holds the default value on creation for the created_at field.
+	alert.DefaultCreatedAt = alertDescCreatedAt.Default.(func() time.Time)
+	// alertDescUpdatedAt is the schema descriptor for updated_at field.
+	alertDescUpdatedAt := alertFields[1].Descriptor()
+	// alert.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	alert.DefaultUpdatedAt = alertDescUpdatedAt.Default.(func() time.Time)
 	decisionFields := schema.Decision{}.Fields()
 	_ = decisionFields
 	// decisionDescCreatedAt is the schema descriptor for created_at field.
@@ -57,14 +67,4 @@ func init() {
 	metaDescUpdatedAt := metaFields[1].Descriptor()
 	// meta.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	meta.DefaultUpdatedAt = metaDescUpdatedAt.Default.(func() time.Time)
-	signalFields := schema.Signal{}.Fields()
-	_ = signalFields
-	// signalDescCreatedAt is the schema descriptor for created_at field.
-	signalDescCreatedAt := signalFields[0].Descriptor()
-	// signal.DefaultCreatedAt holds the default value on creation for the created_at field.
-	signal.DefaultCreatedAt = signalDescCreatedAt.Default.(func() time.Time)
-	// signalDescUpdatedAt is the schema descriptor for updated_at field.
-	signalDescUpdatedAt := signalFields[1].Descriptor()
-	// signal.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	signal.DefaultUpdatedAt = signalDescUpdatedAt.Default.(func() time.Time)
 }

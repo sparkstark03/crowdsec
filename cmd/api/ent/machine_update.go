@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -75,17 +75,43 @@ func (mu *MachineUpdate) SetIpAddress(s string) *MachineUpdate {
 	return mu
 }
 
-// AddSignalIDs adds the signals edge to Signal by ids.
+// SetIsValidated sets the isValidated field.
+func (mu *MachineUpdate) SetIsValidated(b bool) *MachineUpdate {
+	mu.mutation.SetIsValidated(b)
+	return mu
+}
+
+// SetStatus sets the status field.
+func (mu *MachineUpdate) SetStatus(s string) *MachineUpdate {
+	mu.mutation.SetStatus(s)
+	return mu
+}
+
+// SetNillableStatus sets the status field if the given value is not nil.
+func (mu *MachineUpdate) SetNillableStatus(s *string) *MachineUpdate {
+	if s != nil {
+		mu.SetStatus(*s)
+	}
+	return mu
+}
+
+// ClearStatus clears the value of status.
+func (mu *MachineUpdate) ClearStatus() *MachineUpdate {
+	mu.mutation.ClearStatus()
+	return mu
+}
+
+// AddSignalIDs adds the signals edge to Alert by ids.
 func (mu *MachineUpdate) AddSignalIDs(ids ...int) *MachineUpdate {
 	mu.mutation.AddSignalIDs(ids...)
 	return mu
 }
 
-// AddSignals adds the signals edges to Signal.
-func (mu *MachineUpdate) AddSignals(s ...*Signal) *MachineUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddSignals adds the signals edges to Alert.
+func (mu *MachineUpdate) AddSignals(a ...*Alert) *MachineUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
 	return mu.AddSignalIDs(ids...)
 }
@@ -95,17 +121,17 @@ func (mu *MachineUpdate) Mutation() *MachineMutation {
 	return mu.mutation
 }
 
-// RemoveSignalIDs removes the signals edge to Signal by ids.
+// RemoveSignalIDs removes the signals edge to Alert by ids.
 func (mu *MachineUpdate) RemoveSignalIDs(ids ...int) *MachineUpdate {
 	mu.mutation.RemoveSignalIDs(ids...)
 	return mu
 }
 
-// RemoveSignals removes signals edges to Signal.
-func (mu *MachineUpdate) RemoveSignals(s ...*Signal) *MachineUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveSignals removes signals edges to Alert.
+func (mu *MachineUpdate) RemoveSignals(a ...*Alert) *MachineUpdate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
 	return mu.RemoveSignalIDs(ids...)
 }
@@ -215,6 +241,26 @@ func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: machine.FieldIpAddress,
 		})
 	}
+	if value, ok := mu.mutation.IsValidated(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: machine.FieldIsValidated,
+		})
+	}
+	if value, ok := mu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: machine.FieldStatus,
+		})
+	}
+	if mu.mutation.StatusCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: machine.FieldStatus,
+		})
+	}
 	if nodes := mu.mutation.RemovedSignalsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -225,7 +271,7 @@ func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -244,7 +290,7 @@ func (mu *MachineUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -317,17 +363,43 @@ func (muo *MachineUpdateOne) SetIpAddress(s string) *MachineUpdateOne {
 	return muo
 }
 
-// AddSignalIDs adds the signals edge to Signal by ids.
+// SetIsValidated sets the isValidated field.
+func (muo *MachineUpdateOne) SetIsValidated(b bool) *MachineUpdateOne {
+	muo.mutation.SetIsValidated(b)
+	return muo
+}
+
+// SetStatus sets the status field.
+func (muo *MachineUpdateOne) SetStatus(s string) *MachineUpdateOne {
+	muo.mutation.SetStatus(s)
+	return muo
+}
+
+// SetNillableStatus sets the status field if the given value is not nil.
+func (muo *MachineUpdateOne) SetNillableStatus(s *string) *MachineUpdateOne {
+	if s != nil {
+		muo.SetStatus(*s)
+	}
+	return muo
+}
+
+// ClearStatus clears the value of status.
+func (muo *MachineUpdateOne) ClearStatus() *MachineUpdateOne {
+	muo.mutation.ClearStatus()
+	return muo
+}
+
+// AddSignalIDs adds the signals edge to Alert by ids.
 func (muo *MachineUpdateOne) AddSignalIDs(ids ...int) *MachineUpdateOne {
 	muo.mutation.AddSignalIDs(ids...)
 	return muo
 }
 
-// AddSignals adds the signals edges to Signal.
-func (muo *MachineUpdateOne) AddSignals(s ...*Signal) *MachineUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddSignals adds the signals edges to Alert.
+func (muo *MachineUpdateOne) AddSignals(a ...*Alert) *MachineUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
 	return muo.AddSignalIDs(ids...)
 }
@@ -337,17 +409,17 @@ func (muo *MachineUpdateOne) Mutation() *MachineMutation {
 	return muo.mutation
 }
 
-// RemoveSignalIDs removes the signals edge to Signal by ids.
+// RemoveSignalIDs removes the signals edge to Alert by ids.
 func (muo *MachineUpdateOne) RemoveSignalIDs(ids ...int) *MachineUpdateOne {
 	muo.mutation.RemoveSignalIDs(ids...)
 	return muo
 }
 
-// RemoveSignals removes signals edges to Signal.
-func (muo *MachineUpdateOne) RemoveSignals(s ...*Signal) *MachineUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveSignals removes signals edges to Alert.
+func (muo *MachineUpdateOne) RemoveSignals(a ...*Alert) *MachineUpdateOne {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
 	return muo.RemoveSignalIDs(ids...)
 }
@@ -455,6 +527,26 @@ func (muo *MachineUpdateOne) sqlSave(ctx context.Context) (m *Machine, err error
 			Column: machine.FieldIpAddress,
 		})
 	}
+	if value, ok := muo.mutation.IsValidated(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: machine.FieldIsValidated,
+		})
+	}
+	if value, ok := muo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: machine.FieldStatus,
+		})
+	}
+	if muo.mutation.StatusCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: machine.FieldStatus,
+		})
+	}
 	if nodes := muo.mutation.RemovedSignalsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -465,7 +557,7 @@ func (muo *MachineUpdateOne) sqlSave(ctx context.Context) (m *Machine, err error
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -484,7 +576,7 @@ func (muo *MachineUpdateOne) sqlSave(ctx context.Context) (m *Machine, err error
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

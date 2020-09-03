@@ -22,12 +22,14 @@ func (Machine) Fields() []ent.Field {
 		field.String("machineId"),
 		field.String("password"),
 		field.String("ipAddress"),
+		field.Bool("isValidated"),
+		field.String("status").Optional(),
 	}
 }
 
 // Edges of the Machine.
 func (Machine) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("signals", Signal.Type),
+		edge.To("signals", Alert.Type),
 	}
 }

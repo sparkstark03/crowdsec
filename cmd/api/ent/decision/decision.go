@@ -17,8 +17,6 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldUntil holds the string denoting the until field in the database.
 	FieldUntil = "until"
-	// FieldReason holds the string denoting the reason field in the database.
-	FieldReason = "reason"
 	// FieldScenario holds the string denoting the scenario field in the database.
 	FieldScenario = "scenario"
 	// FieldDecisionType holds the string denoting the decisiontype field in the database.
@@ -27,10 +25,10 @@ const (
 	FieldSourceIpStart = "source_ip_start"
 	// FieldSourceIpEnd holds the string denoting the sourceipend field in the database.
 	FieldSourceIpEnd = "source_ip_end"
-	// FieldSourceStr holds the string denoting the sourcestr field in the database.
-	FieldSourceStr = "source_str"
-	// FieldScope holds the string denoting the scope field in the database.
-	FieldScope = "scope"
+	// FieldSourceScope holds the string denoting the sourcescope field in the database.
+	FieldSourceScope = "source_scope"
+	// FieldSourceValue holds the string denoting the sourcevalue field in the database.
+	FieldSourceValue = "source_value"
 
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
@@ -39,11 +37,11 @@ const (
 	Table = "decisions"
 	// OwnerTable is the table the holds the owner relation/edge.
 	OwnerTable = "decisions"
-	// OwnerInverseTable is the table name for the Signal entity.
-	// It exists in this package in order to avoid circular dependency with the "signal" package.
-	OwnerInverseTable = "signals"
+	// OwnerInverseTable is the table name for the Alert entity.
+	// It exists in this package in order to avoid circular dependency with the "alert" package.
+	OwnerInverseTable = "alerts"
 	// OwnerColumn is the table column denoting the owner relation/edge.
-	OwnerColumn = "signal_decisions"
+	OwnerColumn = "alert_decisions"
 )
 
 // Columns holds all SQL columns for decision fields.
@@ -52,18 +50,17 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldUntil,
-	FieldReason,
 	FieldScenario,
 	FieldDecisionType,
 	FieldSourceIpStart,
 	FieldSourceIpEnd,
-	FieldSourceStr,
-	FieldScope,
+	FieldSourceScope,
+	FieldSourceValue,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Decision type.
 var ForeignKeys = []string{
-	"signal_decisions",
+	"alert_decisions",
 }
 
 var (

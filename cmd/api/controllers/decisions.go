@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/binary"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net"
@@ -28,7 +27,6 @@ func IsIpv4(host string) bool {
 }
 
 func (c *Controller) FindDecisionByIp(gctx *gin.Context) {
-	machineId := "machine1"
 	ip := gctx.Param("ipText")
 
 	isValidIp := IsIpv4(ip)
@@ -38,15 +36,12 @@ func (c *Controller) FindDecisionByIp(gctx *gin.Context) {
 		return
 	}
 
-	decisions, err := c.Client.Machine.Query().
-		Where(machine.MachineIdEQ(machineId)).
-		QuerySignals().
-		QueryDecisions().
-		Where(decision.SourceStrEQ(ip)).
+	decisions, err := c.Client.Debug().Decision.Query().
+		Where(decision.SourceValueEQ(ip)).
 		All(c.Ectx)
 	if err != nil {
-		log.Errorf("failed querying signal: %v", err)
-		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed querying signal"})
+		log.Errorf("failed querying decision: %v", err)
+		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed querying decision"})
 		return
 	}
 

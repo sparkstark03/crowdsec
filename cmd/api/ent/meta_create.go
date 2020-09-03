@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 )
@@ -61,13 +61,13 @@ func (mc *MetaCreate) SetValue(s string) *MetaCreate {
 	return mc
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetOwnerID sets the owner edge to Alert by id.
 func (mc *MetaCreate) SetOwnerID(id int) *MetaCreate {
 	mc.mutation.SetOwnerID(id)
 	return mc
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (mc *MetaCreate) SetNillableOwnerID(id *int) *MetaCreate {
 	if id != nil {
 		mc = mc.SetOwnerID(*id)
@@ -75,9 +75,9 @@ func (mc *MetaCreate) SetNillableOwnerID(id *int) *MetaCreate {
 	return mc
 }
 
-// SetOwner sets the owner edge to Signal.
-func (mc *MetaCreate) SetOwner(s *Signal) *MetaCreate {
-	return mc.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (mc *MetaCreate) SetOwner(a *Alert) *MetaCreate {
+	return mc.SetOwnerID(a.ID)
 }
 
 // Mutation returns the MetaMutation object of the builder.
@@ -210,7 +210,7 @@ func (mc *MetaCreate) createSpec() (*Meta, *sqlgraph.CreateSpec) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

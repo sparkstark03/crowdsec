@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 )
@@ -55,12 +55,6 @@ func (dc *DecisionCreate) SetUntil(t time.Time) *DecisionCreate {
 	return dc
 }
 
-// SetReason sets the reason field.
-func (dc *DecisionCreate) SetReason(s string) *DecisionCreate {
-	dc.mutation.SetReason(s)
-	return dc
-}
-
 // SetScenario sets the scenario field.
 func (dc *DecisionCreate) SetScenario(s string) *DecisionCreate {
 	dc.mutation.SetScenario(s)
@@ -79,31 +73,47 @@ func (dc *DecisionCreate) SetSourceIpStart(i int) *DecisionCreate {
 	return dc
 }
 
+// SetNillableSourceIpStart sets the sourceIpStart field if the given value is not nil.
+func (dc *DecisionCreate) SetNillableSourceIpStart(i *int) *DecisionCreate {
+	if i != nil {
+		dc.SetSourceIpStart(*i)
+	}
+	return dc
+}
+
 // SetSourceIpEnd sets the sourceIpEnd field.
 func (dc *DecisionCreate) SetSourceIpEnd(i int) *DecisionCreate {
 	dc.mutation.SetSourceIpEnd(i)
 	return dc
 }
 
-// SetSourceStr sets the sourceStr field.
-func (dc *DecisionCreate) SetSourceStr(s string) *DecisionCreate {
-	dc.mutation.SetSourceStr(s)
+// SetNillableSourceIpEnd sets the sourceIpEnd field if the given value is not nil.
+func (dc *DecisionCreate) SetNillableSourceIpEnd(i *int) *DecisionCreate {
+	if i != nil {
+		dc.SetSourceIpEnd(*i)
+	}
 	return dc
 }
 
-// SetScope sets the scope field.
-func (dc *DecisionCreate) SetScope(s string) *DecisionCreate {
-	dc.mutation.SetScope(s)
+// SetSourceScope sets the sourceScope field.
+func (dc *DecisionCreate) SetSourceScope(s string) *DecisionCreate {
+	dc.mutation.SetSourceScope(s)
 	return dc
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetSourceValue sets the sourceValue field.
+func (dc *DecisionCreate) SetSourceValue(s string) *DecisionCreate {
+	dc.mutation.SetSourceValue(s)
+	return dc
+}
+
+// SetOwnerID sets the owner edge to Alert by id.
 func (dc *DecisionCreate) SetOwnerID(id int) *DecisionCreate {
 	dc.mutation.SetOwnerID(id)
 	return dc
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (dc *DecisionCreate) SetNillableOwnerID(id *int) *DecisionCreate {
 	if id != nil {
 		dc = dc.SetOwnerID(*id)
@@ -111,9 +121,9 @@ func (dc *DecisionCreate) SetNillableOwnerID(id *int) *DecisionCreate {
 	return dc
 }
 
-// SetOwner sets the owner edge to Signal.
-func (dc *DecisionCreate) SetOwner(s *Signal) *DecisionCreate {
-	return dc.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (dc *DecisionCreate) SetOwner(a *Alert) *DecisionCreate {
+	return dc.SetOwnerID(a.ID)
 }
 
 // Mutation returns the DecisionMutation object of the builder.
@@ -174,26 +184,17 @@ func (dc *DecisionCreate) preSave() error {
 	if _, ok := dc.mutation.Until(); !ok {
 		return &ValidationError{Name: "until", err: errors.New("ent: missing required field \"until\"")}
 	}
-	if _, ok := dc.mutation.Reason(); !ok {
-		return &ValidationError{Name: "reason", err: errors.New("ent: missing required field \"reason\"")}
-	}
 	if _, ok := dc.mutation.Scenario(); !ok {
 		return &ValidationError{Name: "scenario", err: errors.New("ent: missing required field \"scenario\"")}
 	}
 	if _, ok := dc.mutation.DecisionType(); !ok {
 		return &ValidationError{Name: "decisionType", err: errors.New("ent: missing required field \"decisionType\"")}
 	}
-	if _, ok := dc.mutation.SourceIpStart(); !ok {
-		return &ValidationError{Name: "sourceIpStart", err: errors.New("ent: missing required field \"sourceIpStart\"")}
+	if _, ok := dc.mutation.SourceScope(); !ok {
+		return &ValidationError{Name: "sourceScope", err: errors.New("ent: missing required field \"sourceScope\"")}
 	}
-	if _, ok := dc.mutation.SourceIpEnd(); !ok {
-		return &ValidationError{Name: "sourceIpEnd", err: errors.New("ent: missing required field \"sourceIpEnd\"")}
-	}
-	if _, ok := dc.mutation.SourceStr(); !ok {
-		return &ValidationError{Name: "sourceStr", err: errors.New("ent: missing required field \"sourceStr\"")}
-	}
-	if _, ok := dc.mutation.Scope(); !ok {
-		return &ValidationError{Name: "scope", err: errors.New("ent: missing required field \"scope\"")}
+	if _, ok := dc.mutation.SourceValue(); !ok {
+		return &ValidationError{Name: "sourceValue", err: errors.New("ent: missing required field \"sourceValue\"")}
 	}
 	return nil
 }
@@ -246,14 +247,6 @@ func (dc *DecisionCreate) createSpec() (*Decision, *sqlgraph.CreateSpec) {
 		})
 		d.Until = value
 	}
-	if value, ok := dc.mutation.Reason(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: decision.FieldReason,
-		})
-		d.Reason = value
-	}
 	if value, ok := dc.mutation.Scenario(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -286,21 +279,21 @@ func (dc *DecisionCreate) createSpec() (*Decision, *sqlgraph.CreateSpec) {
 		})
 		d.SourceIpEnd = value
 	}
-	if value, ok := dc.mutation.SourceStr(); ok {
+	if value, ok := dc.mutation.SourceScope(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: decision.FieldSourceStr,
+			Column: decision.FieldSourceScope,
 		})
-		d.SourceStr = value
+		d.SourceScope = value
 	}
-	if value, ok := dc.mutation.Scope(); ok {
+	if value, ok := dc.mutation.SourceValue(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: decision.FieldScope,
+			Column: decision.FieldSourceValue,
 		})
-		d.Scope = value
+		d.SourceValue = value
 	}
 	if nodes := dc.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -312,7 +305,7 @@ func (dc *DecisionCreate) createSpec() (*Decision, *sqlgraph.CreateSpec) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

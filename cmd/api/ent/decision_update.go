@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -63,12 +63,6 @@ func (du *DecisionUpdate) SetUntil(t time.Time) *DecisionUpdate {
 	return du
 }
 
-// SetReason sets the reason field.
-func (du *DecisionUpdate) SetReason(s string) *DecisionUpdate {
-	du.mutation.SetReason(s)
-	return du
-}
-
 // SetScenario sets the scenario field.
 func (du *DecisionUpdate) SetScenario(s string) *DecisionUpdate {
 	du.mutation.SetScenario(s)
@@ -88,9 +82,23 @@ func (du *DecisionUpdate) SetSourceIpStart(i int) *DecisionUpdate {
 	return du
 }
 
+// SetNillableSourceIpStart sets the sourceIpStart field if the given value is not nil.
+func (du *DecisionUpdate) SetNillableSourceIpStart(i *int) *DecisionUpdate {
+	if i != nil {
+		du.SetSourceIpStart(*i)
+	}
+	return du
+}
+
 // AddSourceIpStart adds i to sourceIpStart.
 func (du *DecisionUpdate) AddSourceIpStart(i int) *DecisionUpdate {
 	du.mutation.AddSourceIpStart(i)
+	return du
+}
+
+// ClearSourceIpStart clears the value of sourceIpStart.
+func (du *DecisionUpdate) ClearSourceIpStart() *DecisionUpdate {
+	du.mutation.ClearSourceIpStart()
 	return du
 }
 
@@ -101,31 +109,45 @@ func (du *DecisionUpdate) SetSourceIpEnd(i int) *DecisionUpdate {
 	return du
 }
 
+// SetNillableSourceIpEnd sets the sourceIpEnd field if the given value is not nil.
+func (du *DecisionUpdate) SetNillableSourceIpEnd(i *int) *DecisionUpdate {
+	if i != nil {
+		du.SetSourceIpEnd(*i)
+	}
+	return du
+}
+
 // AddSourceIpEnd adds i to sourceIpEnd.
 func (du *DecisionUpdate) AddSourceIpEnd(i int) *DecisionUpdate {
 	du.mutation.AddSourceIpEnd(i)
 	return du
 }
 
-// SetSourceStr sets the sourceStr field.
-func (du *DecisionUpdate) SetSourceStr(s string) *DecisionUpdate {
-	du.mutation.SetSourceStr(s)
+// ClearSourceIpEnd clears the value of sourceIpEnd.
+func (du *DecisionUpdate) ClearSourceIpEnd() *DecisionUpdate {
+	du.mutation.ClearSourceIpEnd()
 	return du
 }
 
-// SetScope sets the scope field.
-func (du *DecisionUpdate) SetScope(s string) *DecisionUpdate {
-	du.mutation.SetScope(s)
+// SetSourceScope sets the sourceScope field.
+func (du *DecisionUpdate) SetSourceScope(s string) *DecisionUpdate {
+	du.mutation.SetSourceScope(s)
 	return du
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetSourceValue sets the sourceValue field.
+func (du *DecisionUpdate) SetSourceValue(s string) *DecisionUpdate {
+	du.mutation.SetSourceValue(s)
+	return du
+}
+
+// SetOwnerID sets the owner edge to Alert by id.
 func (du *DecisionUpdate) SetOwnerID(id int) *DecisionUpdate {
 	du.mutation.SetOwnerID(id)
 	return du
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (du *DecisionUpdate) SetNillableOwnerID(id *int) *DecisionUpdate {
 	if id != nil {
 		du = du.SetOwnerID(*id)
@@ -133,9 +155,9 @@ func (du *DecisionUpdate) SetNillableOwnerID(id *int) *DecisionUpdate {
 	return du
 }
 
-// SetOwner sets the owner edge to Signal.
-func (du *DecisionUpdate) SetOwner(s *Signal) *DecisionUpdate {
-	return du.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (du *DecisionUpdate) SetOwner(a *Alert) *DecisionUpdate {
+	return du.SetOwnerID(a.ID)
 }
 
 // Mutation returns the DecisionMutation object of the builder.
@@ -143,7 +165,7 @@ func (du *DecisionUpdate) Mutation() *DecisionMutation {
 	return du.mutation
 }
 
-// ClearOwner clears the owner edge to Signal.
+// ClearOwner clears the owner edge to Alert.
 func (du *DecisionUpdate) ClearOwner() *DecisionUpdate {
 	du.mutation.ClearOwner()
 	return du
@@ -240,13 +262,6 @@ func (du *DecisionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: decision.FieldUntil,
 		})
 	}
-	if value, ok := du.mutation.Reason(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: decision.FieldReason,
-		})
-	}
 	if value, ok := du.mutation.Scenario(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -275,6 +290,12 @@ func (du *DecisionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: decision.FieldSourceIpStart,
 		})
 	}
+	if du.mutation.SourceIpStartCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: decision.FieldSourceIpStart,
+		})
+	}
 	if value, ok := du.mutation.SourceIpEnd(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -289,18 +310,24 @@ func (du *DecisionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: decision.FieldSourceIpEnd,
 		})
 	}
-	if value, ok := du.mutation.SourceStr(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: decision.FieldSourceStr,
+	if du.mutation.SourceIpEndCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: decision.FieldSourceIpEnd,
 		})
 	}
-	if value, ok := du.mutation.Scope(); ok {
+	if value, ok := du.mutation.SourceScope(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: decision.FieldScope,
+			Column: decision.FieldSourceScope,
+		})
+	}
+	if value, ok := du.mutation.SourceValue(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: decision.FieldSourceValue,
 		})
 	}
 	if du.mutation.OwnerCleared() {
@@ -313,7 +340,7 @@ func (du *DecisionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -329,7 +356,7 @@ func (du *DecisionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -390,12 +417,6 @@ func (duo *DecisionUpdateOne) SetUntil(t time.Time) *DecisionUpdateOne {
 	return duo
 }
 
-// SetReason sets the reason field.
-func (duo *DecisionUpdateOne) SetReason(s string) *DecisionUpdateOne {
-	duo.mutation.SetReason(s)
-	return duo
-}
-
 // SetScenario sets the scenario field.
 func (duo *DecisionUpdateOne) SetScenario(s string) *DecisionUpdateOne {
 	duo.mutation.SetScenario(s)
@@ -415,9 +436,23 @@ func (duo *DecisionUpdateOne) SetSourceIpStart(i int) *DecisionUpdateOne {
 	return duo
 }
 
+// SetNillableSourceIpStart sets the sourceIpStart field if the given value is not nil.
+func (duo *DecisionUpdateOne) SetNillableSourceIpStart(i *int) *DecisionUpdateOne {
+	if i != nil {
+		duo.SetSourceIpStart(*i)
+	}
+	return duo
+}
+
 // AddSourceIpStart adds i to sourceIpStart.
 func (duo *DecisionUpdateOne) AddSourceIpStart(i int) *DecisionUpdateOne {
 	duo.mutation.AddSourceIpStart(i)
+	return duo
+}
+
+// ClearSourceIpStart clears the value of sourceIpStart.
+func (duo *DecisionUpdateOne) ClearSourceIpStart() *DecisionUpdateOne {
+	duo.mutation.ClearSourceIpStart()
 	return duo
 }
 
@@ -428,31 +463,45 @@ func (duo *DecisionUpdateOne) SetSourceIpEnd(i int) *DecisionUpdateOne {
 	return duo
 }
 
+// SetNillableSourceIpEnd sets the sourceIpEnd field if the given value is not nil.
+func (duo *DecisionUpdateOne) SetNillableSourceIpEnd(i *int) *DecisionUpdateOne {
+	if i != nil {
+		duo.SetSourceIpEnd(*i)
+	}
+	return duo
+}
+
 // AddSourceIpEnd adds i to sourceIpEnd.
 func (duo *DecisionUpdateOne) AddSourceIpEnd(i int) *DecisionUpdateOne {
 	duo.mutation.AddSourceIpEnd(i)
 	return duo
 }
 
-// SetSourceStr sets the sourceStr field.
-func (duo *DecisionUpdateOne) SetSourceStr(s string) *DecisionUpdateOne {
-	duo.mutation.SetSourceStr(s)
+// ClearSourceIpEnd clears the value of sourceIpEnd.
+func (duo *DecisionUpdateOne) ClearSourceIpEnd() *DecisionUpdateOne {
+	duo.mutation.ClearSourceIpEnd()
 	return duo
 }
 
-// SetScope sets the scope field.
-func (duo *DecisionUpdateOne) SetScope(s string) *DecisionUpdateOne {
-	duo.mutation.SetScope(s)
+// SetSourceScope sets the sourceScope field.
+func (duo *DecisionUpdateOne) SetSourceScope(s string) *DecisionUpdateOne {
+	duo.mutation.SetSourceScope(s)
 	return duo
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetSourceValue sets the sourceValue field.
+func (duo *DecisionUpdateOne) SetSourceValue(s string) *DecisionUpdateOne {
+	duo.mutation.SetSourceValue(s)
+	return duo
+}
+
+// SetOwnerID sets the owner edge to Alert by id.
 func (duo *DecisionUpdateOne) SetOwnerID(id int) *DecisionUpdateOne {
 	duo.mutation.SetOwnerID(id)
 	return duo
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (duo *DecisionUpdateOne) SetNillableOwnerID(id *int) *DecisionUpdateOne {
 	if id != nil {
 		duo = duo.SetOwnerID(*id)
@@ -460,9 +509,9 @@ func (duo *DecisionUpdateOne) SetNillableOwnerID(id *int) *DecisionUpdateOne {
 	return duo
 }
 
-// SetOwner sets the owner edge to Signal.
-func (duo *DecisionUpdateOne) SetOwner(s *Signal) *DecisionUpdateOne {
-	return duo.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (duo *DecisionUpdateOne) SetOwner(a *Alert) *DecisionUpdateOne {
+	return duo.SetOwnerID(a.ID)
 }
 
 // Mutation returns the DecisionMutation object of the builder.
@@ -470,7 +519,7 @@ func (duo *DecisionUpdateOne) Mutation() *DecisionMutation {
 	return duo.mutation
 }
 
-// ClearOwner clears the owner edge to Signal.
+// ClearOwner clears the owner edge to Alert.
 func (duo *DecisionUpdateOne) ClearOwner() *DecisionUpdateOne {
 	duo.mutation.ClearOwner()
 	return duo
@@ -565,13 +614,6 @@ func (duo *DecisionUpdateOne) sqlSave(ctx context.Context) (d *Decision, err err
 			Column: decision.FieldUntil,
 		})
 	}
-	if value, ok := duo.mutation.Reason(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: decision.FieldReason,
-		})
-	}
 	if value, ok := duo.mutation.Scenario(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -600,6 +642,12 @@ func (duo *DecisionUpdateOne) sqlSave(ctx context.Context) (d *Decision, err err
 			Column: decision.FieldSourceIpStart,
 		})
 	}
+	if duo.mutation.SourceIpStartCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: decision.FieldSourceIpStart,
+		})
+	}
 	if value, ok := duo.mutation.SourceIpEnd(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -614,18 +662,24 @@ func (duo *DecisionUpdateOne) sqlSave(ctx context.Context) (d *Decision, err err
 			Column: decision.FieldSourceIpEnd,
 		})
 	}
-	if value, ok := duo.mutation.SourceStr(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: decision.FieldSourceStr,
+	if duo.mutation.SourceIpEndCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Column: decision.FieldSourceIpEnd,
 		})
 	}
-	if value, ok := duo.mutation.Scope(); ok {
+	if value, ok := duo.mutation.SourceScope(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: decision.FieldScope,
+			Column: decision.FieldSourceScope,
+		})
+	}
+	if value, ok := duo.mutation.SourceValue(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: decision.FieldSourceValue,
 		})
 	}
 	if duo.mutation.OwnerCleared() {
@@ -638,7 +692,7 @@ func (duo *DecisionUpdateOne) sqlSave(ctx context.Context) (d *Decision, err err
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -654,7 +708,7 @@ func (duo *DecisionUpdateOne) sqlSave(ctx context.Context) (d *Decision, err err
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

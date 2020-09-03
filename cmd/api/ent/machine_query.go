@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -26,7 +26,7 @@ type MachineQuery struct {
 	unique     []string
 	predicates []predicate.Machine
 	// eager-loading edges.
-	withSignals *SignalQuery
+	withSignals *AlertQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,15 +57,15 @@ func (mq *MachineQuery) Order(o ...OrderFunc) *MachineQuery {
 }
 
 // QuerySignals chains the current query on the signals edge.
-func (mq *MachineQuery) QuerySignals() *SignalQuery {
-	query := &SignalQuery{config: mq.config}
+func (mq *MachineQuery) QuerySignals() *AlertQuery {
+	query := &AlertQuery{config: mq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := mq.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(machine.Table, machine.FieldID, mq.sqlQuery()),
-			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.To(alert.Table, alert.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, machine.SignalsTable, machine.SignalsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
@@ -255,8 +255,8 @@ func (mq *MachineQuery) Clone() *MachineQuery {
 
 //  WithSignals tells the query-builder to eager-loads the nodes that are connected to
 // the "signals" edge. The optional arguments used to configure the query builder of the edge.
-func (mq *MachineQuery) WithSignals(opts ...func(*SignalQuery)) *MachineQuery {
-	query := &SignalQuery{config: mq.config}
+func (mq *MachineQuery) WithSignals(opts ...func(*AlertQuery)) *MachineQuery {
+	query := &AlertQuery{config: mq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -363,7 +363,7 @@ func (mq *MachineQuery) sqlAll(ctx context.Context) ([]*Machine, error) {
 			nodeids[nodes[i].ID] = nodes[i]
 		}
 		query.withFKs = true
-		query.Where(predicate.Signal(func(s *sql.Selector) {
+		query.Where(predicate.Alert(func(s *sql.Selector) {
 			s.Where(sql.InValues(machine.SignalsColumn, fks...))
 		}))
 		neighbors, err := query.All(ctx)

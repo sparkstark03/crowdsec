@@ -8,20 +8,59 @@ import (
 )
 
 var (
+	// AlertsColumns holds the columns for the "alerts" table.
+	AlertsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "scenario", Type: field.TypeString},
+		{Name: "bucket_id", Type: field.TypeString},
+		{Name: "message", Type: field.TypeString},
+		{Name: "events_count", Type: field.TypeInt},
+		{Name: "started_at", Type: field.TypeTime},
+		{Name: "stopped_at", Type: field.TypeTime},
+		{Name: "source_ip", Type: field.TypeString, Nullable: true},
+		{Name: "source_range", Type: field.TypeString, Nullable: true},
+		{Name: "source_as_number", Type: field.TypeString, Nullable: true},
+		{Name: "source_as_name", Type: field.TypeString, Nullable: true},
+		{Name: "source_country", Type: field.TypeString, Nullable: true},
+		{Name: "source_latitude", Type: field.TypeFloat32, Nullable: true},
+		{Name: "source_longitude", Type: field.TypeFloat32, Nullable: true},
+		{Name: "source_scope", Type: field.TypeString},
+		{Name: "source_value", Type: field.TypeString},
+		{Name: "capacity", Type: field.TypeInt},
+		{Name: "leak_speed", Type: field.TypeInt},
+		{Name: "reprocess", Type: field.TypeBool},
+		{Name: "machine_signals", Type: field.TypeInt, Nullable: true},
+	}
+	// AlertsTable holds the schema information for the "alerts" table.
+	AlertsTable = &schema.Table{
+		Name:       "alerts",
+		Columns:    AlertsColumns,
+		PrimaryKey: []*schema.Column{AlertsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "alerts_machines_signals",
+				Columns: []*schema.Column{AlertsColumns[21]},
+
+				RefColumns: []*schema.Column{MachinesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// DecisionsColumns holds the columns for the "decisions" table.
 	DecisionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "until", Type: field.TypeTime},
-		{Name: "reason", Type: field.TypeString},
 		{Name: "scenario", Type: field.TypeString},
 		{Name: "decision_type", Type: field.TypeString},
-		{Name: "source_ip_start", Type: field.TypeInt},
-		{Name: "source_ip_end", Type: field.TypeInt},
-		{Name: "source_str", Type: field.TypeString},
-		{Name: "scope", Type: field.TypeString},
-		{Name: "signal_decisions", Type: field.TypeInt, Nullable: true},
+		{Name: "source_ip_start", Type: field.TypeInt, Nullable: true},
+		{Name: "source_ip_end", Type: field.TypeInt, Nullable: true},
+		{Name: "source_scope", Type: field.TypeString},
+		{Name: "source_value", Type: field.TypeString},
+		{Name: "alert_decisions", Type: field.TypeInt, Nullable: true},
 	}
 	// DecisionsTable holds the schema information for the "decisions" table.
 	DecisionsTable = &schema.Table{
@@ -30,10 +69,10 @@ var (
 		PrimaryKey: []*schema.Column{DecisionsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "decisions_signals_decisions",
-				Columns: []*schema.Column{DecisionsColumns[11]},
+				Symbol:  "decisions_alerts_decisions",
+				Columns: []*schema.Column{DecisionsColumns[10]},
 
-				RefColumns: []*schema.Column{SignalsColumns[0]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -45,7 +84,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "time", Type: field.TypeTime},
 		{Name: "serialized", Type: field.TypeString},
-		{Name: "signal_events", Type: field.TypeInt, Nullable: true},
+		{Name: "alert_events", Type: field.TypeInt, Nullable: true},
 	}
 	// EventsTable holds the schema information for the "events" table.
 	EventsTable = &schema.Table{
@@ -54,10 +93,10 @@ var (
 		PrimaryKey: []*schema.Column{EventsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "events_signals_events",
+				Symbol:  "events_alerts_events",
 				Columns: []*schema.Column{EventsColumns[5]},
 
-				RefColumns: []*schema.Column{SignalsColumns[0]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -70,6 +109,8 @@ var (
 		{Name: "machine_id", Type: field.TypeString},
 		{Name: "password", Type: field.TypeString},
 		{Name: "ip_address", Type: field.TypeString},
+		{Name: "is_validated", Type: field.TypeBool},
+		{Name: "status", Type: field.TypeString, Nullable: true},
 	}
 	// MachinesTable holds the schema information for the "machines" table.
 	MachinesTable = &schema.Table{
@@ -85,7 +126,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "key", Type: field.TypeString},
 		{Name: "value", Type: field.TypeString},
-		{Name: "signal_metas", Type: field.TypeInt, Nullable: true},
+		{Name: "alert_metas", Type: field.TypeInt, Nullable: true},
 	}
 	// MetaTable holds the schema information for the "meta" table.
 	MetaTable = &schema.Table{
@@ -94,65 +135,27 @@ var (
 		PrimaryKey: []*schema.Column{MetaColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "meta_signals_metas",
+				Symbol:  "meta_alerts_metas",
 				Columns: []*schema.Column{MetaColumns[5]},
 
-				RefColumns: []*schema.Column{SignalsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-	}
-	// SignalsColumns holds the columns for the "signals" table.
-	SignalsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "scenario", Type: field.TypeString},
-		{Name: "bucket_id", Type: field.TypeString},
-		{Name: "alert_message", Type: field.TypeString},
-		{Name: "events_count", Type: field.TypeInt},
-		{Name: "started_at", Type: field.TypeTime},
-		{Name: "stopped_at", Type: field.TypeTime},
-		{Name: "source_ip", Type: field.TypeString, Nullable: true},
-		{Name: "source_range", Type: field.TypeString, Nullable: true},
-		{Name: "source_as_number", Type: field.TypeString, Nullable: true},
-		{Name: "source_as_name", Type: field.TypeString, Nullable: true},
-		{Name: "source_country", Type: field.TypeString, Nullable: true},
-		{Name: "source_latitude", Type: field.TypeFloat32, Nullable: true},
-		{Name: "source_longitude", Type: field.TypeFloat32, Nullable: true},
-		{Name: "capacity", Type: field.TypeInt},
-		{Name: "leak_speed", Type: field.TypeInt},
-		{Name: "reprocess", Type: field.TypeBool},
-		{Name: "machine_signals", Type: field.TypeInt, Nullable: true},
-	}
-	// SignalsTable holds the schema information for the "signals" table.
-	SignalsTable = &schema.Table{
-		Name:       "signals",
-		Columns:    SignalsColumns,
-		PrimaryKey: []*schema.Column{SignalsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:  "signals_machines_signals",
-				Columns: []*schema.Column{SignalsColumns[19]},
-
-				RefColumns: []*schema.Column{MachinesColumns[0]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AlertsTable,
 		DecisionsTable,
 		EventsTable,
 		MachinesTable,
 		MetaTable,
-		SignalsTable,
 	}
 )
 
 func init() {
-	DecisionsTable.ForeignKeys[0].RefTable = SignalsTable
-	EventsTable.ForeignKeys[0].RefTable = SignalsTable
-	MetaTable.ForeignKeys[0].RefTable = SignalsTable
-	SignalsTable.ForeignKeys[0].RefTable = MachinesTable
+	AlertsTable.ForeignKeys[0].RefTable = MachinesTable
+	DecisionsTable.ForeignKeys[0].RefTable = AlertsTable
+	EventsTable.ForeignKeys[0].RefTable = AlertsTable
+	MetaTable.ForeignKeys[0].RefTable = AlertsTable
 }

@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 )
@@ -67,17 +67,37 @@ func (mc *MachineCreate) SetIpAddress(s string) *MachineCreate {
 	return mc
 }
 
-// AddSignalIDs adds the signals edge to Signal by ids.
+// SetIsValidated sets the isValidated field.
+func (mc *MachineCreate) SetIsValidated(b bool) *MachineCreate {
+	mc.mutation.SetIsValidated(b)
+	return mc
+}
+
+// SetStatus sets the status field.
+func (mc *MachineCreate) SetStatus(s string) *MachineCreate {
+	mc.mutation.SetStatus(s)
+	return mc
+}
+
+// SetNillableStatus sets the status field if the given value is not nil.
+func (mc *MachineCreate) SetNillableStatus(s *string) *MachineCreate {
+	if s != nil {
+		mc.SetStatus(*s)
+	}
+	return mc
+}
+
+// AddSignalIDs adds the signals edge to Alert by ids.
 func (mc *MachineCreate) AddSignalIDs(ids ...int) *MachineCreate {
 	mc.mutation.AddSignalIDs(ids...)
 	return mc
 }
 
-// AddSignals adds the signals edges to Signal.
-func (mc *MachineCreate) AddSignals(s ...*Signal) *MachineCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddSignals adds the signals edges to Alert.
+func (mc *MachineCreate) AddSignals(a ...*Alert) *MachineCreate {
+	ids := make([]int, len(a))
+	for i := range a {
+		ids[i] = a[i].ID
 	}
 	return mc.AddSignalIDs(ids...)
 }
@@ -146,6 +166,9 @@ func (mc *MachineCreate) preSave() error {
 	if _, ok := mc.mutation.IpAddress(); !ok {
 		return &ValidationError{Name: "ipAddress", err: errors.New("ent: missing required field \"ipAddress\"")}
 	}
+	if _, ok := mc.mutation.IsValidated(); !ok {
+		return &ValidationError{Name: "isValidated", err: errors.New("ent: missing required field \"isValidated\"")}
+	}
 	return nil
 }
 
@@ -213,6 +236,22 @@ func (mc *MachineCreate) createSpec() (*Machine, *sqlgraph.CreateSpec) {
 		})
 		m.IpAddress = value
 	}
+	if value, ok := mc.mutation.IsValidated(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: machine.FieldIsValidated,
+		})
+		m.IsValidated = value
+	}
+	if value, ok := mc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: machine.FieldStatus,
+		})
+		m.Status = value
+	}
 	if nodes := mc.mutation.SignalsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -223,7 +262,7 @@ func (mc *MachineCreate) createSpec() (*Machine, *sqlgraph.CreateSpec) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

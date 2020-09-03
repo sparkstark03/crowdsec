@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -69,13 +69,13 @@ func (mu *MetaUpdate) SetValue(s string) *MetaUpdate {
 	return mu
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetOwnerID sets the owner edge to Alert by id.
 func (mu *MetaUpdate) SetOwnerID(id int) *MetaUpdate {
 	mu.mutation.SetOwnerID(id)
 	return mu
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (mu *MetaUpdate) SetNillableOwnerID(id *int) *MetaUpdate {
 	if id != nil {
 		mu = mu.SetOwnerID(*id)
@@ -83,9 +83,9 @@ func (mu *MetaUpdate) SetNillableOwnerID(id *int) *MetaUpdate {
 	return mu
 }
 
-// SetOwner sets the owner edge to Signal.
-func (mu *MetaUpdate) SetOwner(s *Signal) *MetaUpdate {
-	return mu.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (mu *MetaUpdate) SetOwner(a *Alert) *MetaUpdate {
+	return mu.SetOwnerID(a.ID)
 }
 
 // Mutation returns the MetaMutation object of the builder.
@@ -93,7 +93,7 @@ func (mu *MetaUpdate) Mutation() *MetaMutation {
 	return mu.mutation
 }
 
-// ClearOwner clears the owner edge to Signal.
+// ClearOwner clears the owner edge to Alert.
 func (mu *MetaUpdate) ClearOwner() *MetaUpdate {
 	mu.mutation.ClearOwner()
 	return mu
@@ -207,7 +207,7 @@ func (mu *MetaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -223,7 +223,7 @@ func (mu *MetaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -290,13 +290,13 @@ func (muo *MetaUpdateOne) SetValue(s string) *MetaUpdateOne {
 	return muo
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetOwnerID sets the owner edge to Alert by id.
 func (muo *MetaUpdateOne) SetOwnerID(id int) *MetaUpdateOne {
 	muo.mutation.SetOwnerID(id)
 	return muo
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (muo *MetaUpdateOne) SetNillableOwnerID(id *int) *MetaUpdateOne {
 	if id != nil {
 		muo = muo.SetOwnerID(*id)
@@ -304,9 +304,9 @@ func (muo *MetaUpdateOne) SetNillableOwnerID(id *int) *MetaUpdateOne {
 	return muo
 }
 
-// SetOwner sets the owner edge to Signal.
-func (muo *MetaUpdateOne) SetOwner(s *Signal) *MetaUpdateOne {
-	return muo.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (muo *MetaUpdateOne) SetOwner(a *Alert) *MetaUpdateOne {
+	return muo.SetOwnerID(a.ID)
 }
 
 // Mutation returns the MetaMutation object of the builder.
@@ -314,7 +314,7 @@ func (muo *MetaUpdateOne) Mutation() *MetaMutation {
 	return muo.mutation
 }
 
-// ClearOwner clears the owner edge to Signal.
+// ClearOwner clears the owner edge to Alert.
 func (muo *MetaUpdateOne) ClearOwner() *MetaUpdateOne {
 	muo.mutation.ClearOwner()
 	return muo
@@ -426,7 +426,7 @@ func (muo *MetaUpdateOne) sqlSave(ctx context.Context) (m *Meta, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -442,7 +442,7 @@ func (muo *MetaUpdateOne) sqlSave(ctx context.Context) (m *Meta, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

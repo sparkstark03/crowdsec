@@ -27,7 +27,7 @@ func (Event) Fields() []ent.Field {
 // Edges of the Event.
 func (Event) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("owner", Signal.Type).
+		edge.From("owner", Alert.Type).
 			Ref("events").
 			Unique(),
 	}

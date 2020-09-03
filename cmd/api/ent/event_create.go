@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 )
@@ -61,13 +61,13 @@ func (ec *EventCreate) SetSerialized(s string) *EventCreate {
 	return ec
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetOwnerID sets the owner edge to Alert by id.
 func (ec *EventCreate) SetOwnerID(id int) *EventCreate {
 	ec.mutation.SetOwnerID(id)
 	return ec
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (ec *EventCreate) SetNillableOwnerID(id *int) *EventCreate {
 	if id != nil {
 		ec = ec.SetOwnerID(*id)
@@ -75,9 +75,9 @@ func (ec *EventCreate) SetNillableOwnerID(id *int) *EventCreate {
 	return ec
 }
 
-// SetOwner sets the owner edge to Signal.
-func (ec *EventCreate) SetOwner(s *Signal) *EventCreate {
-	return ec.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (ec *EventCreate) SetOwner(a *Alert) *EventCreate {
+	return ec.SetOwnerID(a.ID)
 }
 
 // Mutation returns the EventMutation object of the builder.
@@ -210,7 +210,7 @@ func (ec *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

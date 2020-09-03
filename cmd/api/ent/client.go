@@ -9,11 +9,11 @@ import (
 
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/migrate"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 
 	"github.com/facebook/ent/dialect"
 	"github.com/facebook/ent/dialect/sql"
@@ -25,6 +25,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Alert is the client for interacting with the Alert builders.
+	Alert *AlertClient
 	// Decision is the client for interacting with the Decision builders.
 	Decision *DecisionClient
 	// Event is the client for interacting with the Event builders.
@@ -33,8 +35,6 @@ type Client struct {
 	Machine *MachineClient
 	// Meta is the client for interacting with the Meta builders.
 	Meta *MetaClient
-	// Signal is the client for interacting with the Signal builders.
-	Signal *SignalClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -48,11 +48,11 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Alert = NewAlertClient(c.config)
 	c.Decision = NewDecisionClient(c.config)
 	c.Event = NewEventClient(c.config)
 	c.Machine = NewMachineClient(c.config)
 	c.Meta = NewMetaClient(c.config)
-	c.Signal = NewSignalClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -85,11 +85,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:      ctx,
 		config:   cfg,
+		Alert:    NewAlertClient(cfg),
 		Decision: NewDecisionClient(cfg),
 		Event:    NewEventClient(cfg),
 		Machine:  NewMachineClient(cfg),
 		Meta:     NewMetaClient(cfg),
-		Signal:   NewSignalClient(cfg),
 	}, nil
 }
 
@@ -105,18 +105,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
 		config:   cfg,
+		Alert:    NewAlertClient(cfg),
 		Decision: NewDecisionClient(cfg),
 		Event:    NewEventClient(cfg),
 		Machine:  NewMachineClient(cfg),
 		Meta:     NewMetaClient(cfg),
-		Signal:   NewSignalClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Decision.
+//		Alert.
 //		Query().
 //		Count(ctx)
 //
@@ -138,11 +138,163 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Alert.Use(hooks...)
 	c.Decision.Use(hooks...)
 	c.Event.Use(hooks...)
 	c.Machine.Use(hooks...)
 	c.Meta.Use(hooks...)
-	c.Signal.Use(hooks...)
+}
+
+// AlertClient is a client for the Alert schema.
+type AlertClient struct {
+	config
+}
+
+// NewAlertClient returns a client for the Alert from the given config.
+func NewAlertClient(c config) *AlertClient {
+	return &AlertClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `alert.Hooks(f(g(h())))`.
+func (c *AlertClient) Use(hooks ...Hook) {
+	c.hooks.Alert = append(c.hooks.Alert, hooks...)
+}
+
+// Create returns a create builder for Alert.
+func (c *AlertClient) Create() *AlertCreate {
+	mutation := newAlertMutation(c.config, OpCreate)
+	return &AlertCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// BulkCreate returns a builder for creating a bulk of Alert entities.
+func (c *AlertClient) CreateBulk(builders ...*AlertCreate) *AlertCreateBulk {
+	return &AlertCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Alert.
+func (c *AlertClient) Update() *AlertUpdate {
+	mutation := newAlertMutation(c.config, OpUpdate)
+	return &AlertUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AlertClient) UpdateOne(a *Alert) *AlertUpdateOne {
+	mutation := newAlertMutation(c.config, OpUpdateOne, withAlert(a))
+	return &AlertUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *AlertClient) UpdateOneID(id int) *AlertUpdateOne {
+	mutation := newAlertMutation(c.config, OpUpdateOne, withAlertID(id))
+	return &AlertUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Alert.
+func (c *AlertClient) Delete() *AlertDelete {
+	mutation := newAlertMutation(c.config, OpDelete)
+	return &AlertDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *AlertClient) DeleteOne(a *Alert) *AlertDeleteOne {
+	return c.DeleteOneID(a.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *AlertClient) DeleteOneID(id int) *AlertDeleteOne {
+	builder := c.Delete().Where(alert.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &AlertDeleteOne{builder}
+}
+
+// Query returns a query builder for Alert.
+func (c *AlertClient) Query() *AlertQuery {
+	return &AlertQuery{config: c.config}
+}
+
+// Get returns a Alert entity by its id.
+func (c *AlertClient) Get(ctx context.Context, id int) (*Alert, error) {
+	return c.Query().Where(alert.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AlertClient) GetX(ctx context.Context, id int) *Alert {
+	a, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return a
+}
+
+// QueryOwner queries the owner edge of a Alert.
+func (c *AlertClient) QueryOwner(a *Alert) *MachineQuery {
+	query := &MachineQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(machine.Table, machine.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, alert.OwnerTable, alert.OwnerColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDecisions queries the decisions edge of a Alert.
+func (c *AlertClient) QueryDecisions(a *Alert) *DecisionQuery {
+	query := &DecisionQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(decision.Table, decision.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.DecisionsTable, alert.DecisionsColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEvents queries the events edge of a Alert.
+func (c *AlertClient) QueryEvents(a *Alert) *EventQuery {
+	query := &EventQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(event.Table, event.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.EventsTable, alert.EventsColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMetas queries the metas edge of a Alert.
+func (c *AlertClient) QueryMetas(a *Alert) *MetaQuery {
+	query := &MetaQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(meta.Table, meta.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.MetasTable, alert.MetasColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *AlertClient) Hooks() []Hook {
+	return c.hooks.Alert
 }
 
 // DecisionClient is a client for the Decision schema.
@@ -229,13 +381,13 @@ func (c *DecisionClient) GetX(ctx context.Context, id int) *Decision {
 }
 
 // QueryOwner queries the owner edge of a Decision.
-func (c *DecisionClient) QueryOwner(d *Decision) *SignalQuery {
-	query := &SignalQuery{config: c.config}
+func (c *DecisionClient) QueryOwner(d *Decision) *AlertQuery {
+	query := &AlertQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := d.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(decision.Table, decision.FieldID, id),
-			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.To(alert.Table, alert.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, decision.OwnerTable, decision.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
@@ -333,13 +485,13 @@ func (c *EventClient) GetX(ctx context.Context, id int) *Event {
 }
 
 // QueryOwner queries the owner edge of a Event.
-func (c *EventClient) QueryOwner(e *Event) *SignalQuery {
-	query := &SignalQuery{config: c.config}
+func (c *EventClient) QueryOwner(e *Event) *AlertQuery {
+	query := &AlertQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := e.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(event.Table, event.FieldID, id),
-			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.To(alert.Table, alert.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, event.OwnerTable, event.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(e.driver.Dialect(), step)
@@ -437,13 +589,13 @@ func (c *MachineClient) GetX(ctx context.Context, id int) *Machine {
 }
 
 // QuerySignals queries the signals edge of a Machine.
-func (c *MachineClient) QuerySignals(m *Machine) *SignalQuery {
-	query := &SignalQuery{config: c.config}
+func (c *MachineClient) QuerySignals(m *Machine) *AlertQuery {
+	query := &AlertQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(machine.Table, machine.FieldID, id),
-			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.To(alert.Table, alert.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, machine.SignalsTable, machine.SignalsColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
@@ -541,13 +693,13 @@ func (c *MetaClient) GetX(ctx context.Context, id int) *Meta {
 }
 
 // QueryOwner queries the owner edge of a Meta.
-func (c *MetaClient) QueryOwner(m *Meta) *SignalQuery {
-	query := &SignalQuery{config: c.config}
+func (c *MetaClient) QueryOwner(m *Meta) *AlertQuery {
+	query := &AlertQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(meta.Table, meta.FieldID, id),
-			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.To(alert.Table, alert.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, meta.OwnerTable, meta.OwnerColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
@@ -559,156 +711,4 @@ func (c *MetaClient) QueryOwner(m *Meta) *SignalQuery {
 // Hooks returns the client hooks.
 func (c *MetaClient) Hooks() []Hook {
 	return c.hooks.Meta
-}
-
-// SignalClient is a client for the Signal schema.
-type SignalClient struct {
-	config
-}
-
-// NewSignalClient returns a client for the Signal from the given config.
-func NewSignalClient(c config) *SignalClient {
-	return &SignalClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `signal.Hooks(f(g(h())))`.
-func (c *SignalClient) Use(hooks ...Hook) {
-	c.hooks.Signal = append(c.hooks.Signal, hooks...)
-}
-
-// Create returns a create builder for Signal.
-func (c *SignalClient) Create() *SignalCreate {
-	mutation := newSignalMutation(c.config, OpCreate)
-	return &SignalCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// BulkCreate returns a builder for creating a bulk of Signal entities.
-func (c *SignalClient) CreateBulk(builders ...*SignalCreate) *SignalCreateBulk {
-	return &SignalCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Signal.
-func (c *SignalClient) Update() *SignalUpdate {
-	mutation := newSignalMutation(c.config, OpUpdate)
-	return &SignalUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *SignalClient) UpdateOne(s *Signal) *SignalUpdateOne {
-	mutation := newSignalMutation(c.config, OpUpdateOne, withSignal(s))
-	return &SignalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *SignalClient) UpdateOneID(id int) *SignalUpdateOne {
-	mutation := newSignalMutation(c.config, OpUpdateOne, withSignalID(id))
-	return &SignalUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Signal.
-func (c *SignalClient) Delete() *SignalDelete {
-	mutation := newSignalMutation(c.config, OpDelete)
-	return &SignalDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a delete builder for the given entity.
-func (c *SignalClient) DeleteOne(s *Signal) *SignalDeleteOne {
-	return c.DeleteOneID(s.ID)
-}
-
-// DeleteOneID returns a delete builder for the given id.
-func (c *SignalClient) DeleteOneID(id int) *SignalDeleteOne {
-	builder := c.Delete().Where(signal.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &SignalDeleteOne{builder}
-}
-
-// Query returns a query builder for Signal.
-func (c *SignalClient) Query() *SignalQuery {
-	return &SignalQuery{config: c.config}
-}
-
-// Get returns a Signal entity by its id.
-func (c *SignalClient) Get(ctx context.Context, id int) (*Signal, error) {
-	return c.Query().Where(signal.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *SignalClient) GetX(ctx context.Context, id int) *Signal {
-	s, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return s
-}
-
-// QueryOwner queries the owner edge of a Signal.
-func (c *SignalClient) QueryOwner(s *Signal) *MachineQuery {
-	query := &MachineQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(signal.Table, signal.FieldID, id),
-			sqlgraph.To(machine.Table, machine.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, signal.OwnerTable, signal.OwnerColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryDecisions queries the decisions edge of a Signal.
-func (c *SignalClient) QueryDecisions(s *Signal) *DecisionQuery {
-	query := &DecisionQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(signal.Table, signal.FieldID, id),
-			sqlgraph.To(decision.Table, decision.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, signal.DecisionsTable, signal.DecisionsColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryEvents queries the events edge of a Signal.
-func (c *SignalClient) QueryEvents(s *Signal) *EventQuery {
-	query := &EventQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(signal.Table, signal.FieldID, id),
-			sqlgraph.To(event.Table, event.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, signal.EventsTable, signal.EventsColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMetas queries the metas edge of a Signal.
-func (c *SignalClient) QueryMetas(s *Signal) *MetaQuery {
-	query := &MetaQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(signal.Table, signal.FieldID, id),
-			sqlgraph.To(meta.Table, meta.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, signal.MetasTable, signal.MetasColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *SignalClient) Hooks() []Hook {
-	return c.hooks.Signal
 }

@@ -20,20 +20,19 @@ func (Decision) Fields() []ent.Field {
 		field.Time("updated_at").
 			Default(time.Now),
 		field.Time("until"),
-		field.String("reason"),
 		field.String("scenario"),
 		field.String("decisionType"),
-		field.Int("sourceIpStart"),
-		field.Int("sourceIpEnd"),
-		field.String("sourceStr"),
-		field.String("scope"),
+		field.Int("sourceIpStart").Optional(),
+		field.Int("sourceIpEnd").Optional(),
+		field.String("sourceScope"),
+		field.String("sourceValue"),
 	}
 }
 
 // Edges of the Decision.
 func (Decision) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("owner", Signal.Type).
+		edge.From("owner", Alert.Type).
 			Ref("decisions").
 			Unique(),
 	}

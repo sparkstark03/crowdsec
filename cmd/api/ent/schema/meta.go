@@ -27,7 +27,7 @@ func (Meta) Fields() []ent.Field {
 // Edges of the Meta.
 func (Meta) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("owner", Signal.Type).
+		edge.From("owner", Alert.Type).
 			Ref("metas").
 			Unique(),
 	}

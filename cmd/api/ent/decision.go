@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 )
 
@@ -23,8 +23,6 @@ type Decision struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Until holds the value of the "until" field.
 	Until time.Time `json:"until,omitempty"`
-	// Reason holds the value of the "reason" field.
-	Reason string `json:"reason,omitempty"`
 	// Scenario holds the value of the "scenario" field.
 	Scenario string `json:"scenario,omitempty"`
 	// DecisionType holds the value of the "decisionType" field.
@@ -33,20 +31,20 @@ type Decision struct {
 	SourceIpStart int `json:"sourceIpStart,omitempty"`
 	// SourceIpEnd holds the value of the "sourceIpEnd" field.
 	SourceIpEnd int `json:"sourceIpEnd,omitempty"`
-	// SourceStr holds the value of the "sourceStr" field.
-	SourceStr string `json:"sourceStr,omitempty"`
-	// Scope holds the value of the "scope" field.
-	Scope string `json:"scope,omitempty"`
+	// SourceScope holds the value of the "sourceScope" field.
+	SourceScope string `json:"sourceScope,omitempty"`
+	// SourceValue holds the value of the "sourceValue" field.
+	SourceValue string `json:"sourceValue,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DecisionQuery when eager-loading is set.
-	Edges            DecisionEdges `json:"edges"`
-	signal_decisions *int
+	Edges           DecisionEdges `json:"edges"`
+	alert_decisions *int
 }
 
 // DecisionEdges holds the relations/edges for other nodes in the graph.
 type DecisionEdges struct {
 	// Owner holds the value of the owner edge.
-	Owner *Signal
+	Owner *Alert
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
@@ -54,12 +52,12 @@ type DecisionEdges struct {
 
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e DecisionEdges) OwnerOrErr() (*Signal, error) {
+func (e DecisionEdges) OwnerOrErr() (*Alert, error) {
 	if e.loadedTypes[0] {
 		if e.Owner == nil {
 			// The edge owner was loaded in eager-loading,
 			// but was not found.
-			return nil, &NotFoundError{label: signal.Label}
+			return nil, &NotFoundError{label: alert.Label}
 		}
 		return e.Owner, nil
 	}
@@ -73,20 +71,19 @@ func (*Decision) scanValues() []interface{} {
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
 		&sql.NullTime{},   // until
-		&sql.NullString{}, // reason
 		&sql.NullString{}, // scenario
 		&sql.NullString{}, // decisionType
 		&sql.NullInt64{},  // sourceIpStart
 		&sql.NullInt64{},  // sourceIpEnd
-		&sql.NullString{}, // sourceStr
-		&sql.NullString{}, // scope
+		&sql.NullString{}, // sourceScope
+		&sql.NullString{}, // sourceValue
 	}
 }
 
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
 func (*Decision) fkValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{}, // signal_decisions
+		&sql.NullInt64{}, // alert_decisions
 	}
 }
 
@@ -118,54 +115,49 @@ func (d *Decision) assignValues(values ...interface{}) error {
 		d.Until = value.Time
 	}
 	if value, ok := values[3].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field reason", values[3])
-	} else if value.Valid {
-		d.Reason = value.String
-	}
-	if value, ok := values[4].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field scenario", values[4])
+		return fmt.Errorf("unexpected type %T for field scenario", values[3])
 	} else if value.Valid {
 		d.Scenario = value.String
 	}
-	if value, ok := values[5].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field decisionType", values[5])
+	if value, ok := values[4].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field decisionType", values[4])
 	} else if value.Valid {
 		d.DecisionType = value.String
 	}
-	if value, ok := values[6].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field sourceIpStart", values[6])
+	if value, ok := values[5].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field sourceIpStart", values[5])
 	} else if value.Valid {
 		d.SourceIpStart = int(value.Int64)
 	}
-	if value, ok := values[7].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field sourceIpEnd", values[7])
+	if value, ok := values[6].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field sourceIpEnd", values[6])
 	} else if value.Valid {
 		d.SourceIpEnd = int(value.Int64)
 	}
+	if value, ok := values[7].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field sourceScope", values[7])
+	} else if value.Valid {
+		d.SourceScope = value.String
+	}
 	if value, ok := values[8].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field sourceStr", values[8])
+		return fmt.Errorf("unexpected type %T for field sourceValue", values[8])
 	} else if value.Valid {
-		d.SourceStr = value.String
+		d.SourceValue = value.String
 	}
-	if value, ok := values[9].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field scope", values[9])
-	} else if value.Valid {
-		d.Scope = value.String
-	}
-	values = values[10:]
+	values = values[9:]
 	if len(values) == len(decision.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field signal_decisions", value)
+			return fmt.Errorf("unexpected type %T for edge-field alert_decisions", value)
 		} else if value.Valid {
-			d.signal_decisions = new(int)
-			*d.signal_decisions = int(value.Int64)
+			d.alert_decisions = new(int)
+			*d.alert_decisions = int(value.Int64)
 		}
 	}
 	return nil
 }
 
 // QueryOwner queries the owner edge of the Decision.
-func (d *Decision) QueryOwner() *SignalQuery {
+func (d *Decision) QueryOwner() *AlertQuery {
 	return (&DecisionClient{config: d.config}).QueryOwner(d)
 }
 
@@ -198,8 +190,6 @@ func (d *Decision) String() string {
 	builder.WriteString(d.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", until=")
 	builder.WriteString(d.Until.Format(time.ANSIC))
-	builder.WriteString(", reason=")
-	builder.WriteString(d.Reason)
 	builder.WriteString(", scenario=")
 	builder.WriteString(d.Scenario)
 	builder.WriteString(", decisionType=")
@@ -208,10 +198,10 @@ func (d *Decision) String() string {
 	builder.WriteString(fmt.Sprintf("%v", d.SourceIpStart))
 	builder.WriteString(", sourceIpEnd=")
 	builder.WriteString(fmt.Sprintf("%v", d.SourceIpEnd))
-	builder.WriteString(", sourceStr=")
-	builder.WriteString(d.SourceStr)
-	builder.WriteString(", scope=")
-	builder.WriteString(d.Scope)
+	builder.WriteString(", sourceScope=")
+	builder.WriteString(d.SourceScope)
+	builder.WriteString(", sourceValue=")
+	builder.WriteString(d.SourceValue)
 	builder.WriteByte(')')
 	return builder.String()
 }

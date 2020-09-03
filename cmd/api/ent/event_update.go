@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -69,13 +69,13 @@ func (eu *EventUpdate) SetSerialized(s string) *EventUpdate {
 	return eu
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetOwnerID sets the owner edge to Alert by id.
 func (eu *EventUpdate) SetOwnerID(id int) *EventUpdate {
 	eu.mutation.SetOwnerID(id)
 	return eu
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (eu *EventUpdate) SetNillableOwnerID(id *int) *EventUpdate {
 	if id != nil {
 		eu = eu.SetOwnerID(*id)
@@ -83,9 +83,9 @@ func (eu *EventUpdate) SetNillableOwnerID(id *int) *EventUpdate {
 	return eu
 }
 
-// SetOwner sets the owner edge to Signal.
-func (eu *EventUpdate) SetOwner(s *Signal) *EventUpdate {
-	return eu.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (eu *EventUpdate) SetOwner(a *Alert) *EventUpdate {
+	return eu.SetOwnerID(a.ID)
 }
 
 // Mutation returns the EventMutation object of the builder.
@@ -93,7 +93,7 @@ func (eu *EventUpdate) Mutation() *EventMutation {
 	return eu.mutation
 }
 
-// ClearOwner clears the owner edge to Signal.
+// ClearOwner clears the owner edge to Alert.
 func (eu *EventUpdate) ClearOwner() *EventUpdate {
 	eu.mutation.ClearOwner()
 	return eu
@@ -207,7 +207,7 @@ func (eu *EventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -223,7 +223,7 @@ func (eu *EventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -290,13 +290,13 @@ func (euo *EventUpdateOne) SetSerialized(s string) *EventUpdateOne {
 	return euo
 }
 
-// SetOwnerID sets the owner edge to Signal by id.
+// SetOwnerID sets the owner edge to Alert by id.
 func (euo *EventUpdateOne) SetOwnerID(id int) *EventUpdateOne {
 	euo.mutation.SetOwnerID(id)
 	return euo
 }
 
-// SetNillableOwnerID sets the owner edge to Signal by id if the given value is not nil.
+// SetNillableOwnerID sets the owner edge to Alert by id if the given value is not nil.
 func (euo *EventUpdateOne) SetNillableOwnerID(id *int) *EventUpdateOne {
 	if id != nil {
 		euo = euo.SetOwnerID(*id)
@@ -304,9 +304,9 @@ func (euo *EventUpdateOne) SetNillableOwnerID(id *int) *EventUpdateOne {
 	return euo
 }
 
-// SetOwner sets the owner edge to Signal.
-func (euo *EventUpdateOne) SetOwner(s *Signal) *EventUpdateOne {
-	return euo.SetOwnerID(s.ID)
+// SetOwner sets the owner edge to Alert.
+func (euo *EventUpdateOne) SetOwner(a *Alert) *EventUpdateOne {
+	return euo.SetOwnerID(a.ID)
 }
 
 // Mutation returns the EventMutation object of the builder.
@@ -314,7 +314,7 @@ func (euo *EventUpdateOne) Mutation() *EventMutation {
 	return euo.mutation
 }
 
-// ClearOwner clears the owner edge to Signal.
+// ClearOwner clears the owner edge to Alert.
 func (euo *EventUpdateOne) ClearOwner() *EventUpdateOne {
 	euo.mutation.ClearOwner()
 	return euo
@@ -426,7 +426,7 @@ func (euo *EventUpdateOne) sqlSave(ctx context.Context) (e *Event, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}
@@ -442,7 +442,7 @@ func (euo *EventUpdateOne) sqlSave(ctx context.Context) (e *Event, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: signal.FieldID,
+					Column: alert.FieldID,
 				},
 			},
 		}

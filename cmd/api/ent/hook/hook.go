@@ -9,6 +9,19 @@ import (
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent"
 )
 
+// The AlertFunc type is an adapter to allow the use of ordinary
+// function as Alert mutator.
+type AlertFunc func(context.Context, *ent.AlertMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AlertFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.AlertMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The DecisionFunc type is an adapter to allow the use of ordinary
 // function as Decision mutator.
 type DecisionFunc func(context.Context, *ent.DecisionMutation) (ent.Value, error)
@@ -57,19 +70,6 @@ func (f MetaFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	mv, ok := m.(*ent.MetaMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MetaMutation", m)
-	}
-	return f(ctx, mv)
-}
-
-// The SignalFunc type is an adapter to allow the use of ordinary
-// function as Signal mutator.
-type SignalFunc func(context.Context, *ent.SignalMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f SignalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.SignalMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SignalMutation", m)
 	}
 	return f(ctx, mv)
 }

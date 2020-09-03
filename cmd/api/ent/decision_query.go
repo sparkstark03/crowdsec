@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -25,7 +25,7 @@ type DecisionQuery struct {
 	unique     []string
 	predicates []predicate.Decision
 	// eager-loading edges.
-	withOwner *SignalQuery
+	withOwner *AlertQuery
 	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -57,15 +57,15 @@ func (dq *DecisionQuery) Order(o ...OrderFunc) *DecisionQuery {
 }
 
 // QueryOwner chains the current query on the owner edge.
-func (dq *DecisionQuery) QueryOwner() *SignalQuery {
-	query := &SignalQuery{config: dq.config}
+func (dq *DecisionQuery) QueryOwner() *AlertQuery {
+	query := &AlertQuery{config: dq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := dq.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(decision.Table, decision.FieldID, dq.sqlQuery()),
-			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.To(alert.Table, alert.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, decision.OwnerTable, decision.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(dq.driver.Dialect(), step)
@@ -255,8 +255,8 @@ func (dq *DecisionQuery) Clone() *DecisionQuery {
 
 //  WithOwner tells the query-builder to eager-loads the nodes that are connected to
 // the "owner" edge. The optional arguments used to configure the query builder of the edge.
-func (dq *DecisionQuery) WithOwner(opts ...func(*SignalQuery)) *DecisionQuery {
-	query := &SignalQuery{config: dq.config}
+func (dq *DecisionQuery) WithOwner(opts ...func(*AlertQuery)) *DecisionQuery {
+	query := &AlertQuery{config: dq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -369,12 +369,12 @@ func (dq *DecisionQuery) sqlAll(ctx context.Context) ([]*Decision, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Decision)
 		for i := range nodes {
-			if fk := nodes[i].signal_decisions; fk != nil {
+			if fk := nodes[i].alert_decisions; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
 		}
-		query.Where(signal.IDIn(ids...))
+		query.Where(alert.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
@@ -382,7 +382,7 @@ func (dq *DecisionQuery) sqlAll(ctx context.Context) ([]*Decision, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "signal_decisions" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "alert_decisions" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Owner = n

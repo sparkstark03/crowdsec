@@ -6,6 +6,9 @@ import (
 	"github.com/facebook/ent/dialect/sql"
 )
 
+// Alert is the predicate function for alert builders.
+type Alert func(*sql.Selector)
+
 // Decision is the predicate function for decision builders.
 type Decision func(*sql.Selector)
 
@@ -17,6 +20,3 @@ type Machine func(*sql.Selector)
 
 // Meta is the predicate function for meta builders.
 type Meta func(*sql.Selector)
-
-// Signal is the predicate function for signal builders.
-type Signal func(*sql.Selector)

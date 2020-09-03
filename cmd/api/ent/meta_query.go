@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/predicate"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -25,7 +25,7 @@ type MetaQuery struct {
 	unique     []string
 	predicates []predicate.Meta
 	// eager-loading edges.
-	withOwner *SignalQuery
+	withOwner *AlertQuery
 	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -57,15 +57,15 @@ func (mq *MetaQuery) Order(o ...OrderFunc) *MetaQuery {
 }
 
 // QueryOwner chains the current query on the owner edge.
-func (mq *MetaQuery) QueryOwner() *SignalQuery {
-	query := &SignalQuery{config: mq.config}
+func (mq *MetaQuery) QueryOwner() *AlertQuery {
+	query := &AlertQuery{config: mq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := mq.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(meta.Table, meta.FieldID, mq.sqlQuery()),
-			sqlgraph.To(signal.Table, signal.FieldID),
+			sqlgraph.To(alert.Table, alert.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, meta.OwnerTable, meta.OwnerColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
@@ -255,8 +255,8 @@ func (mq *MetaQuery) Clone() *MetaQuery {
 
 //  WithOwner tells the query-builder to eager-loads the nodes that are connected to
 // the "owner" edge. The optional arguments used to configure the query builder of the edge.
-func (mq *MetaQuery) WithOwner(opts ...func(*SignalQuery)) *MetaQuery {
-	query := &SignalQuery{config: mq.config}
+func (mq *MetaQuery) WithOwner(opts ...func(*AlertQuery)) *MetaQuery {
+	query := &AlertQuery{config: mq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -369,12 +369,12 @@ func (mq *MetaQuery) sqlAll(ctx context.Context) ([]*Meta, error) {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Meta)
 		for i := range nodes {
-			if fk := nodes[i].signal_metas; fk != nil {
+			if fk := nodes[i].alert_metas; fk != nil {
 				ids = append(ids, *fk)
 				nodeids[*fk] = append(nodeids[*fk], nodes[i])
 			}
 		}
-		query.Where(signal.IDIn(ids...))
+		query.Where(alert.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
@@ -382,7 +382,7 @@ func (mq *MetaQuery) sqlAll(ctx context.Context) ([]*Meta, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "signal_metas" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "alert_metas" returned %v`, n.ID)
 			}
 			for i := range nodes {
 				nodes[i].Edges.Owner = n

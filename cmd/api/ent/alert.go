@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 )
 
-// Signal is the model entity for the Signal schema.
-type Signal struct {
+// Alert is the model entity for the Alert schema.
+type Alert struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
@@ -25,8 +25,8 @@ type Signal struct {
 	Scenario string `json:"scenario,omitempty"`
 	// BucketId holds the value of the "bucketId" field.
 	BucketId string `json:"bucketId,omitempty"`
-	// AlertMessage holds the value of the "alertMessage" field.
-	AlertMessage string `json:"alertMessage,omitempty"`
+	// Message holds the value of the "message" field.
+	Message string `json:"message,omitempty"`
 	// EventsCount holds the value of the "eventsCount" field.
 	EventsCount int `json:"eventsCount,omitempty"`
 	// StartedAt holds the value of the "startedAt" field.
@@ -47,20 +47,24 @@ type Signal struct {
 	SourceLatitude float32 `json:"sourceLatitude,omitempty"`
 	// SourceLongitude holds the value of the "sourceLongitude" field.
 	SourceLongitude float32 `json:"sourceLongitude,omitempty"`
-	// Capacity holds the value of the "Capacity" field.
-	Capacity int `json:"Capacity,omitempty"`
+	// SourceScope holds the value of the "sourceScope" field.
+	SourceScope string `json:"sourceScope,omitempty"`
+	// SourceValue holds the value of the "sourceValue" field.
+	SourceValue string `json:"sourceValue,omitempty"`
+	// Capacity holds the value of the "capacity" field.
+	Capacity int `json:"capacity,omitempty"`
 	// LeakSpeed holds the value of the "leakSpeed" field.
 	LeakSpeed int `json:"leakSpeed,omitempty"`
 	// Reprocess holds the value of the "reprocess" field.
 	Reprocess bool `json:"reprocess,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the SignalQuery when eager-loading is set.
-	Edges           SignalEdges `json:"edges"`
+	// The values are being populated by the AlertQuery when eager-loading is set.
+	Edges           AlertEdges `json:"edges"`
 	machine_signals *int
 }
 
-// SignalEdges holds the relations/edges for other nodes in the graph.
-type SignalEdges struct {
+// AlertEdges holds the relations/edges for other nodes in the graph.
+type AlertEdges struct {
 	// Owner holds the value of the owner edge.
 	Owner *Machine
 	// Decisions holds the value of the decisions edge.
@@ -76,7 +80,7 @@ type SignalEdges struct {
 
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SignalEdges) OwnerOrErr() (*Machine, error) {
+func (e AlertEdges) OwnerOrErr() (*Machine, error) {
 	if e.loadedTypes[0] {
 		if e.Owner == nil {
 			// The edge owner was loaded in eager-loading,
@@ -90,7 +94,7 @@ func (e SignalEdges) OwnerOrErr() (*Machine, error) {
 
 // DecisionsOrErr returns the Decisions value or an error if the edge
 // was not loaded in eager-loading.
-func (e SignalEdges) DecisionsOrErr() ([]*Decision, error) {
+func (e AlertEdges) DecisionsOrErr() ([]*Decision, error) {
 	if e.loadedTypes[1] {
 		return e.Decisions, nil
 	}
@@ -99,7 +103,7 @@ func (e SignalEdges) DecisionsOrErr() ([]*Decision, error) {
 
 // EventsOrErr returns the Events value or an error if the edge
 // was not loaded in eager-loading.
-func (e SignalEdges) EventsOrErr() ([]*Event, error) {
+func (e AlertEdges) EventsOrErr() ([]*Event, error) {
 	if e.loadedTypes[2] {
 		return e.Events, nil
 	}
@@ -108,7 +112,7 @@ func (e SignalEdges) EventsOrErr() ([]*Event, error) {
 
 // MetasOrErr returns the Metas value or an error if the edge
 // was not loaded in eager-loading.
-func (e SignalEdges) MetasOrErr() ([]*Meta, error) {
+func (e AlertEdges) MetasOrErr() ([]*Meta, error) {
 	if e.loadedTypes[3] {
 		return e.Metas, nil
 	}
@@ -116,14 +120,14 @@ func (e SignalEdges) MetasOrErr() ([]*Meta, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Signal) scanValues() []interface{} {
+func (*Alert) scanValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{},   // id
 		&sql.NullTime{},    // created_at
 		&sql.NullTime{},    // updated_at
 		&sql.NullString{},  // scenario
 		&sql.NullString{},  // bucketId
-		&sql.NullString{},  // alertMessage
+		&sql.NullString{},  // message
 		&sql.NullInt64{},   // eventsCount
 		&sql.NullTime{},    // startedAt
 		&sql.NullTime{},    // stoppedAt
@@ -134,221 +138,237 @@ func (*Signal) scanValues() []interface{} {
 		&sql.NullString{},  // sourceCountry
 		&sql.NullFloat64{}, // sourceLatitude
 		&sql.NullFloat64{}, // sourceLongitude
-		&sql.NullInt64{},   // Capacity
+		&sql.NullString{},  // sourceScope
+		&sql.NullString{},  // sourceValue
+		&sql.NullInt64{},   // capacity
 		&sql.NullInt64{},   // leakSpeed
 		&sql.NullBool{},    // reprocess
 	}
 }
 
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
-func (*Signal) fkValues() []interface{} {
+func (*Alert) fkValues() []interface{} {
 	return []interface{}{
 		&sql.NullInt64{}, // machine_signals
 	}
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Signal fields.
-func (s *Signal) assignValues(values ...interface{}) error {
-	if m, n := len(values), len(signal.Columns); m < n {
+// to the Alert fields.
+func (a *Alert) assignValues(values ...interface{}) error {
+	if m, n := len(values), len(alert.Columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	value, ok := values[0].(*sql.NullInt64)
 	if !ok {
 		return fmt.Errorf("unexpected type %T for field id", value)
 	}
-	s.ID = int(value.Int64)
+	a.ID = int(value.Int64)
 	values = values[1:]
 	if value, ok := values[0].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field created_at", values[0])
 	} else if value.Valid {
-		s.CreatedAt = value.Time
+		a.CreatedAt = value.Time
 	}
 	if value, ok := values[1].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field updated_at", values[1])
 	} else if value.Valid {
-		s.UpdatedAt = value.Time
+		a.UpdatedAt = value.Time
 	}
 	if value, ok := values[2].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field scenario", values[2])
 	} else if value.Valid {
-		s.Scenario = value.String
+		a.Scenario = value.String
 	}
 	if value, ok := values[3].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field bucketId", values[3])
 	} else if value.Valid {
-		s.BucketId = value.String
+		a.BucketId = value.String
 	}
 	if value, ok := values[4].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field alertMessage", values[4])
+		return fmt.Errorf("unexpected type %T for field message", values[4])
 	} else if value.Valid {
-		s.AlertMessage = value.String
+		a.Message = value.String
 	}
 	if value, ok := values[5].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field eventsCount", values[5])
 	} else if value.Valid {
-		s.EventsCount = int(value.Int64)
+		a.EventsCount = int(value.Int64)
 	}
 	if value, ok := values[6].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field startedAt", values[6])
 	} else if value.Valid {
-		s.StartedAt = value.Time
+		a.StartedAt = value.Time
 	}
 	if value, ok := values[7].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field stoppedAt", values[7])
 	} else if value.Valid {
-		s.StoppedAt = value.Time
+		a.StoppedAt = value.Time
 	}
 	if value, ok := values[8].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceIp", values[8])
 	} else if value.Valid {
-		s.SourceIp = value.String
+		a.SourceIp = value.String
 	}
 	if value, ok := values[9].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceRange", values[9])
 	} else if value.Valid {
-		s.SourceRange = value.String
+		a.SourceRange = value.String
 	}
 	if value, ok := values[10].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceAsNumber", values[10])
 	} else if value.Valid {
-		s.SourceAsNumber = value.String
+		a.SourceAsNumber = value.String
 	}
 	if value, ok := values[11].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceAsName", values[11])
 	} else if value.Valid {
-		s.SourceAsName = value.String
+		a.SourceAsName = value.String
 	}
 	if value, ok := values[12].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceCountry", values[12])
 	} else if value.Valid {
-		s.SourceCountry = value.String
+		a.SourceCountry = value.String
 	}
 	if value, ok := values[13].(*sql.NullFloat64); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceLatitude", values[13])
 	} else if value.Valid {
-		s.SourceLatitude = float32(value.Float64)
+		a.SourceLatitude = float32(value.Float64)
 	}
 	if value, ok := values[14].(*sql.NullFloat64); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceLongitude", values[14])
 	} else if value.Valid {
-		s.SourceLongitude = float32(value.Float64)
+		a.SourceLongitude = float32(value.Float64)
 	}
-	if value, ok := values[15].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field Capacity", values[15])
+	if value, ok := values[15].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field sourceScope", values[15])
 	} else if value.Valid {
-		s.Capacity = int(value.Int64)
+		a.SourceScope = value.String
 	}
-	if value, ok := values[16].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field leakSpeed", values[16])
+	if value, ok := values[16].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field sourceValue", values[16])
 	} else if value.Valid {
-		s.LeakSpeed = int(value.Int64)
+		a.SourceValue = value.String
 	}
-	if value, ok := values[17].(*sql.NullBool); !ok {
-		return fmt.Errorf("unexpected type %T for field reprocess", values[17])
+	if value, ok := values[17].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field capacity", values[17])
 	} else if value.Valid {
-		s.Reprocess = value.Bool
+		a.Capacity = int(value.Int64)
 	}
-	values = values[18:]
-	if len(values) == len(signal.ForeignKeys) {
+	if value, ok := values[18].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field leakSpeed", values[18])
+	} else if value.Valid {
+		a.LeakSpeed = int(value.Int64)
+	}
+	if value, ok := values[19].(*sql.NullBool); !ok {
+		return fmt.Errorf("unexpected type %T for field reprocess", values[19])
+	} else if value.Valid {
+		a.Reprocess = value.Bool
+	}
+	values = values[20:]
+	if len(values) == len(alert.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field machine_signals", value)
 		} else if value.Valid {
-			s.machine_signals = new(int)
-			*s.machine_signals = int(value.Int64)
+			a.machine_signals = new(int)
+			*a.machine_signals = int(value.Int64)
 		}
 	}
 	return nil
 }
 
-// QueryOwner queries the owner edge of the Signal.
-func (s *Signal) QueryOwner() *MachineQuery {
-	return (&SignalClient{config: s.config}).QueryOwner(s)
+// QueryOwner queries the owner edge of the Alert.
+func (a *Alert) QueryOwner() *MachineQuery {
+	return (&AlertClient{config: a.config}).QueryOwner(a)
 }
 
-// QueryDecisions queries the decisions edge of the Signal.
-func (s *Signal) QueryDecisions() *DecisionQuery {
-	return (&SignalClient{config: s.config}).QueryDecisions(s)
+// QueryDecisions queries the decisions edge of the Alert.
+func (a *Alert) QueryDecisions() *DecisionQuery {
+	return (&AlertClient{config: a.config}).QueryDecisions(a)
 }
 
-// QueryEvents queries the events edge of the Signal.
-func (s *Signal) QueryEvents() *EventQuery {
-	return (&SignalClient{config: s.config}).QueryEvents(s)
+// QueryEvents queries the events edge of the Alert.
+func (a *Alert) QueryEvents() *EventQuery {
+	return (&AlertClient{config: a.config}).QueryEvents(a)
 }
 
-// QueryMetas queries the metas edge of the Signal.
-func (s *Signal) QueryMetas() *MetaQuery {
-	return (&SignalClient{config: s.config}).QueryMetas(s)
+// QueryMetas queries the metas edge of the Alert.
+func (a *Alert) QueryMetas() *MetaQuery {
+	return (&AlertClient{config: a.config}).QueryMetas(a)
 }
 
-// Update returns a builder for updating this Signal.
-// Note that, you need to call Signal.Unwrap() before calling this method, if this Signal
+// Update returns a builder for updating this Alert.
+// Note that, you need to call Alert.Unwrap() before calling this method, if this Alert
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (s *Signal) Update() *SignalUpdateOne {
-	return (&SignalClient{config: s.config}).UpdateOne(s)
+func (a *Alert) Update() *AlertUpdateOne {
+	return (&AlertClient{config: a.config}).UpdateOne(a)
 }
 
 // Unwrap unwraps the entity that was returned from a transaction after it was closed,
 // so that all next queries will be executed through the driver which created the transaction.
-func (s *Signal) Unwrap() *Signal {
-	tx, ok := s.config.driver.(*txDriver)
+func (a *Alert) Unwrap() *Alert {
+	tx, ok := a.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Signal is not a transactional entity")
+		panic("ent: Alert is not a transactional entity")
 	}
-	s.config.driver = tx.drv
-	return s
+	a.config.driver = tx.drv
+	return a
 }
 
 // String implements the fmt.Stringer.
-func (s *Signal) String() string {
+func (a *Alert) String() string {
 	var builder strings.Builder
-	builder.WriteString("Signal(")
-	builder.WriteString(fmt.Sprintf("id=%v", s.ID))
+	builder.WriteString("Alert(")
+	builder.WriteString(fmt.Sprintf("id=%v", a.ID))
 	builder.WriteString(", created_at=")
-	builder.WriteString(s.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")
-	builder.WriteString(s.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(a.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", scenario=")
-	builder.WriteString(s.Scenario)
+	builder.WriteString(a.Scenario)
 	builder.WriteString(", bucketId=")
-	builder.WriteString(s.BucketId)
-	builder.WriteString(", alertMessage=")
-	builder.WriteString(s.AlertMessage)
+	builder.WriteString(a.BucketId)
+	builder.WriteString(", message=")
+	builder.WriteString(a.Message)
 	builder.WriteString(", eventsCount=")
-	builder.WriteString(fmt.Sprintf("%v", s.EventsCount))
+	builder.WriteString(fmt.Sprintf("%v", a.EventsCount))
 	builder.WriteString(", startedAt=")
-	builder.WriteString(s.StartedAt.Format(time.ANSIC))
+	builder.WriteString(a.StartedAt.Format(time.ANSIC))
 	builder.WriteString(", stoppedAt=")
-	builder.WriteString(s.StoppedAt.Format(time.ANSIC))
+	builder.WriteString(a.StoppedAt.Format(time.ANSIC))
 	builder.WriteString(", sourceIp=")
-	builder.WriteString(s.SourceIp)
+	builder.WriteString(a.SourceIp)
 	builder.WriteString(", sourceRange=")
-	builder.WriteString(s.SourceRange)
+	builder.WriteString(a.SourceRange)
 	builder.WriteString(", sourceAsNumber=")
-	builder.WriteString(s.SourceAsNumber)
+	builder.WriteString(a.SourceAsNumber)
 	builder.WriteString(", sourceAsName=")
-	builder.WriteString(s.SourceAsName)
+	builder.WriteString(a.SourceAsName)
 	builder.WriteString(", sourceCountry=")
-	builder.WriteString(s.SourceCountry)
+	builder.WriteString(a.SourceCountry)
 	builder.WriteString(", sourceLatitude=")
-	builder.WriteString(fmt.Sprintf("%v", s.SourceLatitude))
+	builder.WriteString(fmt.Sprintf("%v", a.SourceLatitude))
 	builder.WriteString(", sourceLongitude=")
-	builder.WriteString(fmt.Sprintf("%v", s.SourceLongitude))
-	builder.WriteString(", Capacity=")
-	builder.WriteString(fmt.Sprintf("%v", s.Capacity))
+	builder.WriteString(fmt.Sprintf("%v", a.SourceLongitude))
+	builder.WriteString(", sourceScope=")
+	builder.WriteString(a.SourceScope)
+	builder.WriteString(", sourceValue=")
+	builder.WriteString(a.SourceValue)
+	builder.WriteString(", capacity=")
+	builder.WriteString(fmt.Sprintf("%v", a.Capacity))
 	builder.WriteString(", leakSpeed=")
-	builder.WriteString(fmt.Sprintf("%v", s.LeakSpeed))
+	builder.WriteString(fmt.Sprintf("%v", a.LeakSpeed))
 	builder.WriteString(", reprocess=")
-	builder.WriteString(fmt.Sprintf("%v", s.Reprocess))
+	builder.WriteString(fmt.Sprintf("%v", a.Reprocess))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Signals is a parsable slice of Signal.
-type Signals []*Signal
+// Alerts is a parsable slice of Alert.
+type Alerts []*Alert
 
-func (s Signals) config(cfg config) {
-	for _i := range s {
-		s[_i].config = cfg
+func (a Alerts) config(cfg config) {
+	for _i := range a {
+		a[_i].config = cfg
 	}
 }

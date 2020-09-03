@@ -21,6 +21,10 @@ const (
 	FieldPassword = "password"
 	// FieldIpAddress holds the string denoting the ipaddress field in the database.
 	FieldIpAddress = "ip_address"
+	// FieldIsValidated holds the string denoting the isvalidated field in the database.
+	FieldIsValidated = "is_validated"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
 
 	// EdgeSignals holds the string denoting the signals edge name in mutations.
 	EdgeSignals = "signals"
@@ -28,10 +32,10 @@ const (
 	// Table holds the table name of the machine in the database.
 	Table = "machines"
 	// SignalsTable is the table the holds the signals relation/edge.
-	SignalsTable = "signals"
-	// SignalsInverseTable is the table name for the Signal entity.
-	// It exists in this package in order to avoid circular dependency with the "signal" package.
-	SignalsInverseTable = "signals"
+	SignalsTable = "alerts"
+	// SignalsInverseTable is the table name for the Alert entity.
+	// It exists in this package in order to avoid circular dependency with the "alert" package.
+	SignalsInverseTable = "alerts"
 	// SignalsColumn is the table column denoting the signals relation/edge.
 	SignalsColumn = "machine_signals"
 )
@@ -44,6 +48,8 @@ var Columns = []string{
 	FieldMachineId,
 	FieldPassword,
 	FieldIpAddress,
+	FieldIsValidated,
+	FieldStatus,
 }
 
 var (

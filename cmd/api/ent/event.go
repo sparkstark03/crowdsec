@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 )
 
@@ -27,14 +27,14 @@ type Event struct {
 	Serialized string `json:"serialized,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the EventQuery when eager-loading is set.
-	Edges         EventEdges `json:"edges"`
-	signal_events *int
+	Edges        EventEdges `json:"edges"`
+	alert_events *int
 }
 
 // EventEdges holds the relations/edges for other nodes in the graph.
 type EventEdges struct {
 	// Owner holds the value of the owner edge.
-	Owner *Signal
+	Owner *Alert
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
@@ -42,12 +42,12 @@ type EventEdges struct {
 
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e EventEdges) OwnerOrErr() (*Signal, error) {
+func (e EventEdges) OwnerOrErr() (*Alert, error) {
 	if e.loadedTypes[0] {
 		if e.Owner == nil {
 			// The edge owner was loaded in eager-loading,
 			// but was not found.
-			return nil, &NotFoundError{label: signal.Label}
+			return nil, &NotFoundError{label: alert.Label}
 		}
 		return e.Owner, nil
 	}
@@ -68,7 +68,7 @@ func (*Event) scanValues() []interface{} {
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
 func (*Event) fkValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{}, // signal_events
+		&sql.NullInt64{}, // alert_events
 	}
 }
 
@@ -107,17 +107,17 @@ func (e *Event) assignValues(values ...interface{}) error {
 	values = values[4:]
 	if len(values) == len(event.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field signal_events", value)
+			return fmt.Errorf("unexpected type %T for edge-field alert_events", value)
 		} else if value.Valid {
-			e.signal_events = new(int)
-			*e.signal_events = int(value.Int64)
+			e.alert_events = new(int)
+			*e.alert_events = int(value.Int64)
 		}
 	}
 	return nil
 }
 
 // QueryOwner queries the owner edge of the Event.
-func (e *Event) QueryOwner() *SignalQuery {
+func (e *Event) QueryOwner() *AlertQuery {
 	return (&EventClient{config: e.config}).QueryOwner(e)
 }
 

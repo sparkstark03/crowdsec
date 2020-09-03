@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/meta"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/signal"
 	"github.com/facebook/ent/dialect/sql"
 )
 
@@ -27,14 +27,14 @@ type Meta struct {
 	Value string `json:"value,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MetaQuery when eager-loading is set.
-	Edges        MetaEdges `json:"edges"`
-	signal_metas *int
+	Edges       MetaEdges `json:"edges"`
+	alert_metas *int
 }
 
 // MetaEdges holds the relations/edges for other nodes in the graph.
 type MetaEdges struct {
 	// Owner holds the value of the owner edge.
-	Owner *Signal
+	Owner *Alert
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
@@ -42,12 +42,12 @@ type MetaEdges struct {
 
 // OwnerOrErr returns the Owner value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e MetaEdges) OwnerOrErr() (*Signal, error) {
+func (e MetaEdges) OwnerOrErr() (*Alert, error) {
 	if e.loadedTypes[0] {
 		if e.Owner == nil {
 			// The edge owner was loaded in eager-loading,
 			// but was not found.
-			return nil, &NotFoundError{label: signal.Label}
+			return nil, &NotFoundError{label: alert.Label}
 		}
 		return e.Owner, nil
 	}
@@ -68,7 +68,7 @@ func (*Meta) scanValues() []interface{} {
 // fkValues returns the types for scanning foreign-keys values from sql.Rows.
 func (*Meta) fkValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{}, // signal_metas
+		&sql.NullInt64{}, // alert_metas
 	}
 }
 
@@ -107,17 +107,17 @@ func (m *Meta) assignValues(values ...interface{}) error {
 	values = values[4:]
 	if len(values) == len(meta.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
-			return fmt.Errorf("unexpected type %T for edge-field signal_metas", value)
+			return fmt.Errorf("unexpected type %T for edge-field alert_metas", value)
 		} else if value.Valid {
-			m.signal_metas = new(int)
-			*m.signal_metas = int(value.Int64)
+			m.alert_metas = new(int)
+			*m.alert_metas = int(value.Int64)
 		}
 	}
 	return nil
 }
 
 // QueryOwner queries the owner edge of the Meta.
-func (m *Meta) QueryOwner() *SignalQuery {
+func (m *Meta) QueryOwner() *AlertQuery {
 	return (&MetaClient{config: m.config}).QueryOwner(m)
 }
 
