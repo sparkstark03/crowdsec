@@ -63,8 +63,8 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"data": "hello world"})
 	})
 	router.POST("/machines", controller.CreateMachine)
-	router.POST("/signals", controller.CreateSignal)
-	router.GET("/signals", controller.FindSignals)
+	router.POST("/signals", controller.CreateAlert)
+	router.GET("/signals", controller.FindAlerts)
 	router.GET("/decisions/ip/:ipText", controller.FindDecisionByIp)
 
 	router.Run()

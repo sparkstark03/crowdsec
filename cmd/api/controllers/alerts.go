@@ -9,27 +9,37 @@ import (
 )
 
 type CreateAlertInput struct {
-	MachineId    int        `json:"machineId" binding:"required"`
-	Scenario     string     `json:"scenario" binding:"required"`
-	BucketId     string     `json:"bucketId" binding:"required"`
-	AlertMessage string     `json:"alertMessage" binding:"required"`
-	EventCount   int        `json:"eventCount" binding:"required"`
-	StartedAt    time.Time  `json:"startedAt" binding:"required"`
-	StoppedAt    time.Time  `json:"stoppedAt" binding:"required"`
-	SourceIp     string     `json:"sourceIp"`
-	SourceScope  string     `json:"sourceScope" binding:"required"`
-	SourceValue  string     `json:"sourceValue" binding:"required"`
-	Capacity     int        `json:"capacity" binding:"required"`
-	LeakSpeed    int        `json:"leakSpeed" binding:"required"`
-	Reprocess    bool       `json:"reprocess"`
-	Events       []Event    `json:"events" binding:"required"`
-	Metas        []Meta     `json:"metas"`
-	Decisions    []Decision `json:"decisions" binding:"required"`
+	MachineId  int        `json:"machineId" binding:"required"`
+	Scenario   string     `json:"scenario" binding:"required"`
+	BucketId   string     `json:"bucketId" binding:"required"`
+	Message    string     `json:"message" binding:"required"`
+	EventCount int        `json:"eventCount" binding:"required"`
+	StartedAt  time.Time  `json:"startedAt" binding:"required"`
+	StoppedAt  time.Time  `json:"stoppedAt" binding:"required"`
+	Capacity   int        `json:"capacity" binding:"required"`
+	LeakSpeed  int        `json:"leakSpeed" binding:"required"`
+	Reprocess  bool       `json:"reprocess"`
+	Source     Source     `json:"source" binding:"required"`
+	Events     []Event    `json:"events" binding:"required"`
+	Metas      []Meta     `json:"metas"`
+	Decisions  []Decision `json:"decisions" binding:"required"`
 }
 
 type Event struct {
 	Time       time.Time `json:"time"`
 	Serialized string    `json:"serialized"`
+}
+
+type Source struct {
+	Scope     string  `json:"scope" binding:"required"`
+	Value     string  `json:"value" binding:"required"`
+	Ip        string  `json:"ip"`
+	Range     string  `json:"range"`
+	AsNumber  string  `json:"as_number"`
+	AsName    string  `json:"as_name"`
+	Country   string  `json:"country"`
+	Latitude  float32 `json:"latitude"`
+	Longitude float32 `json:"longitude"`
 }
 
 type Meta struct {
@@ -39,13 +49,12 @@ type Meta struct {
 
 type Decision struct {
 	Until         time.Time `json:"until"`
-	Reason        string    `json:"reason"`
 	Scenario      string    `json:"scenario"`
 	DecisionType  string    `json:"decisionType"`
 	SourceIpStart int       `json:"sourceIpStart"`
 	SourceIpEnd   int       `json:"sourceIpEnd"`
-	SourceStr     string    `json:"sourceStr"`
-	Scope         string    `json:"scope"`
+	SourceValue   string    `json:"sourceValue"`
+	SourceScope   string    `json:"sourceScope"`
 }
 
 func (c *Controller) CreateAlert(gctx *gin.Context) {
@@ -66,13 +75,19 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 		Create().
 		SetScenario(input.Scenario).
 		SetBucketId(input.BucketId).
-		SetMessage(input.AlertMessage).
+		SetMessage(input.Message).
 		SetEventsCount(input.EventCount).
 		SetStartedAt(input.StartedAt).
 		SetStoppedAt(input.StoppedAt).
-		SetSourceIp(input.SourceIp).
-		SetSourceScope(input.SourceScope).
-		SetSourceValue(input.SourceValue).
+		SetSourceScope(input.Source.Scope).
+		SetSourceValue(input.Source.Value).
+		SetSourceIp(input.Source.Ip).
+		SetSourceRange(input.Source.Range).
+		SetSourceAsNumber(input.Source.AsNumber).
+		SetSourceAsName(input.Source.AsName).
+		SetSourceCountry(input.Source.Country).
+		SetSourceLatitude(input.Source.Latitude).
+		SetSourceLongitude(input.Source.Longitude).
 		SetCapacity(input.Capacity).
 		SetLeakSpeed(input.LeakSpeed).
 		SetReprocess(input.Reprocess).
@@ -125,8 +140,8 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 				SetDecisionType(decisionItem.DecisionType).
 				SetSourceIpStart(decisionItem.SourceIpStart).
 				SetSourceIpEnd(decisionItem.SourceIpEnd).
-				SetSourceValue(decisionItem.SourceStr).
-				SetSourceScope(decisionItem.Scope).
+				SetSourceValue(decisionItem.SourceValue).
+				SetSourceScope(decisionItem.SourceScope).
 				SetOwner(alert).
 				Save(c.Ectx)
 			if err != nil {

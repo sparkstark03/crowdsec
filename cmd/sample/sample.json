@@ -36,8 +36,8 @@
         "as_number": "1111",
         "as_name": "toto",
         "country": "FR",
-        "latitude": "1.4",
-        "longitude": "0.5"
+        "latitude": 1.4,
+        "longitude": 0.5
       },
       "events": [
         {
@@ -62,13 +62,12 @@
       "decisions": [
         {
           "until": "2011-11-11T11:11:11Z",
-          "reason": "attacker1 performed scenario1 attack",
           "scenario": "crowdsecurity/scenario1",
           "decisionType": "ban",
-          "SourceIpStart": 111111,
-          "SourceIpEnd": 111112,
-          "SourceStr": "11.11.11.11",
-          "Scope": "scope1"
+          "sourceIpStart": 111111,
+          "sourceIpEnd": 111112,
+          "sourceValue": "11.11.11.11",
+          "sourceScope": "scope1"
         }
       ]
     },
@@ -91,8 +90,8 @@
         "as_number": "2222",
         "as_name": "tata",
         "country": "EN",
-        "latitude": "1.4",
-        "longitude": "0.5"
+        "latitude": 1.4,
+        "longitude": 0.5
       },
       "events": [
         {
@@ -117,13 +116,12 @@
       "decisions": [
         {
           "until": "2022-12-22T22:22:22Z",
-          "reason": "attacker2 performed scenario2 attack",
           "scenario": "crowdsecurity/scenario2",
           "decisionType": "ban",
-          "SourceIpStart": 222222,
-          "SourceIpEnd": 222223,
-          "SourceStr": "22.22.22.22",
-          "Scope": "scope2"
+          "sourceIpStart": 222222,
+          "sourceIpEnd": 222223,
+          "sourceValue": "22.22.22.22",
+          "sourceScope": "scope2"
         }
       ]
     },
@@ -146,8 +144,8 @@
         "as_number": "3333",
         "as_name": "titi",
         "country": "US",
-        "latitude": "1.4",
-        "longitude": "0.5"
+        "latitude": 1.4,
+        "longitude": 0.5
       },
       "events": [
         {
@@ -172,13 +170,12 @@
       "decisions": [
         {
           "until": "2033-12-13T13:33:33Z",
-          "reason": "attacker3 performed scenario3 attack",
           "scenario": "crowdsecurity/scenario3",
           "decisionType": "ban",
-          "SourceIpStart": 333333,
-          "SourceIpEnd": 333334,
-          "SourceStr": "33.33.33.33",
-          "Scope": "scope3"
+          "sourceIpStart": 333333,
+          "sourceIpEnd": 333334,
+          "sourceValue": "33.33.33.33",
+          "sourceScope": "scope3"
         }
       ]
     }
