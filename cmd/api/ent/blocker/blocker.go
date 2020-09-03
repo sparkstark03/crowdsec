@@ -50,4 +50,8 @@ var (
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	DefaultUpdatedAt func() time.Time
+	// DefaultIPAddress holds the default value on creation for the ip_address field.
+	DefaultIPAddress string
+	// DefaultType holds the default value on creation for the type field.
+	DefaultType string
 )

@@ -633,6 +633,20 @@ func IPAddressHasSuffix(v string) predicate.Blocker {
 	})
 }
 
+// IPAddressIsNil applies the IsNil predicate on the "ip_address" field.
+func IPAddressIsNil() predicate.Blocker {
+	return predicate.Blocker(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldIPAddress)))
+	})
+}
+
+// IPAddressNotNil applies the NotNil predicate on the "ip_address" field.
+func IPAddressNotNil() predicate.Blocker {
+	return predicate.Blocker(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldIPAddress)))
+	})
+}
+
 // IPAddressEqualFold applies the EqualFold predicate on the "ip_address" field.
 func IPAddressEqualFold(v string) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
@@ -741,6 +755,20 @@ func TypeHasPrefix(v string) predicate.Blocker {
 func TypeHasSuffix(v string) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldType), v))
+	})
+}
+
+// TypeIsNil applies the IsNil predicate on the "type" field.
+func TypeIsNil() predicate.Blocker {
+	return predicate.Blocker(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldType)))
+	})
+}
+
+// TypeNotNil applies the NotNil predicate on the "type" field.
+func TypeNotNil() predicate.Blocker {
+	return predicate.Blocker(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldType)))
 	})
 }
 

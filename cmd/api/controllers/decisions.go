@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"encoding/binary"
+	"net"
+	"net/http"
+
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"net"
-	"net/http"
 )
 
 func IP2Int(ip net.IP) uint32 {
@@ -47,4 +48,8 @@ func (c *Controller) FindDecisionByIp(gctx *gin.Context) {
 
 	gctx.JSON(http.StatusOK, gin.H{"data": decisions})
 	return
+}
+
+func (c *Controller) GetDecision(gctx *gin.Context) {
+	gctx.JSON(http.StatusOK, gin.H{"message": "YOU ARE ALLOWED MY FRIEND"})
 }

@@ -2259,9 +2259,22 @@ func (m *BlockerMutation) OldIPAddress(ctx context.Context) (v string, err error
 	return oldValue.IPAddress, nil
 }
 
+// ClearIPAddress clears the value of ip_address.
+func (m *BlockerMutation) ClearIPAddress() {
+	m.ip_address = nil
+	m.clearedFields[blocker.FieldIPAddress] = struct{}{}
+}
+
+// IPAddressCleared returns if the field ip_address was cleared in this mutation.
+func (m *BlockerMutation) IPAddressCleared() bool {
+	_, ok := m.clearedFields[blocker.FieldIPAddress]
+	return ok
+}
+
 // ResetIPAddress reset all changes of the "ip_address" field.
 func (m *BlockerMutation) ResetIPAddress() {
 	m.ip_address = nil
+	delete(m.clearedFields, blocker.FieldIPAddress)
 }
 
 // SetType sets the type field.
@@ -2296,9 +2309,22 @@ func (m *BlockerMutation) OldType(ctx context.Context) (v string, err error) {
 	return oldValue.Type, nil
 }
 
+// ClearType clears the value of type.
+func (m *BlockerMutation) ClearType() {
+	m._type = nil
+	m.clearedFields[blocker.FieldType] = struct{}{}
+}
+
+// TypeCleared returns if the field type was cleared in this mutation.
+func (m *BlockerMutation) TypeCleared() bool {
+	_, ok := m.clearedFields[blocker.FieldType]
+	return ok
+}
+
 // ResetType reset all changes of the "type" field.
 func (m *BlockerMutation) ResetType() {
 	m._type = nil
+	delete(m.clearedFields, blocker.FieldType)
 }
 
 // SetExpiration sets the expiration field.
@@ -2534,6 +2560,12 @@ func (m *BlockerMutation) AddField(name string, value ent.Value) error {
 // during this mutation.
 func (m *BlockerMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(blocker.FieldIPAddress) {
+		fields = append(fields, blocker.FieldIPAddress)
+	}
+	if m.FieldCleared(blocker.FieldType) {
+		fields = append(fields, blocker.FieldType)
+	}
 	if m.FieldCleared(blocker.FieldExpiration) {
 		fields = append(fields, blocker.FieldExpiration)
 	}
@@ -2551,6 +2583,12 @@ func (m *BlockerMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *BlockerMutation) ClearField(name string) error {
 	switch name {
+	case blocker.FieldIPAddress:
+		m.ClearIPAddress()
+		return nil
+	case blocker.FieldType:
+		m.ClearType()
+		return nil
 	case blocker.FieldExpiration:
 		m.ClearExpiration()
 		return nil

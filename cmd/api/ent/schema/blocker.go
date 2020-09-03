@@ -22,8 +22,8 @@ func (Blocker) Fields() []ent.Field {
 		field.String("name"),
 		field.String("api_key"), // hash of api_key
 		field.Bool("revoked"),
-		field.String("ip_address"),
-		field.String("type"), // rupture ou stream
+		field.String("ip_address").Default("").Optional(),
+		field.String("type").Default("").Optional(), // rupture ou stream
 		field.Time("expiration").Optional(),
 	}
 }

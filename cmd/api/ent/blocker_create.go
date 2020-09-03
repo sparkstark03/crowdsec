@@ -72,9 +72,25 @@ func (bc *BlockerCreate) SetIPAddress(s string) *BlockerCreate {
 	return bc
 }
 
+// SetNillableIPAddress sets the ip_address field if the given value is not nil.
+func (bc *BlockerCreate) SetNillableIPAddress(s *string) *BlockerCreate {
+	if s != nil {
+		bc.SetIPAddress(*s)
+	}
+	return bc
+}
+
 // SetType sets the type field.
 func (bc *BlockerCreate) SetType(s string) *BlockerCreate {
 	bc.mutation.SetType(s)
+	return bc
+}
+
+// SetNillableType sets the type field if the given value is not nil.
+func (bc *BlockerCreate) SetNillableType(s *string) *BlockerCreate {
+	if s != nil {
+		bc.SetType(*s)
+	}
 	return bc
 }
 
@@ -157,10 +173,12 @@ func (bc *BlockerCreate) preSave() error {
 		return &ValidationError{Name: "revoked", err: errors.New("ent: missing required field \"revoked\"")}
 	}
 	if _, ok := bc.mutation.IPAddress(); !ok {
-		return &ValidationError{Name: "ip_address", err: errors.New("ent: missing required field \"ip_address\"")}
+		v := blocker.DefaultIPAddress
+		bc.mutation.SetIPAddress(v)
 	}
 	if _, ok := bc.mutation.GetType(); !ok {
-		return &ValidationError{Name: "type", err: errors.New("ent: missing required field \"type\"")}
+		v := blocker.DefaultType
+		bc.mutation.SetType(v)
 	}
 	return nil
 }

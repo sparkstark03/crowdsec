@@ -56,8 +56,8 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "api_key", Type: field.TypeString},
 		{Name: "revoked", Type: field.TypeBool},
-		{Name: "ip_address", Type: field.TypeString},
-		{Name: "type", Type: field.TypeString},
+		{Name: "ip_address", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "type", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "expiration", Type: field.TypeTime, Nullable: true},
 	}
 	// BlockersTable holds the schema information for the "blockers" table.

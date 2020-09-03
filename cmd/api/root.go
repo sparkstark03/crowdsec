@@ -23,7 +23,6 @@ var (
 `,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			var err error
-			log.Printf("Pre run config : %+v", config.DB)
 
 			csAPI, err = newAPI(config)
 			if err != nil {
@@ -44,7 +43,6 @@ func initConfig() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
-	log.Printf("Configuration : %+v", config.DB)
 }
 
 func init() {
@@ -52,4 +50,5 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./config.yaml", "path to crowdsec config file")
 	rootCmd.AddCommand(NewRunCommand())
+	rootCmd.AddCommand(NewGenerateCommand())
 }

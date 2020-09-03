@@ -38,6 +38,14 @@ func init() {
 	blockerDescUpdatedAt := blockerFields[1].Descriptor()
 	// blocker.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	blocker.DefaultUpdatedAt = blockerDescUpdatedAt.Default.(func() time.Time)
+	// blockerDescIPAddress is the schema descriptor for ip_address field.
+	blockerDescIPAddress := blockerFields[5].Descriptor()
+	// blocker.DefaultIPAddress holds the default value on creation for the ip_address field.
+	blocker.DefaultIPAddress = blockerDescIPAddress.Default.(string)
+	// blockerDescType is the schema descriptor for type field.
+	blockerDescType := blockerFields[6].Descriptor()
+	// blocker.DefaultType holds the default value on creation for the type field.
+	blocker.DefaultType = blockerDescType.Default.(string)
 	decisionFields := schema.Decision{}.Fields()
 	_ = decisionFields
 	// decisionDescCreatedAt is the schema descriptor for created_at field.

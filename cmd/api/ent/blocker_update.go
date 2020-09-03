@@ -80,9 +80,37 @@ func (bu *BlockerUpdate) SetIPAddress(s string) *BlockerUpdate {
 	return bu
 }
 
+// SetNillableIPAddress sets the ip_address field if the given value is not nil.
+func (bu *BlockerUpdate) SetNillableIPAddress(s *string) *BlockerUpdate {
+	if s != nil {
+		bu.SetIPAddress(*s)
+	}
+	return bu
+}
+
+// ClearIPAddress clears the value of ip_address.
+func (bu *BlockerUpdate) ClearIPAddress() *BlockerUpdate {
+	bu.mutation.ClearIPAddress()
+	return bu
+}
+
 // SetType sets the type field.
 func (bu *BlockerUpdate) SetType(s string) *BlockerUpdate {
 	bu.mutation.SetType(s)
+	return bu
+}
+
+// SetNillableType sets the type field if the given value is not nil.
+func (bu *BlockerUpdate) SetNillableType(s *string) *BlockerUpdate {
+	if s != nil {
+		bu.SetType(*s)
+	}
+	return bu
+}
+
+// ClearType clears the value of type.
+func (bu *BlockerUpdate) ClearType() *BlockerUpdate {
+	bu.mutation.ClearType()
 	return bu
 }
 
@@ -222,10 +250,22 @@ func (bu *BlockerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: blocker.FieldIPAddress,
 		})
 	}
+	if bu.mutation.IPAddressCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: blocker.FieldIPAddress,
+		})
+	}
 	if value, ok := bu.mutation.GetType(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: blocker.FieldType,
+		})
+	}
+	if bu.mutation.TypeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: blocker.FieldType,
 		})
 	}
@@ -312,9 +352,37 @@ func (buo *BlockerUpdateOne) SetIPAddress(s string) *BlockerUpdateOne {
 	return buo
 }
 
+// SetNillableIPAddress sets the ip_address field if the given value is not nil.
+func (buo *BlockerUpdateOne) SetNillableIPAddress(s *string) *BlockerUpdateOne {
+	if s != nil {
+		buo.SetIPAddress(*s)
+	}
+	return buo
+}
+
+// ClearIPAddress clears the value of ip_address.
+func (buo *BlockerUpdateOne) ClearIPAddress() *BlockerUpdateOne {
+	buo.mutation.ClearIPAddress()
+	return buo
+}
+
 // SetType sets the type field.
 func (buo *BlockerUpdateOne) SetType(s string) *BlockerUpdateOne {
 	buo.mutation.SetType(s)
+	return buo
+}
+
+// SetNillableType sets the type field if the given value is not nil.
+func (buo *BlockerUpdateOne) SetNillableType(s *string) *BlockerUpdateOne {
+	if s != nil {
+		buo.SetType(*s)
+	}
+	return buo
+}
+
+// ClearType clears the value of type.
+func (buo *BlockerUpdateOne) ClearType() *BlockerUpdateOne {
+	buo.mutation.ClearType()
 	return buo
 }
 
@@ -452,10 +520,22 @@ func (buo *BlockerUpdateOne) sqlSave(ctx context.Context) (b *Blocker, err error
 			Column: blocker.FieldIPAddress,
 		})
 	}
+	if buo.mutation.IPAddressCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: blocker.FieldIPAddress,
+		})
+	}
 	if value, ok := buo.mutation.GetType(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: blocker.FieldType,
+		})
+	}
+	if buo.mutation.TypeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: blocker.FieldType,
 		})
 	}
