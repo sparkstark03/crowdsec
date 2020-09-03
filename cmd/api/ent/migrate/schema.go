@@ -48,6 +48,25 @@ var (
 			},
 		},
 	}
+	// BlockersColumns holds the columns for the "blockers" table.
+	BlockersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "name", Type: field.TypeString},
+		{Name: "api_key", Type: field.TypeString},
+		{Name: "revoked", Type: field.TypeBool},
+		{Name: "ip_address", Type: field.TypeString},
+		{Name: "type", Type: field.TypeString},
+		{Name: "expiration", Type: field.TypeTime, Nullable: true},
+	}
+	// BlockersTable holds the schema information for the "blockers" table.
+	BlockersTable = &schema.Table{
+		Name:        "blockers",
+		Columns:     BlockersColumns,
+		PrimaryKey:  []*schema.Column{BlockersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// DecisionsColumns holds the columns for the "decisions" table.
 	DecisionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -146,6 +165,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AlertsTable,
+		BlockersTable,
 		DecisionsTable,
 		EventsTable,
 		MachinesTable,

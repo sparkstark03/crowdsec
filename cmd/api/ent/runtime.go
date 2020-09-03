@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/blocker"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
@@ -27,6 +28,16 @@ func init() {
 	alertDescUpdatedAt := alertFields[1].Descriptor()
 	// alert.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	alert.DefaultUpdatedAt = alertDescUpdatedAt.Default.(func() time.Time)
+	blockerFields := schema.Blocker{}.Fields()
+	_ = blockerFields
+	// blockerDescCreatedAt is the schema descriptor for created_at field.
+	blockerDescCreatedAt := blockerFields[0].Descriptor()
+	// blocker.DefaultCreatedAt holds the default value on creation for the created_at field.
+	blocker.DefaultCreatedAt = blockerDescCreatedAt.Default.(func() time.Time)
+	// blockerDescUpdatedAt is the schema descriptor for updated_at field.
+	blockerDescUpdatedAt := blockerFields[1].Descriptor()
+	// blocker.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	blocker.DefaultUpdatedAt = blockerDescUpdatedAt.Default.(func() time.Time)
 	decisionFields := schema.Decision{}.Fields()
 	_ = decisionFields
 	// decisionDescCreatedAt is the schema descriptor for created_at field.

@@ -10,6 +10,7 @@ import (
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/migrate"
 
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/blocker"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/event"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/machine"
@@ -27,6 +28,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Alert is the client for interacting with the Alert builders.
 	Alert *AlertClient
+	// Blocker is the client for interacting with the Blocker builders.
+	Blocker *BlockerClient
 	// Decision is the client for interacting with the Decision builders.
 	Decision *DecisionClient
 	// Event is the client for interacting with the Event builders.
@@ -49,6 +52,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Alert = NewAlertClient(c.config)
+	c.Blocker = NewBlockerClient(c.config)
 	c.Decision = NewDecisionClient(c.config)
 	c.Event = NewEventClient(c.config)
 	c.Machine = NewMachineClient(c.config)
@@ -86,6 +90,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:      ctx,
 		config:   cfg,
 		Alert:    NewAlertClient(cfg),
+		Blocker:  NewBlockerClient(cfg),
 		Decision: NewDecisionClient(cfg),
 		Event:    NewEventClient(cfg),
 		Machine:  NewMachineClient(cfg),
@@ -106,6 +111,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		config:   cfg,
 		Alert:    NewAlertClient(cfg),
+		Blocker:  NewBlockerClient(cfg),
 		Decision: NewDecisionClient(cfg),
 		Event:    NewEventClient(cfg),
 		Machine:  NewMachineClient(cfg),
@@ -139,6 +145,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Alert.Use(hooks...)
+	c.Blocker.Use(hooks...)
 	c.Decision.Use(hooks...)
 	c.Event.Use(hooks...)
 	c.Machine.Use(hooks...)
@@ -295,6 +302,94 @@ func (c *AlertClient) QueryMetas(a *Alert) *MetaQuery {
 // Hooks returns the client hooks.
 func (c *AlertClient) Hooks() []Hook {
 	return c.hooks.Alert
+}
+
+// BlockerClient is a client for the Blocker schema.
+type BlockerClient struct {
+	config
+}
+
+// NewBlockerClient returns a client for the Blocker from the given config.
+func NewBlockerClient(c config) *BlockerClient {
+	return &BlockerClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `blocker.Hooks(f(g(h())))`.
+func (c *BlockerClient) Use(hooks ...Hook) {
+	c.hooks.Blocker = append(c.hooks.Blocker, hooks...)
+}
+
+// Create returns a create builder for Blocker.
+func (c *BlockerClient) Create() *BlockerCreate {
+	mutation := newBlockerMutation(c.config, OpCreate)
+	return &BlockerCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// BulkCreate returns a builder for creating a bulk of Blocker entities.
+func (c *BlockerClient) CreateBulk(builders ...*BlockerCreate) *BlockerCreateBulk {
+	return &BlockerCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Blocker.
+func (c *BlockerClient) Update() *BlockerUpdate {
+	mutation := newBlockerMutation(c.config, OpUpdate)
+	return &BlockerUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BlockerClient) UpdateOne(b *Blocker) *BlockerUpdateOne {
+	mutation := newBlockerMutation(c.config, OpUpdateOne, withBlocker(b))
+	return &BlockerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BlockerClient) UpdateOneID(id int) *BlockerUpdateOne {
+	mutation := newBlockerMutation(c.config, OpUpdateOne, withBlockerID(id))
+	return &BlockerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Blocker.
+func (c *BlockerClient) Delete() *BlockerDelete {
+	mutation := newBlockerMutation(c.config, OpDelete)
+	return &BlockerDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *BlockerClient) DeleteOne(b *Blocker) *BlockerDeleteOne {
+	return c.DeleteOneID(b.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *BlockerClient) DeleteOneID(id int) *BlockerDeleteOne {
+	builder := c.Delete().Where(blocker.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BlockerDeleteOne{builder}
+}
+
+// Query returns a query builder for Blocker.
+func (c *BlockerClient) Query() *BlockerQuery {
+	return &BlockerQuery{config: c.config}
+}
+
+// Get returns a Blocker entity by its id.
+func (c *BlockerClient) Get(ctx context.Context, id int) (*Blocker, error) {
+	return c.Query().Where(blocker.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BlockerClient) GetX(ctx context.Context, id int) *Blocker {
+	b, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return b
+}
+
+// Hooks returns the client hooks.
+func (c *BlockerClient) Hooks() []Hook {
+	return c.hooks.Blocker
 }
 
 // DecisionClient is a client for the Decision schema.

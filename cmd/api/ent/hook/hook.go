@@ -22,6 +22,19 @@ func (f AlertFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return f(ctx, mv)
 }
 
+// The BlockerFunc type is an adapter to allow the use of ordinary
+// function as Blocker mutator.
+type BlockerFunc func(context.Context, *ent.BlockerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BlockerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.BlockerMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BlockerMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The DecisionFunc type is an adapter to allow the use of ordinary
 // function as Decision mutator.
 type DecisionFunc func(context.Context, *ent.DecisionMutation) (ent.Value, error)
