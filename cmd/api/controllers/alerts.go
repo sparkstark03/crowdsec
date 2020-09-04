@@ -1,23 +1,27 @@
 package controllers
 
 import (
+	"fmt"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/alert"
+	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type CreateAlertInput struct {
-	MachineId  int        `json:"machineId" binding:"required"`
+	MachineId  int        `json:"machine_id" binding:"required"`
 	Scenario   string     `json:"scenario" binding:"required"`
-	BucketId   string     `json:"bucketId" binding:"required"`
+	BucketId   string     `json:"bucket_id" binding:"required"`
 	Message    string     `json:"message" binding:"required"`
-	EventCount int        `json:"eventCount" binding:"required"`
-	StartedAt  time.Time  `json:"startedAt" binding:"required"`
-	StoppedAt  time.Time  `json:"stoppedAt" binding:"required"`
+	EventCount int        `json:"event_count" binding:"required"`
+	StartedAt  time.Time  `json:"started_at" binding:"required"`
+	StoppedAt  time.Time  `json:"stopped_at" binding:"required"`
 	Capacity   int        `json:"capacity" binding:"required"`
-	LeakSpeed  int        `json:"leakSpeed" binding:"required"`
+	LeakSpeed  int        `json:"leak_speed" binding:"required"`
 	Reprocess  bool       `json:"reprocess"`
 	Source     Source     `json:"source" binding:"required"`
 	Events     []Event    `json:"events" binding:"required"`
@@ -50,11 +54,11 @@ type Meta struct {
 type Decision struct {
 	Until         time.Time `json:"until"`
 	Scenario      string    `json:"scenario"`
-	DecisionType  string    `json:"decisionType"`
-	SourceIpStart int       `json:"sourceIpStart"`
-	SourceIpEnd   int       `json:"sourceIpEnd"`
-	SourceValue   string    `json:"sourceValue"`
-	SourceScope   string    `json:"sourceScope"`
+	DecisionType  string    `json:"decision_type"`
+	SourceIpStart uint32    `json:"source_ip_start"`
+	SourceIpEnd   uint32    `json:"source_ip_end"`
+	SourceValue   string    `json:"source_value"`
+	SourceScope   string    `json:"source_scope"`
 }
 
 func (c *Controller) CreateAlert(gctx *gin.Context) {
@@ -157,26 +161,87 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 }
 
 func (c *Controller) FindAlerts(gctx *gin.Context) {
-	scenario := gctx.Query("scenario")
-	sourceScope := gctx.Query("sourceScope")
-	sourceValue := gctx.Query("sourceValue")
-
-	alerts, err := c.Client.Debug().Alert.Query().
-		Where(alert.And(
-			alert.ScenarioContains(scenario),
-			alert.SourceScopeContains(sourceScope),
-			alert.SourceValueContains(sourceValue),
-		)).
+	var err error
+	var startIp uint32
+	var endIp uint32
+	var hasActiveDecision bool
+	layout := "2006-01-02T15:04:05.000Z"
+	alerts := c.Client.Debug().Alert.Query()
+	for param, value := range gctx.Request.URL.Query() {
+		switch param {
+		case "source_scope":
+			alerts = alerts.Where(alert.SourceScopeEQ(value[0]))
+		case "source_value":
+			alerts = alerts.Where(alert.SourceValueEQ(value[0]))
+		case "scenario":
+			alerts = alerts.Where(alert.ScenarioEQ(value[0]))
+		case "ip":
+			isValidIp := IsIpv4(value[0])
+			if !isValidIp {
+				log.Errorf("failed querying alerts: Ip %v is not valid", value[0])
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": "ip is not valid"})
+				return
+			}
+			startIp, endIp, err = GetIpsFromIpRange(value[0] + "/32")
+			if err != nil {
+				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
+			}
+		case "range":
+			startIp, endIp, err = GetIpsFromIpRange(value[0])
+			if err != nil {
+				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": "Range is not valid"})
+				return
+			}
+		case "since":
+			since, err := time.Parse(layout, value[0])
+			if err != nil {
+				log.Errorln(err)
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			alerts = alerts.Where(alert.CreatedAtGTE(since))
+		case "until":
+			until, err := time.Parse(layout, value[0])
+			if err != nil {
+				log.Errorln(err)
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			}
+			alerts = alerts.Where(alert.CreatedAtLTE(until))
+		case "has_active_decision":
+			if hasActiveDecision, err = strconv.ParseBool(value[0]); err != nil {
+				log.Errorf("failed querying alerts: Bool %v is not valid", value[0])
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": "has_active_decision param not valid"})
+				return
+			}
+			if hasActiveDecision {
+				alerts = alerts.Where(alert.HasDecisionsWith(decision.UntilGTE(time.Now())))
+			}
+		default:
+			gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid parameter : %s", param)})
+		}
+	}
+	if startIp != 0 && endIp != 0 {
+		alerts = alerts.Where(alert.And(
+			alert.HasDecisionsWith(decision.SourceIpStartGTE(startIp)),
+			alert.HasDecisionsWith(decision.SourceIpEndLTE(endIp)),
+		))
+	}
+	alerts = alerts.
 		WithDecisions().
 		WithEvents().
 		WithMetas().
+		WithOwner()
+
+	result, err := alerts.
+		Order(ent.Asc(alert.FieldCreatedAt)).
 		All(c.Ectx)
 	if err != nil {
-		log.Errorf("failed querying alert: %v", err)
+		log.Errorf("failed querying alerts: %v", err)
 		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed querying alert"})
 		return
 	}
-
-	gctx.JSON(http.StatusOK, gin.H{"data": alerts})
+	gctx.JSON(http.StatusOK, gin.H{"data": result})
 	return
 }

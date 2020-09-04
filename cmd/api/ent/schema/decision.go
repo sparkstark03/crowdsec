@@ -22,8 +22,8 @@ func (Decision) Fields() []ent.Field {
 		field.Time("until"),
 		field.String("scenario"),
 		field.String("decisionType"),
-		field.Int("sourceIpStart").Optional(),
-		field.Int("sourceIpEnd").Optional(),
+		field.Uint32("sourceIpStart").Optional(),
+		field.Uint32("sourceIpEnd").Optional(),
 		field.String("sourceScope"),
 		field.String("sourceValue"),
 	}

@@ -11,9 +11,9 @@ import (
 )
 
 type CreateMachineInput struct {
-	MachineId string `json:"machineId" binding:"required"`
+	MachineId string `json:"machine_id" binding:"required"`
 	Password  string `json:"password" binding:"required"`
-	IpAddress string `json:"ipAddress" binding:"required"`
+	IpAddress string `json:"ip_address" binding:"required"`
 }
 
 func QueryMachine(ctx context.Context, client *ent.Client, machineId int) (*ent.Machine, error) {

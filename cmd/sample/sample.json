@@ -1,32 +1,32 @@
 {
   "machines" : [
     {
-      "machineId": "machine1",
+      "machine_id": "machine1",
       "password": "machine1",
-      "ipAddress": "1.1.1.1"
+      "ip_address": "1.1.1.1"
     },
     {
-      "machineId": "machine2",
+      "machine_id": "machine2",
       "password": "machine2",
-      "ipAddress": "2.2.2.2"
+      "ip_address": "2.2.2.2"
     },
     {
-      "machineId": "machine3",
+      "machine_id": "machine3",
       "password": "machine3",
-      "ipAddress": "3.3.3.3"
+      "ip_address": "3.3.3.3"
     }
   ],
   "alerts": [
     {
-      "machineId": 1,
+      "machine_id": 1,
       "scenario": "crowdsecurity/scenario1",
-      "bucketId": "bucket1",
+      "bucket_id": "bucket1",
       "message": "attacker1 performed scenario1 attack",
-      "eventCount": 2,
-      "startedAt": "2020-08-30T11:04:05Z",
-      "stoppedAt": "2020-08-30T11:04:05Z",
+      "event_count": 2,
+      "started_at": "2020-08-30T11:04:05Z",
+      "stopped_at": "2020-08-30T11:04:05Z",
       "capacity": 5,
-      "leakSpeed": 1000,
+      "leak_speed": 1000,
       "reprocess": false,
       "source": {
         "scope": "ip",
@@ -63,24 +63,24 @@
         {
           "until": "2011-11-11T11:11:11Z",
           "scenario": "crowdsecurity/scenario1",
-          "decisionType": "ban",
-          "sourceIpStart": 111111,
-          "sourceIpEnd": 111112,
-          "sourceValue": "11.11.11.11",
-          "sourceScope": "scope1"
+          "decision_type": "ban",
+          "source_ip_start": 111111,
+          "source_ip_end": 111112,
+          "source_value": "11.11.11.11",
+          "source_scope": "scope1"
         }
       ]
     },
     {
-      "machineId": 2,
+      "machine_id": 2,
       "scenario": "crowdsecurity/scenario2",
-      "bucketId": "bucket2",
+      "bucket_id": "bucket2",
       "message": "attacker2 performed scenario2 attack",
-      "eventCount": 2,
-      "startedAt": "2020-08-30T12:04:05Z",
-      "stoppedAt": "2020-08-30T12:04:05Z",
+      "event_count": 2,
+      "started_at": "2020-08-30T12:04:05Z",
+      "stopped_at": "2020-08-30T12:04:05Z",
       "capacity": 5,
-      "leakSpeed": 1000,
+      "leak_speed": 1000,
       "reprocess": false,
       "source": {
         "scope": "ip",
@@ -117,24 +117,24 @@
         {
           "until": "2022-12-22T22:22:22Z",
           "scenario": "crowdsecurity/scenario2",
-          "decisionType": "ban",
-          "sourceIpStart": 222222,
-          "sourceIpEnd": 222223,
-          "sourceValue": "22.22.22.22",
-          "sourceScope": "scope2"
+          "decision_type": "ban",
+          "source_ip_start": 222222,
+          "source_ip_end": 222223,
+          "source_value": "22.22.22.22",
+          "source_scope": "scope2"
         }
       ]
     },
     {
-      "machineId": 2,
+      "machine_id": 3,
       "scenario": "crowdsecurity/scenario3",
-      "bucketId": "bucket3",
+      "bucket_id": "bucket3",
       "message": "attacker3 performed scenario3 attack",
-      "eventCount": 2,
-      "startedAt": "2020-08-30T13:04:05Z",
-      "stoppedAt": "2020-08-30T13:04:05Z",
+      "event_count": 2,
+      "started_at": "2020-08-30T13:04:05Z",
+      "stopped_at": "2020-08-30T13:04:05Z",
       "capacity": 5,
-      "leakSpeed": 1000,
+      "leak_speed": 1000,
       "reprocess": false,
       "source": {
         "scope": "ip",
@@ -171,11 +171,11 @@
         {
           "until": "2033-12-13T13:33:33Z",
           "scenario": "crowdsecurity/scenario3",
-          "decisionType": "ban",
-          "sourceIpStart": 333333,
-          "sourceIpEnd": 333334,
-          "sourceValue": "33.33.33.33",
-          "sourceScope": "scope3"
+          "decision_type": "ban",
+          "source_ip_start": 333333,
+          "source_ip_end": 333334,
+          "source_value": "33.33.33.33",
+          "source_scope": "scope3"
         }
       ]
     }

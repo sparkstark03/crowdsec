@@ -20,7 +20,7 @@ func (Machine) Fields() []ent.Field {
 		field.Time("updated_at").
 			Default(time.Now),
 		field.String("machineId"),
-		field.String("password"),
+		field.String("password").Sensitive(),
 		field.String("ipAddress"),
 		field.Bool("isValidated").
 			Default(false),
@@ -31,6 +31,6 @@ func (Machine) Fields() []ent.Field {
 // Edges of the Machine.
 func (Machine) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("signals", Alert.Type),
+		edge.To("alerts", Alert.Type),
 	}
 }

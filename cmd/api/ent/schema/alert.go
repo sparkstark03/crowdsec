@@ -51,7 +51,7 @@ func (Alert) Fields() []ent.Field {
 func (Alert) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("owner", Machine.Type).
-			Ref("signals").
+			Ref("alerts").
 			Unique(),
 		edge.To("decisions", Decision.Type),
 		edge.To("events", Event.Type),
