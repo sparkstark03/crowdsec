@@ -18,7 +18,7 @@
   ],
   "alerts": [
     {
-      "machine_id": 1,
+      "machine_id": "machine1",
       "scenario": "crowdsecurity/scenario1",
       "bucket_id": "bucket1",
       "message": "attacker1 performed scenario1 attack",
@@ -64,15 +64,15 @@
           "until": "2011-11-11T11:11:11Z",
           "scenario": "crowdsecurity/scenario1",
           "decision_type": "ban",
-          "source_ip_start": 111111,
-          "source_ip_end": 111112,
+          "source_ip_start": 185273099,
+          "source_ip_end": 185273099,
           "source_value": "11.11.11.11",
           "source_scope": "scope1"
         }
       ]
     },
     {
-      "machine_id": 2,
+      "machine_id": "machine2",
       "scenario": "crowdsecurity/scenario2",
       "bucket_id": "bucket2",
       "message": "attacker2 performed scenario2 attack",
@@ -118,15 +118,15 @@
           "until": "2022-12-22T22:22:22Z",
           "scenario": "crowdsecurity/scenario2",
           "decision_type": "ban",
-          "source_ip_start": 222222,
-          "source_ip_end": 222223,
+          "source_ip_start": 370546198,
+          "source_ip_end": 370546198,
           "source_value": "22.22.22.22",
           "source_scope": "scope2"
         }
       ]
     },
     {
-      "machine_id": 3,
+      "machine_id": "machine3",
       "scenario": "crowdsecurity/scenario3",
       "bucket_id": "bucket3",
       "message": "attacker3 performed scenario3 attack",
@@ -172,8 +172,8 @@
           "until": "2033-12-13T13:33:33Z",
           "scenario": "crowdsecurity/scenario3",
           "decision_type": "ban",
-          "source_ip_start": 333333,
-          "source_ip_end": 333334,
+          "source_ip_start": 555819297,
+          "source_ip_end": 555819297,
           "source_value": "33.33.33.33",
           "source_scope": "scope3"
         }

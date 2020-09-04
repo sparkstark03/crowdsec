@@ -13,7 +13,7 @@ import (
 )
 
 type CreateAlertInput struct {
-	MachineId  int        `json:"machine_id" binding:"required"`
+	MachineId  string     `json:"machine_id" binding:"required"`
 	Scenario   string     `json:"scenario" binding:"required"`
 	BucketId   string     `json:"bucket_id" binding:"required"`
 	Message    string     `json:"message" binding:"required"`
@@ -61,6 +61,67 @@ type Decision struct {
 	SourceScope   string    `json:"source_scope"`
 }
 
+func FormatAlert(result []*ent.Alert) []CreateAlertInput {
+	var data []CreateAlertInput
+	for _, alertItem := range result {
+		var outputAlert CreateAlertInput
+		outputAlert = CreateAlertInput{
+			MachineId:  alertItem.Edges.Owner.MachineId,
+			Scenario:   alertItem.Scenario,
+			BucketId:   alertItem.BucketId,
+			Message:    alertItem.Message,
+			EventCount: alertItem.EventsCount,
+			StartedAt:  alertItem.StartedAt,
+			StoppedAt:  alertItem.StoppedAt,
+			Capacity:   alertItem.Capacity,
+			LeakSpeed:  alertItem.LeakSpeed,
+			Reprocess:  alertItem.Reprocess,
+			Source: Source{
+				Scope:     alertItem.SourceScope,
+				Value:     alertItem.SourceValue,
+				Ip:        alertItem.SourceIp,
+				Range:     alertItem.SourceRange,
+				AsNumber:  alertItem.SourceAsNumber,
+				AsName:    alertItem.SourceAsName,
+				Country:   alertItem.SourceCountry,
+				Latitude:  alertItem.SourceLatitude,
+				Longitude: alertItem.SourceLongitude,
+			},
+		}
+		for _, eventItem := range alertItem.Edges.Events {
+			var outputEvents []Event
+			outputEvents = append(outputEvents, Event{
+				Time:       eventItem.Time,
+				Serialized: eventItem.Serialized,
+			})
+			outputAlert.Events = outputEvents
+		}
+		for _, metaItem := range alertItem.Edges.Metas {
+			var outputMetas []Meta
+			outputMetas = append(outputMetas, Meta{
+				Key:   metaItem.Key,
+				Value: metaItem.Value,
+			})
+			outputAlert.Metas = outputMetas
+		}
+		for _, decisionItem := range alertItem.Edges.Decisions {
+			var outputDecisions []Decision
+			outputDecisions = append(outputDecisions, Decision{
+				Until:         decisionItem.Until,
+				Scenario:      decisionItem.Scenario,
+				DecisionType:  decisionItem.DecisionType,
+				SourceIpStart: decisionItem.SourceIpStart,
+				SourceIpEnd:   decisionItem.SourceIpEnd,
+				SourceScope:   decisionItem.SourceScope,
+				SourceValue:   decisionItem.SourceValue,
+			})
+			outputAlert.Decisions = outputDecisions
+		}
+		data = append(data, outputAlert)
+	}
+	return data
+}
+
 func (c *Controller) CreateAlert(gctx *gin.Context) {
 	var input CreateAlertInput
 	if err := gctx.ShouldBindJSON(&input); err != nil {
@@ -104,41 +165,41 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 	}
 
 	if len(input.Events) > 0 {
-		for _, eventItem := range input.Events {
-			_, err := c.Client.Event.
-				Create().
+		bulk := make([]*ent.EventCreate, len(input.Events))
+		for i, eventItem := range input.Events {
+			bulk[i] = c.Client.Event.Create().
 				SetTime(eventItem.Time).
 				SetSerialized(eventItem.Serialized).
-				SetOwner(alert).
-				Save(c.Ectx)
-			if err != nil {
-				log.Errorf("failed creating event: %v", err)
-				gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
-				return
-			}
+				SetOwner(alert)
+		}
+		_, err := c.Client.Event.CreateBulk(bulk...).Save(c.Ectx)
+		if err != nil {
+			log.Errorf("failed creating event: %v", err)
+			gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
+			return
 		}
 	}
 
 	if len(input.Metas) > 0 {
-		for _, metaItem := range input.Metas {
-			_, err := c.Client.Meta.
-				Create().
+		bulk := make([]*ent.MetaCreate, len(input.Metas))
+		for i, metaItem := range input.Metas {
+			bulk[i] = c.Client.Meta.Create().
 				SetKey(metaItem.Key).
 				SetValue(metaItem.Value).
-				SetOwner(alert).
-				Save(c.Ectx)
-			if err != nil {
-				log.Errorf("failed creating meta: %v", err)
-				gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
-				return
-			}
+				SetOwner(alert)
+		}
+		_, err := c.Client.Meta.CreateBulk(bulk...).Save(c.Ectx)
+		if err != nil {
+			log.Errorf("failed creating meta: %v", err)
+			gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
+			return
 		}
 	}
 
 	if len(input.Decisions) > 0 {
-		for _, decisionItem := range input.Decisions {
-			_, err := c.Client.Decision.
-				Create().
+		bulk := make([]*ent.DecisionCreate, len(input.Decisions))
+		for i, decisionItem := range input.Decisions {
+			bulk[i] = c.Client.Decision.Create().
 				SetUntil(decisionItem.Until).
 				SetScenario(decisionItem.Scenario).
 				SetDecisionType(decisionItem.DecisionType).
@@ -146,13 +207,13 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 				SetSourceIpEnd(decisionItem.SourceIpEnd).
 				SetSourceValue(decisionItem.SourceValue).
 				SetSourceScope(decisionItem.SourceScope).
-				SetOwner(alert).
-				Save(c.Ectx)
-			if err != nil {
-				log.Errorf("failed creating decision: %v", err)
-				gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
-				return
-			}
+				SetOwner(alert)
+		}
+		_, err := c.Client.Decision.CreateBulk(bulk...).Save(c.Ectx)
+		if err != nil {
+			log.Errorf("failed creating decision: %v", err)
+			gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
+			return
 		}
 	}
 
@@ -165,7 +226,7 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 	var startIp uint32
 	var endIp uint32
 	var hasActiveDecision bool
-	layout := "2006-01-02T15:04:05.000Z"
+	//layout := "2006-01-02T15:04:05.000Z"
 	alerts := c.Client.Debug().Alert.Query()
 	for param, value := range gctx.Request.URL.Query() {
 		switch param {
@@ -194,18 +255,18 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 				return
 			}
 		case "since":
-			since, err := time.Parse(layout, value[0])
+			since, err := time.Parse(time.RFC3339, value[0])
 			if err != nil {
 				log.Errorln(err)
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid since param format '%s'", value[0])})
 				return
 			}
 			alerts = alerts.Where(alert.CreatedAtGTE(since))
 		case "until":
-			until, err := time.Parse(layout, value[0])
+			until, err := time.Parse(time.RFC3339, value[0])
 			if err != nil {
 				log.Errorln(err)
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid until param format '%s'", value[0])})
 				return
 			}
 			alerts = alerts.Where(alert.CreatedAtLTE(until))
@@ -220,6 +281,7 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 			}
 		default:
 			gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid parameter : %s", param)})
+			return
 		}
 	}
 	if startIp != 0 && endIp != 0 {
@@ -242,6 +304,9 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed querying alert"})
 		return
 	}
-	gctx.JSON(http.StatusOK, gin.H{"data": result})
+
+	data := FormatAlert(result)
+
+	gctx.JSON(http.StatusOK, gin.H{"data": data})
 	return
 }

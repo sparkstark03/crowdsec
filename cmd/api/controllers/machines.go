@@ -16,10 +16,10 @@ type CreateMachineInput struct {
 	IpAddress string `json:"ip_address" binding:"required"`
 }
 
-func QueryMachine(ctx context.Context, client *ent.Client, machineId int) (*ent.Machine, error) {
+func QueryMachine(ctx context.Context, client *ent.Client, machineId string) (*ent.Machine, error) {
 	machine, err := client.Machine.
 		Query().
-		Where(machine.IDEQ(machineId)).
+		Where(machine.MachineIdEQ(machineId)).
 		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed querying user: %v", err)
