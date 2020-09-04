@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,7 +11,6 @@ import (
 
 	"github.com/crowdsecurity/crowdsec/cmd/api/controllers"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent"
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/blocker"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -101,7 +98,7 @@ func (a *API) Run() {
 }
 
 func (a *API) Generate(name string) (string, error) {
-	key, err := randomHex(keyLength)
+	key, err := generateKey(keyLength)
 	if err != nil {
 		return "", fmt.Errorf("unable to generate api key: %s", err)
 	}
@@ -119,41 +116,4 @@ func (a *API) Generate(name string) (string, error) {
 		return "", fmt.Errorf("unable to save api key in database: %s", err)
 	}
 	return key, nil
-}
-
-func randomHex(n int) (string, error) {
-	bytes := make([]byte, n)
-	if _, err := rand.Read(bytes); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes), nil
-}
-
-func apiKeyRequired(controller *controllers.Controller) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		val, ok := c.Request.Header[apiKeyHeaderName]
-		if !ok {
-			c.JSON(http.StatusForbidden, gin.H{"error": "access forbidden"})
-			c.Abort()
-			return
-		}
-
-		hashedKey := sha256.New()
-		hashedKey.Write([]byte(val[0]))
-
-		hashStr := fmt.Sprintf("%x", hashedKey.Sum(nil))
-		exist, err := controller.Client.Blocker.Query().Where(blocker.APIKeyEQ(hashStr)).Select(blocker.FieldAPIKey).Strings(controller.Ectx)
-		if err != nil {
-			log.Errorf("unable to get current api key: %s", err)
-			c.Abort()
-			return
-		}
-
-		if len(exist) == 0 {
-			c.JSON(http.StatusForbidden, gin.H{"error": "access forbidden"})
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
 }
