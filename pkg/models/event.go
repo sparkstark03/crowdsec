@@ -19,7 +19,7 @@ import (
 type Event struct {
 
 	// meta
-	Meta []*Metum `json:"meta"`
+	Meta []*Meta `json:"meta"`
 
 	// timestamp
 	Timestamp string `json:"timestamp,omitempty"`
