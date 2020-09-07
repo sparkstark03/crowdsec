@@ -14,7 +14,7 @@ import (
 
 type Data struct {
 	Machines []controllers.CreateMachineInput `json:"machines"`
-	Alerts   []controllers.CreateAlertInput   `json:"alerts"`
+	Alerts   []controllers.AlertInput         `json:"alerts"`
 }
 
 const URL = "http://localhost:8080/"
@@ -46,15 +46,11 @@ func main() {
 		time.Sleep(1 * time.Second)
 	}
 
-	// Create alerts
-	for _, alert := range data.Alerts {
-		b := new(bytes.Buffer)
-		json.NewEncoder(b).Encode(alert)
-		res, err := http.Post(alertsURL, "application/json;charset=utf-8", b)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		io.Copy(os.Stdout, res.Body)
-		time.Sleep(1 * time.Second)
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(data.Alerts)
+	res, err := http.Post(alertsURL, "application/json;charset=utf-8", b)
+	if err != nil {
+		log.Fatalln(err)
 	}
+	io.Copy(os.Stdout, res.Body)
 }

@@ -37,7 +37,7 @@ type API struct {
 func newAPI(config *Config) (*API, error) {
 	dbClient, err := newDatabaseClient(config.DB)
 	if err != nil {
-		return &API{}, fmt.Errorf("unable to init database client: %s")
+		return &API{}, fmt.Errorf("unable to init database client: %s", config.DB.Path)
 	}
 
 	return &API{
@@ -86,6 +86,7 @@ func (a *API) Run() {
 	router.POST("/machines", controller.CreateMachine)
 	router.POST("/alerts", controller.CreateAlert)
 	router.GET("/alerts", controller.FindAlerts)
+	router.DELETE("/alerts", controller.DeleteAlerts)
 
 	apiKeyAuth := router.Group("/")
 	apiKeyAuth.Use(apiKeyRequired(&controller))
