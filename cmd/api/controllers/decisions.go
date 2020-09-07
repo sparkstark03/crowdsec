@@ -1,35 +1,46 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
-func (c *Controller) FindDecisionByIp(gctx *gin.Context) {
-	ip := gctx.Param("ipText")
-
-	isValidIp := IsIpv4(ip)
-	if !isValidIp {
-		log.Errorf("failed querying decision: Ip %v is not valid", ip)
-		gctx.JSON(http.StatusBadRequest, gin.H{"error": "ipText is not valid"})
-		return
+func (c *Controller) GetDecision(gctx *gin.Context) {
+	var err error
+	var results []Decision
+	decisions := c.Client.Debug().Decision.Query().
+		Where(decision.UntilGTE(time.Now()))
+	for param, value := range gctx.Request.URL.Query() {
+		switch param {
+		case "scope":
+			decisions = decisions.Where(decision.SourceScopeEQ(value[0]))
+		case "value":
+			decisions = decisions.Where(decision.SourceValueEQ(value[0]))
+		case "type":
+			decisions = decisions.Where(decision.DecisionTypeEQ(value[0]))
+		default:
+			gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid parameter : %s", param)})
+			return
+		}
 	}
-
-	decisions, err := c.Client.Debug().Decision.Query().
-		Where(decision.SourceValueEQ(ip)).
-		All(c.Ectx)
+	err = decisions.Select(
+		decision.FieldUntil,
+		decision.FieldScenario,
+		decision.FieldDecisionType,
+		decision.FieldSourceIpStart,
+		decision.FieldSourceIpEnd,
+		decision.FieldSourceValue,
+		decision.FieldSourceScope,
+	).Scan(c.Ectx, &results)
 	if err != nil {
-		log.Errorf("failed querying decision: %v", err)
+		log.Errorf("failed querying decisions: %v", err)
 		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed querying decision"})
 		return
 	}
 
-	gctx.JSON(http.StatusOK, gin.H{"data": decisions})
-	return
-}
-
-func (c *Controller) GetDecision(gctx *gin.Context) {
-	gctx.JSON(http.StatusOK, gin.H{"message": "YOU ARE ALLOWED MY FRIEND"})
+	gctx.JSON(http.StatusOK, gin.H{"data": results})
 }

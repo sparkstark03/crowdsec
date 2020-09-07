@@ -90,7 +90,6 @@ func (a *API) Run() {
 	apiKeyAuth := router.Group("/")
 	apiKeyAuth.Use(apiKeyRequired(&controller))
 	{
-		apiKeyAuth.GET("/decisions/ip/:ipText", controller.FindDecisionByIp)
 		apiKeyAuth.GET("/decisions", controller.GetDecision)
 	}
 
