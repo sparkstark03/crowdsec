@@ -139,7 +139,7 @@ func ValidateAlertInput(gctx *gin.Context, alerts *ent.AlertQuery) (*ent.AlertQu
 
 func (c *Controller) CreateAlert(gctx *gin.Context) {
 	var input []AlertInput
-	var response []*ent.Alert
+	var responses []map[string]string
 	if err := gctx.ShouldBindJSON(&input); err != nil {
 		gctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -233,10 +233,13 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 				return
 			}
 		}
-		response = append(response, alert)
+		resp := make(map[string]string)
+		alert_id := strconv.Itoa(alert.ID)
+		resp["alert_id"] = alert_id
+		responses = append(responses, resp)
 	}
 
-	gctx.JSON(http.StatusOK, gin.H{"data": response})
+	gctx.JSON(http.StatusOK, gin.H{"data": responses})
 	return
 }
 
