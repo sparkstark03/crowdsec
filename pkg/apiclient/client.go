@@ -29,11 +29,13 @@ func NewClient(httpClient *http.Client) *ApiClient {
 	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
-	baseURL, _ := url.Parse("http://127.0.0.1:4242/")
+	baseURL, _ := url.Parse("http://127.0.0.1:8080/")
 
 	c := &ApiClient{client: httpClient, BaseURL: baseURL}
 	c.common.client = c
 	c.Decisions = (*DecisionsService)(&c.common)
+	c.Alerts = (*AlertsService)(&c.common)
+
 	return c
 }
 
