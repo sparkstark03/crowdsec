@@ -25,6 +25,8 @@ func (Blocker) Fields() []ent.Field {
 		field.String("ip_address").Default("").Optional(),
 		field.String("type").Default("").Optional(), // rupture ou stream
 		field.Time("expiration").Optional(),
+		field.Time("last_pull").
+			Default(time.Now),
 	}
 }
 
