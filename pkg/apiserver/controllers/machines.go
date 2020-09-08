@@ -7,15 +7,10 @@ import (
 
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent"
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent/machine"
+	"github.com/crowdsecurity/crowdsec/pkg/models"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
-
-type CreateMachineInput struct {
-	MachineId string `json:"machine_id" binding:"required"`
-	Password  string `json:"password" binding:"required"`
-	IpAddress string `json:"ip_address" binding:"required"`
-}
 
 func QueryMachine(ctx context.Context, client *ent.Client, machineId string) (*ent.Machine, error) {
 	machine, err := client.Machine.
@@ -29,16 +24,16 @@ func QueryMachine(ctx context.Context, client *ent.Client, machineId string) (*e
 }
 
 func (c *Controller) CreateMachine(gctx *gin.Context) {
-	var input CreateMachineInput
+	var input models.WatcherRegistrationRequest
 	if err := gctx.ShouldBindJSON(&input); err != nil {
 		gctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	machine, err := c.Client.Machine.
 		Create().
-		SetMachineId(input.MachineId).
+		SetMachineId(input.MachineID).
 		SetPassword(input.Password).
-		SetIpAddress(input.IpAddress).
+		SetIpAddress(gctx.ClientIP()).
 		Save(c.Ectx)
 
 	if err != nil {

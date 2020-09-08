@@ -87,7 +87,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 		return
 	}
 	for _, alertItem := range input {
-		log.Printf("ITEM : %+v \n", alertItem)
+
 		machine, err := QueryMachine(c.Ectx, c.Client, alertItem.MachineID)
 		if err != nil {
 			log.Errorf("failed query machine: %v", err)
@@ -137,7 +137,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 			for i, eventItem := range alertItem.Events {
 				ts, err := time.Parse(time.RFC3339, eventItem.Timestamp)
 				if err != nil {
-					log.Errorf("unable to parse duration '%s': %s", eventItem.Timestamp, err)
+					log.Errorf("unable to parse event item timestamp '%s': %s", eventItem.Timestamp, err)
 				}
 				marshallMetas, err := json.Marshal(eventItem.Meta)
 				if err != nil {
@@ -178,7 +178,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 			for i, decisionItem := range alertItem.Decisions {
 				duration, err := time.ParseDuration(decisionItem.Duration)
 				if err != nil {
-					log.Errorf("unable to parse duration '%s': %s", decisionItem.Duration, err)
+					log.Errorf("unable to parse decision duration '%s': %s", decisionItem.Duration, err)
 					continue
 				}
 				bulk[i] = c.Client.Decision.Create().

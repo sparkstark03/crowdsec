@@ -9,13 +9,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/crowdsecurity/crowdsec/pkg/apiserver/controllers"
+	"github.com/crowdsecurity/crowdsec/pkg/models"
 	log "github.com/sirupsen/logrus"
 )
 
 type Data struct {
-	Machines []controllers.CreateMachineInput `json:"machines"`
-	Alerts   []controllers.AlertInput         `json:"alerts"`
+	Machines []models.WatcherRegistrationRequest `json:"machines"`
+	Alerts   []models.Alert                      `json:"alerts"`
 }
 
 const URL = "http://localhost:8080/"

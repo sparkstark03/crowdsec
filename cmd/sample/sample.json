@@ -26,7 +26,7 @@
       "start_at": "2020-08-30T11:04:05Z",
       "stop_at": "2020-08-30T11:04:05Z",
       "capacity": 5,
-      "leakspeed": 1000,
+      "leakspeed": "5 evt/s",
       "reprocess": false,
       "source": {
         "scope": "ip",
@@ -41,12 +41,13 @@
       },
       "events": [
         {
-          "time": "2011-11-11T11:11:11Z",
-          "serialized": "{'name': 'serialized evt1'}"
-        },
-        {
-          "time": "2022-12-22T22:22:22Z",
-          "serialized": "{'name': 'serialized evt2'}"
+          "timestamp" : "2020-08-30T11:04:05Z",
+          "meta" : [
+            {
+              "key": "key1",
+              "value" : "machineid1"
+            }
+          ]
         }
       ],
       "metas": [
@@ -61,7 +62,7 @@
       ],
       "decisions": [
         {
-          "until": "2011-11-11T11:11:11Z",
+          "duration": "4h",
           "scenario": "crowdsecurity/scenario1",
           "decision_type": "ban",
           "source_ip_start": 185273099,
@@ -80,7 +81,7 @@
       "start_at": "2020-08-30T12:04:05Z",
       "stop_at": "2020-08-30T12:04:05Z",
       "capacity": 5,
-      "leak_speed": 1000,
+      "leakspeed": "5 evt/s",
       "reprocess": false,
       "source": {
         "scope": "ip",
@@ -95,12 +96,13 @@
       },
       "events": [
         {
-          "time": "2011-11-11T11:11:11Z",
-          "serialized": "{'name': 'serialized evt3'}"
-        },
-        {
-          "time": "2022-12-22T22:22:22Z",
-          "serialized": "{'name': 'serialized evt4'}"
+          "timestamp" : "2020-08-30T11:04:05Z",
+          "meta" : [
+            {
+              "key": "key2",
+              "value" : "machineid2"
+            }
+          ]
         }
       ],
       "metas": [
@@ -115,7 +117,7 @@
       ],
       "decisions": [
         {
-          "until": "2022-12-22T22:22:22Z",
+          "duration": "4h",
           "scenario": "crowdsecurity/scenario2",
           "decision_type": "ban",
           "source_ip_start": 370546198,
@@ -134,7 +136,7 @@
       "start_at": "2020-08-30T13:04:05Z",
       "stop_at": "2020-08-30T13:04:05Z",
       "capacity": 5,
-      "leak_speed": 1000,
+      "leakspeed": "5 evt/s",
       "reprocess": false,
       "source": {
         "scope": "ip",
@@ -149,12 +151,13 @@
       },
       "events": [
         {
-          "time": "2011-11-11T11:11:11Z",
-          "serialized": "{'name': 'serialized evt5'}"
-        },
-        {
-          "time": "2022-12-22T22:22:22Z",
-          "serialized": "{'name': 'serialized evt6'}"
+          "timestamp" : "2020-08-30T11:04:05Z",
+          "meta" : [
+            {
+              "key": "key1",
+              "value" : "machineid1"
+            }
+          ]
         }
       ],
       "metas": [
@@ -169,7 +172,7 @@
       ],
       "decisions": [
         {
-          "until": "2033-12-13T13:33:33Z",
+          "duration": "4h",
           "scenario": "crowdsecurity/scenario3",
           "decision_type": "ban",
           "source_ip_start": 555819297,
