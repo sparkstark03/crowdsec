@@ -49,8 +49,6 @@ const (
 	FieldCapacity = "capacity"
 	// FieldLeakSpeed holds the string denoting the leakspeed field in the database.
 	FieldLeakSpeed = "leak_speed"
-	// FieldReprocess holds the string denoting the reprocess field in the database.
-	FieldReprocess = "reprocess"
 
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
@@ -115,7 +113,6 @@ var Columns = []string{
 	FieldSourceValue,
 	FieldCapacity,
 	FieldLeakSpeed,
-	FieldReprocess,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Alert type.

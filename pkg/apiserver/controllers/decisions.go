@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/crowdsecurity/crowdsec/cmd/api/ent/decision"
+	"github.com/crowdsecurity/crowdsec/pkg/database/ent/decision"
 	"github.com/crowdsecurity/crowdsec/pkg/models"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"

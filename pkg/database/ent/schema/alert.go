@@ -1,10 +1,11 @@
 package schema
 
 import (
+	"time"
+
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
-	"time"
 )
 
 // Alert holds the schema definition for the Alert entity.
@@ -22,7 +23,7 @@ func (Alert) Fields() []ent.Field {
 		field.String("scenario"),
 		field.String("bucketId"),
 		field.String("message"),
-		field.Int("eventsCount"),
+		field.Int32("eventsCount"),
 		field.Time("startedAt"),
 		field.Time("stoppedAt"),
 		field.String("sourceIp").
@@ -41,9 +42,8 @@ func (Alert) Fields() []ent.Field {
 			Optional(),
 		field.String("sourceScope"),
 		field.String("sourceValue"),
-		field.Int("capacity"),
-		field.Int("leakSpeed"),
-		field.Bool("reprocess"),
+		field.Int32("capacity"),
+		field.String("leakSpeed"),
 	}
 }
 

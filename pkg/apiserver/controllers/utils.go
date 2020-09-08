@@ -46,9 +46,9 @@ func LastAddress(n *net.IPNet) net.IP {
 		ip[3]|^n.Mask[3])
 }
 
-func GetIpsFromIpRange(host string) (uint32, uint32, error) {
-	var ipStart uint32
-	var ipEnd uint32
+func GetIpsFromIpRange(host string) (int64, int64, error) {
+	var ipStart int64
+	var ipEnd int64
 	var err error
 	var parsedRange *net.IPNet
 
@@ -58,7 +58,8 @@ func GetIpsFromIpRange(host string) (uint32, uint32, error) {
 	if parsedRange == nil {
 		return ipStart, ipEnd, fmt.Errorf("unable to parse network : %s", err)
 	}
-	ipStart = IP2Int(parsedRange.IP)
-	ipEnd = IP2Int(LastAddress(parsedRange))
+	ipStart = int64(IP2Int(parsedRange.IP))
+	ipEnd = int64(IP2Int(LastAddress(parsedRange)))
+
 	return ipStart, ipEnd, nil
 }

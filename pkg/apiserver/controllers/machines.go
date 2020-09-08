@@ -40,6 +40,7 @@ func (c *Controller) CreateMachine(gctx *gin.Context) {
 		SetPassword(input.Password).
 		SetIpAddress(input.IpAddress).
 		Save(c.Ectx)
+
 	if err != nil {
 		log.Errorf("failed creating machine: %v", err)
 		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating machine"})

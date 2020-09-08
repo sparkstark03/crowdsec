@@ -1,10 +1,11 @@
 package schema
 
 import (
+	"time"
+
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
-	"time"
 )
 
 // Decision holds the schema definition for the Decision entity.
@@ -22,8 +23,8 @@ func (Decision) Fields() []ent.Field {
 		field.Time("until"),
 		field.String("scenario"),
 		field.String("decisionType"),
-		field.Uint32("sourceIpStart").Optional(),
-		field.Uint32("sourceIpEnd").Optional(),
+		field.Int64("sourceIpStart").Optional(),
+		field.Int64("sourceIpEnd").Optional(),
 		field.String("sourceScope"),
 		field.String("sourceValue"),
 	}

@@ -68,29 +68,29 @@ func (dc *DecisionCreate) SetDecisionType(s string) *DecisionCreate {
 }
 
 // SetSourceIpStart sets the sourceIpStart field.
-func (dc *DecisionCreate) SetSourceIpStart(u uint32) *DecisionCreate {
-	dc.mutation.SetSourceIpStart(u)
+func (dc *DecisionCreate) SetSourceIpStart(i int64) *DecisionCreate {
+	dc.mutation.SetSourceIpStart(i)
 	return dc
 }
 
 // SetNillableSourceIpStart sets the sourceIpStart field if the given value is not nil.
-func (dc *DecisionCreate) SetNillableSourceIpStart(u *uint32) *DecisionCreate {
-	if u != nil {
-		dc.SetSourceIpStart(*u)
+func (dc *DecisionCreate) SetNillableSourceIpStart(i *int64) *DecisionCreate {
+	if i != nil {
+		dc.SetSourceIpStart(*i)
 	}
 	return dc
 }
 
 // SetSourceIpEnd sets the sourceIpEnd field.
-func (dc *DecisionCreate) SetSourceIpEnd(u uint32) *DecisionCreate {
-	dc.mutation.SetSourceIpEnd(u)
+func (dc *DecisionCreate) SetSourceIpEnd(i int64) *DecisionCreate {
+	dc.mutation.SetSourceIpEnd(i)
 	return dc
 }
 
 // SetNillableSourceIpEnd sets the sourceIpEnd field if the given value is not nil.
-func (dc *DecisionCreate) SetNillableSourceIpEnd(u *uint32) *DecisionCreate {
-	if u != nil {
-		dc.SetSourceIpEnd(*u)
+func (dc *DecisionCreate) SetNillableSourceIpEnd(i *int64) *DecisionCreate {
+	if i != nil {
+		dc.SetSourceIpEnd(*i)
 	}
 	return dc
 }
@@ -265,7 +265,7 @@ func (dc *DecisionCreate) createSpec() (*Decision, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := dc.mutation.SourceIpStart(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpStart,
 		})
@@ -273,7 +273,7 @@ func (dc *DecisionCreate) createSpec() (*Decision, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := dc.mutation.SourceIpEnd(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpEnd,
 		})

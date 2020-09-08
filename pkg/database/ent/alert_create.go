@@ -71,7 +71,7 @@ func (ac *AlertCreate) SetMessage(s string) *AlertCreate {
 }
 
 // SetEventsCount sets the eventsCount field.
-func (ac *AlertCreate) SetEventsCount(i int) *AlertCreate {
+func (ac *AlertCreate) SetEventsCount(i int32) *AlertCreate {
 	ac.mutation.SetEventsCount(i)
 	return ac
 }
@@ -199,20 +199,14 @@ func (ac *AlertCreate) SetSourceValue(s string) *AlertCreate {
 }
 
 // SetCapacity sets the capacity field.
-func (ac *AlertCreate) SetCapacity(i int) *AlertCreate {
+func (ac *AlertCreate) SetCapacity(i int32) *AlertCreate {
 	ac.mutation.SetCapacity(i)
 	return ac
 }
 
 // SetLeakSpeed sets the leakSpeed field.
-func (ac *AlertCreate) SetLeakSpeed(i int) *AlertCreate {
-	ac.mutation.SetLeakSpeed(i)
-	return ac
-}
-
-// SetReprocess sets the reprocess field.
-func (ac *AlertCreate) SetReprocess(b bool) *AlertCreate {
-	ac.mutation.SetReprocess(b)
+func (ac *AlertCreate) SetLeakSpeed(s string) *AlertCreate {
+	ac.mutation.SetLeakSpeed(s)
 	return ac
 }
 
@@ -365,9 +359,6 @@ func (ac *AlertCreate) preSave() error {
 	if _, ok := ac.mutation.LeakSpeed(); !ok {
 		return &ValidationError{Name: "leakSpeed", err: errors.New("ent: missing required field \"leakSpeed\"")}
 	}
-	if _, ok := ac.mutation.Reprocess(); !ok {
-		return &ValidationError{Name: "reprocess", err: errors.New("ent: missing required field \"reprocess\"")}
-	}
 	return nil
 }
 
@@ -437,7 +428,7 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := ac.mutation.EventsCount(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldEventsCount,
 		})
@@ -533,7 +524,7 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := ac.mutation.Capacity(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldCapacity,
 		})
@@ -541,19 +532,11 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := ac.mutation.LeakSpeed(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: alert.FieldLeakSpeed,
 		})
 		a.LeakSpeed = value
-	}
-	if value, ok := ac.mutation.Reprocess(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: alert.FieldReprocess,
-		})
-		a.Reprocess = value
 	}
 	if nodes := ac.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

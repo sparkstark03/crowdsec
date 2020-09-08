@@ -3,13 +3,14 @@ package main
 import (
 	"bytes"
 	json "encoding/json"
-	"github.com/crowdsecurity/crowdsec/cmd/api/controllers"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/crowdsecurity/crowdsec/pkg/apiserver/controllers"
+	log "github.com/sirupsen/logrus"
 )
 
 type Data struct {

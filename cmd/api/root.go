@@ -36,13 +36,13 @@ var (
 )
 
 func initConfig() {
-	var err error
 
 	if cfgFile == "" {
 		log.Fatalf("please provide a configuration file with -c")
 	}
-	config, err = csconfig.NewCrowdSecConfig(cfgFile)
-	if err != nil {
+	config = csconfig.NewCrowdSecConfig()
+
+	if err := config.LoadConfigurationFile(&cfgFile); err != nil {
 		log.Fatalf(err.Error())
 	}
 

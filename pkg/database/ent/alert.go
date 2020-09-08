@@ -28,7 +28,7 @@ type Alert struct {
 	// Message holds the value of the "message" field.
 	Message string `json:"message,omitempty"`
 	// EventsCount holds the value of the "eventsCount" field.
-	EventsCount int `json:"eventsCount,omitempty"`
+	EventsCount int32 `json:"eventsCount,omitempty"`
 	// StartedAt holds the value of the "startedAt" field.
 	StartedAt time.Time `json:"startedAt,omitempty"`
 	// StoppedAt holds the value of the "stoppedAt" field.
@@ -52,11 +52,9 @@ type Alert struct {
 	// SourceValue holds the value of the "sourceValue" field.
 	SourceValue string `json:"sourceValue,omitempty"`
 	// Capacity holds the value of the "capacity" field.
-	Capacity int `json:"capacity,omitempty"`
+	Capacity int32 `json:"capacity,omitempty"`
 	// LeakSpeed holds the value of the "leakSpeed" field.
-	LeakSpeed int `json:"leakSpeed,omitempty"`
-	// Reprocess holds the value of the "reprocess" field.
-	Reprocess bool `json:"reprocess,omitempty"`
+	LeakSpeed string `json:"leakSpeed,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AlertQuery when eager-loading is set.
 	Edges          AlertEdges `json:"edges"`
@@ -141,8 +139,7 @@ func (*Alert) scanValues() []interface{} {
 		&sql.NullString{},  // sourceScope
 		&sql.NullString{},  // sourceValue
 		&sql.NullInt64{},   // capacity
-		&sql.NullInt64{},   // leakSpeed
-		&sql.NullBool{},    // reprocess
+		&sql.NullString{},  // leakSpeed
 	}
 }
 
@@ -193,7 +190,7 @@ func (a *Alert) assignValues(values ...interface{}) error {
 	if value, ok := values[5].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field eventsCount", values[5])
 	} else if value.Valid {
-		a.EventsCount = int(value.Int64)
+		a.EventsCount = int32(value.Int64)
 	}
 	if value, ok := values[6].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field startedAt", values[6])
@@ -253,19 +250,14 @@ func (a *Alert) assignValues(values ...interface{}) error {
 	if value, ok := values[17].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field capacity", values[17])
 	} else if value.Valid {
-		a.Capacity = int(value.Int64)
+		a.Capacity = int32(value.Int64)
 	}
-	if value, ok := values[18].(*sql.NullInt64); !ok {
+	if value, ok := values[18].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field leakSpeed", values[18])
 	} else if value.Valid {
-		a.LeakSpeed = int(value.Int64)
+		a.LeakSpeed = value.String
 	}
-	if value, ok := values[19].(*sql.NullBool); !ok {
-		return fmt.Errorf("unexpected type %T for field reprocess", values[19])
-	} else if value.Valid {
-		a.Reprocess = value.Bool
-	}
-	values = values[20:]
+	values = values[19:]
 	if len(values) == len(alert.ForeignKeys) {
 		if value, ok := values[0].(*sql.NullInt64); !ok {
 			return fmt.Errorf("unexpected type %T for edge-field machine_alerts", value)
@@ -357,9 +349,7 @@ func (a *Alert) String() string {
 	builder.WriteString(", capacity=")
 	builder.WriteString(fmt.Sprintf("%v", a.Capacity))
 	builder.WriteString(", leakSpeed=")
-	builder.WriteString(fmt.Sprintf("%v", a.LeakSpeed))
-	builder.WriteString(", reprocess=")
-	builder.WriteString(fmt.Sprintf("%v", a.Reprocess))
+	builder.WriteString(a.LeakSpeed)
 	builder.WriteByte(')')
 	return builder.String()
 }

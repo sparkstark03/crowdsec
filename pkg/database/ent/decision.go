@@ -28,9 +28,9 @@ type Decision struct {
 	// DecisionType holds the value of the "decisionType" field.
 	DecisionType string `json:"decisionType,omitempty"`
 	// SourceIpStart holds the value of the "sourceIpStart" field.
-	SourceIpStart uint32 `json:"sourceIpStart,omitempty"`
+	SourceIpStart int64 `json:"sourceIpStart,omitempty"`
 	// SourceIpEnd holds the value of the "sourceIpEnd" field.
-	SourceIpEnd uint32 `json:"sourceIpEnd,omitempty"`
+	SourceIpEnd int64 `json:"sourceIpEnd,omitempty"`
 	// SourceScope holds the value of the "sourceScope" field.
 	SourceScope string `json:"sourceScope,omitempty"`
 	// SourceValue holds the value of the "sourceValue" field.
@@ -127,12 +127,12 @@ func (d *Decision) assignValues(values ...interface{}) error {
 	if value, ok := values[5].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceIpStart", values[5])
 	} else if value.Valid {
-		d.SourceIpStart = uint32(value.Int64)
+		d.SourceIpStart = value.Int64
 	}
 	if value, ok := values[6].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceIpEnd", values[6])
 	} else if value.Valid {
-		d.SourceIpEnd = uint32(value.Int64)
+		d.SourceIpEnd = value.Int64
 	}
 	if value, ok := values[7].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field sourceScope", values[7])

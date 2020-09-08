@@ -129,14 +129,14 @@ func DecisionType(v string) predicate.Decision {
 }
 
 // SourceIpStart applies equality check predicate on the "sourceIpStart" field. It's identical to SourceIpStartEQ.
-func SourceIpStart(v uint32) predicate.Decision {
+func SourceIpStart(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldSourceIpStart), v))
 	})
 }
 
 // SourceIpEnd applies equality check predicate on the "sourceIpEnd" field. It's identical to SourceIpEndEQ.
-func SourceIpEnd(v uint32) predicate.Decision {
+func SourceIpEnd(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldSourceIpEnd), v))
 	})
@@ -607,21 +607,21 @@ func DecisionTypeContainsFold(v string) predicate.Decision {
 }
 
 // SourceIpStartEQ applies the EQ predicate on the "sourceIpStart" field.
-func SourceIpStartEQ(v uint32) predicate.Decision {
+func SourceIpStartEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldSourceIpStart), v))
 	})
 }
 
 // SourceIpStartNEQ applies the NEQ predicate on the "sourceIpStart" field.
-func SourceIpStartNEQ(v uint32) predicate.Decision {
+func SourceIpStartNEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldSourceIpStart), v))
 	})
 }
 
 // SourceIpStartIn applies the In predicate on the "sourceIpStart" field.
-func SourceIpStartIn(vs ...uint32) predicate.Decision {
+func SourceIpStartIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -638,7 +638,7 @@ func SourceIpStartIn(vs ...uint32) predicate.Decision {
 }
 
 // SourceIpStartNotIn applies the NotIn predicate on the "sourceIpStart" field.
-func SourceIpStartNotIn(vs ...uint32) predicate.Decision {
+func SourceIpStartNotIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -655,28 +655,28 @@ func SourceIpStartNotIn(vs ...uint32) predicate.Decision {
 }
 
 // SourceIpStartGT applies the GT predicate on the "sourceIpStart" field.
-func SourceIpStartGT(v uint32) predicate.Decision {
+func SourceIpStartGT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldSourceIpStart), v))
 	})
 }
 
 // SourceIpStartGTE applies the GTE predicate on the "sourceIpStart" field.
-func SourceIpStartGTE(v uint32) predicate.Decision {
+func SourceIpStartGTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldSourceIpStart), v))
 	})
 }
 
 // SourceIpStartLT applies the LT predicate on the "sourceIpStart" field.
-func SourceIpStartLT(v uint32) predicate.Decision {
+func SourceIpStartLT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldSourceIpStart), v))
 	})
 }
 
 // SourceIpStartLTE applies the LTE predicate on the "sourceIpStart" field.
-func SourceIpStartLTE(v uint32) predicate.Decision {
+func SourceIpStartLTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldSourceIpStart), v))
 	})
@@ -697,21 +697,21 @@ func SourceIpStartNotNil() predicate.Decision {
 }
 
 // SourceIpEndEQ applies the EQ predicate on the "sourceIpEnd" field.
-func SourceIpEndEQ(v uint32) predicate.Decision {
+func SourceIpEndEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldSourceIpEnd), v))
 	})
 }
 
 // SourceIpEndNEQ applies the NEQ predicate on the "sourceIpEnd" field.
-func SourceIpEndNEQ(v uint32) predicate.Decision {
+func SourceIpEndNEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldSourceIpEnd), v))
 	})
 }
 
 // SourceIpEndIn applies the In predicate on the "sourceIpEnd" field.
-func SourceIpEndIn(vs ...uint32) predicate.Decision {
+func SourceIpEndIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -728,7 +728,7 @@ func SourceIpEndIn(vs ...uint32) predicate.Decision {
 }
 
 // SourceIpEndNotIn applies the NotIn predicate on the "sourceIpEnd" field.
-func SourceIpEndNotIn(vs ...uint32) predicate.Decision {
+func SourceIpEndNotIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -745,28 +745,28 @@ func SourceIpEndNotIn(vs ...uint32) predicate.Decision {
 }
 
 // SourceIpEndGT applies the GT predicate on the "sourceIpEnd" field.
-func SourceIpEndGT(v uint32) predicate.Decision {
+func SourceIpEndGT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldSourceIpEnd), v))
 	})
 }
 
 // SourceIpEndGTE applies the GTE predicate on the "sourceIpEnd" field.
-func SourceIpEndGTE(v uint32) predicate.Decision {
+func SourceIpEndGTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldSourceIpEnd), v))
 	})
 }
 
 // SourceIpEndLT applies the LT predicate on the "sourceIpEnd" field.
-func SourceIpEndLT(v uint32) predicate.Decision {
+func SourceIpEndLT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldSourceIpEnd), v))
 	})
 }
 
 // SourceIpEndLTE applies the LTE predicate on the "sourceIpEnd" field.
-func SourceIpEndLTE(v uint32) predicate.Decision {
+func SourceIpEndLTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldSourceIpEnd), v))
 	})

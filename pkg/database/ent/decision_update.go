@@ -76,23 +76,23 @@ func (du *DecisionUpdate) SetDecisionType(s string) *DecisionUpdate {
 }
 
 // SetSourceIpStart sets the sourceIpStart field.
-func (du *DecisionUpdate) SetSourceIpStart(u uint32) *DecisionUpdate {
+func (du *DecisionUpdate) SetSourceIpStart(i int64) *DecisionUpdate {
 	du.mutation.ResetSourceIpStart()
-	du.mutation.SetSourceIpStart(u)
+	du.mutation.SetSourceIpStart(i)
 	return du
 }
 
 // SetNillableSourceIpStart sets the sourceIpStart field if the given value is not nil.
-func (du *DecisionUpdate) SetNillableSourceIpStart(u *uint32) *DecisionUpdate {
-	if u != nil {
-		du.SetSourceIpStart(*u)
+func (du *DecisionUpdate) SetNillableSourceIpStart(i *int64) *DecisionUpdate {
+	if i != nil {
+		du.SetSourceIpStart(*i)
 	}
 	return du
 }
 
-// AddSourceIpStart adds u to sourceIpStart.
-func (du *DecisionUpdate) AddSourceIpStart(u uint32) *DecisionUpdate {
-	du.mutation.AddSourceIpStart(u)
+// AddSourceIpStart adds i to sourceIpStart.
+func (du *DecisionUpdate) AddSourceIpStart(i int64) *DecisionUpdate {
+	du.mutation.AddSourceIpStart(i)
 	return du
 }
 
@@ -103,23 +103,23 @@ func (du *DecisionUpdate) ClearSourceIpStart() *DecisionUpdate {
 }
 
 // SetSourceIpEnd sets the sourceIpEnd field.
-func (du *DecisionUpdate) SetSourceIpEnd(u uint32) *DecisionUpdate {
+func (du *DecisionUpdate) SetSourceIpEnd(i int64) *DecisionUpdate {
 	du.mutation.ResetSourceIpEnd()
-	du.mutation.SetSourceIpEnd(u)
+	du.mutation.SetSourceIpEnd(i)
 	return du
 }
 
 // SetNillableSourceIpEnd sets the sourceIpEnd field if the given value is not nil.
-func (du *DecisionUpdate) SetNillableSourceIpEnd(u *uint32) *DecisionUpdate {
-	if u != nil {
-		du.SetSourceIpEnd(*u)
+func (du *DecisionUpdate) SetNillableSourceIpEnd(i *int64) *DecisionUpdate {
+	if i != nil {
+		du.SetSourceIpEnd(*i)
 	}
 	return du
 }
 
-// AddSourceIpEnd adds u to sourceIpEnd.
-func (du *DecisionUpdate) AddSourceIpEnd(u uint32) *DecisionUpdate {
-	du.mutation.AddSourceIpEnd(u)
+// AddSourceIpEnd adds i to sourceIpEnd.
+func (du *DecisionUpdate) AddSourceIpEnd(i int64) *DecisionUpdate {
+	du.mutation.AddSourceIpEnd(i)
 	return du
 }
 
@@ -278,41 +278,41 @@ func (du *DecisionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := du.mutation.SourceIpStart(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpStart,
 		})
 	}
 	if value, ok := du.mutation.AddedSourceIpStart(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpStart,
 		})
 	}
 	if du.mutation.SourceIpStartCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Column: decision.FieldSourceIpStart,
 		})
 	}
 	if value, ok := du.mutation.SourceIpEnd(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpEnd,
 		})
 	}
 	if value, ok := du.mutation.AddedSourceIpEnd(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpEnd,
 		})
 	}
 	if du.mutation.SourceIpEndCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Column: decision.FieldSourceIpEnd,
 		})
 	}
@@ -430,23 +430,23 @@ func (duo *DecisionUpdateOne) SetDecisionType(s string) *DecisionUpdateOne {
 }
 
 // SetSourceIpStart sets the sourceIpStart field.
-func (duo *DecisionUpdateOne) SetSourceIpStart(u uint32) *DecisionUpdateOne {
+func (duo *DecisionUpdateOne) SetSourceIpStart(i int64) *DecisionUpdateOne {
 	duo.mutation.ResetSourceIpStart()
-	duo.mutation.SetSourceIpStart(u)
+	duo.mutation.SetSourceIpStart(i)
 	return duo
 }
 
 // SetNillableSourceIpStart sets the sourceIpStart field if the given value is not nil.
-func (duo *DecisionUpdateOne) SetNillableSourceIpStart(u *uint32) *DecisionUpdateOne {
-	if u != nil {
-		duo.SetSourceIpStart(*u)
+func (duo *DecisionUpdateOne) SetNillableSourceIpStart(i *int64) *DecisionUpdateOne {
+	if i != nil {
+		duo.SetSourceIpStart(*i)
 	}
 	return duo
 }
 
-// AddSourceIpStart adds u to sourceIpStart.
-func (duo *DecisionUpdateOne) AddSourceIpStart(u uint32) *DecisionUpdateOne {
-	duo.mutation.AddSourceIpStart(u)
+// AddSourceIpStart adds i to sourceIpStart.
+func (duo *DecisionUpdateOne) AddSourceIpStart(i int64) *DecisionUpdateOne {
+	duo.mutation.AddSourceIpStart(i)
 	return duo
 }
 
@@ -457,23 +457,23 @@ func (duo *DecisionUpdateOne) ClearSourceIpStart() *DecisionUpdateOne {
 }
 
 // SetSourceIpEnd sets the sourceIpEnd field.
-func (duo *DecisionUpdateOne) SetSourceIpEnd(u uint32) *DecisionUpdateOne {
+func (duo *DecisionUpdateOne) SetSourceIpEnd(i int64) *DecisionUpdateOne {
 	duo.mutation.ResetSourceIpEnd()
-	duo.mutation.SetSourceIpEnd(u)
+	duo.mutation.SetSourceIpEnd(i)
 	return duo
 }
 
 // SetNillableSourceIpEnd sets the sourceIpEnd field if the given value is not nil.
-func (duo *DecisionUpdateOne) SetNillableSourceIpEnd(u *uint32) *DecisionUpdateOne {
-	if u != nil {
-		duo.SetSourceIpEnd(*u)
+func (duo *DecisionUpdateOne) SetNillableSourceIpEnd(i *int64) *DecisionUpdateOne {
+	if i != nil {
+		duo.SetSourceIpEnd(*i)
 	}
 	return duo
 }
 
-// AddSourceIpEnd adds u to sourceIpEnd.
-func (duo *DecisionUpdateOne) AddSourceIpEnd(u uint32) *DecisionUpdateOne {
-	duo.mutation.AddSourceIpEnd(u)
+// AddSourceIpEnd adds i to sourceIpEnd.
+func (duo *DecisionUpdateOne) AddSourceIpEnd(i int64) *DecisionUpdateOne {
+	duo.mutation.AddSourceIpEnd(i)
 	return duo
 }
 
@@ -630,41 +630,41 @@ func (duo *DecisionUpdateOne) sqlSave(ctx context.Context) (d *Decision, err err
 	}
 	if value, ok := duo.mutation.SourceIpStart(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpStart,
 		})
 	}
 	if value, ok := duo.mutation.AddedSourceIpStart(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpStart,
 		})
 	}
 	if duo.mutation.SourceIpStartCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Column: decision.FieldSourceIpStart,
 		})
 	}
 	if value, ok := duo.mutation.SourceIpEnd(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpEnd,
 		})
 	}
 	if value, ok := duo.mutation.AddedSourceIpEnd(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: decision.FieldSourceIpEnd,
 		})
 	}
 	if duo.mutation.SourceIpEndCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeUint32,
+			Type:   field.TypeInt64,
 			Column: decision.FieldSourceIpEnd,
 		})
 	}

@@ -17,7 +17,7 @@ var (
 	apiKeyHeaderName = "X-Api-Key"
 )
 
-func generateKey(n int) (string, error) {
+func GenerateKey(n int) (string, error) {
 	bytes := make([]byte, n)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
@@ -25,7 +25,7 @@ func generateKey(n int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-func apiKeyRequired(controller *controllers.Controller) gin.HandlerFunc {
+func APIKeyRequired(controller *controllers.Controller) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		val, ok := c.Request.Header[apiKeyHeaderName]
 		if !ok {

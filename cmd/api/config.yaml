@@ -1,7 +1,0 @@
-api:
-  url: localhost:8080
-  cert_path: ./cert.key
-  log_file: ./csapi.log
-db:
-  type: sqlite
-  path: ./ent.db

@@ -79,14 +79,14 @@ func (au *AlertUpdate) SetMessage(s string) *AlertUpdate {
 }
 
 // SetEventsCount sets the eventsCount field.
-func (au *AlertUpdate) SetEventsCount(i int) *AlertUpdate {
+func (au *AlertUpdate) SetEventsCount(i int32) *AlertUpdate {
 	au.mutation.ResetEventsCount()
 	au.mutation.SetEventsCount(i)
 	return au
 }
 
 // AddEventsCount adds i to eventsCount.
-func (au *AlertUpdate) AddEventsCount(i int) *AlertUpdate {
+func (au *AlertUpdate) AddEventsCount(i int32) *AlertUpdate {
 	au.mutation.AddEventsCount(i)
 	return au
 }
@@ -270,34 +270,21 @@ func (au *AlertUpdate) SetSourceValue(s string) *AlertUpdate {
 }
 
 // SetCapacity sets the capacity field.
-func (au *AlertUpdate) SetCapacity(i int) *AlertUpdate {
+func (au *AlertUpdate) SetCapacity(i int32) *AlertUpdate {
 	au.mutation.ResetCapacity()
 	au.mutation.SetCapacity(i)
 	return au
 }
 
 // AddCapacity adds i to capacity.
-func (au *AlertUpdate) AddCapacity(i int) *AlertUpdate {
+func (au *AlertUpdate) AddCapacity(i int32) *AlertUpdate {
 	au.mutation.AddCapacity(i)
 	return au
 }
 
 // SetLeakSpeed sets the leakSpeed field.
-func (au *AlertUpdate) SetLeakSpeed(i int) *AlertUpdate {
-	au.mutation.ResetLeakSpeed()
-	au.mutation.SetLeakSpeed(i)
-	return au
-}
-
-// AddLeakSpeed adds i to leakSpeed.
-func (au *AlertUpdate) AddLeakSpeed(i int) *AlertUpdate {
-	au.mutation.AddLeakSpeed(i)
-	return au
-}
-
-// SetReprocess sets the reprocess field.
-func (au *AlertUpdate) SetReprocess(b bool) *AlertUpdate {
-	au.mutation.SetReprocess(b)
+func (au *AlertUpdate) SetLeakSpeed(s string) *AlertUpdate {
+	au.mutation.SetLeakSpeed(s)
 	return au
 }
 
@@ -528,14 +515,14 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := au.mutation.EventsCount(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldEventsCount,
 		})
 	}
 	if value, ok := au.mutation.AddedEventsCount(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldEventsCount,
 		})
@@ -675,37 +662,23 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := au.mutation.Capacity(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldCapacity,
 		})
 	}
 	if value, ok := au.mutation.AddedCapacity(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldCapacity,
 		})
 	}
 	if value, ok := au.mutation.LeakSpeed(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: alert.FieldLeakSpeed,
-		})
-	}
-	if value, ok := au.mutation.AddedLeakSpeed(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: alert.FieldLeakSpeed,
-		})
-	}
-	if value, ok := au.mutation.Reprocess(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: alert.FieldReprocess,
 		})
 	}
 	if au.mutation.OwnerCleared() {
@@ -922,14 +895,14 @@ func (auo *AlertUpdateOne) SetMessage(s string) *AlertUpdateOne {
 }
 
 // SetEventsCount sets the eventsCount field.
-func (auo *AlertUpdateOne) SetEventsCount(i int) *AlertUpdateOne {
+func (auo *AlertUpdateOne) SetEventsCount(i int32) *AlertUpdateOne {
 	auo.mutation.ResetEventsCount()
 	auo.mutation.SetEventsCount(i)
 	return auo
 }
 
 // AddEventsCount adds i to eventsCount.
-func (auo *AlertUpdateOne) AddEventsCount(i int) *AlertUpdateOne {
+func (auo *AlertUpdateOne) AddEventsCount(i int32) *AlertUpdateOne {
 	auo.mutation.AddEventsCount(i)
 	return auo
 }
@@ -1113,34 +1086,21 @@ func (auo *AlertUpdateOne) SetSourceValue(s string) *AlertUpdateOne {
 }
 
 // SetCapacity sets the capacity field.
-func (auo *AlertUpdateOne) SetCapacity(i int) *AlertUpdateOne {
+func (auo *AlertUpdateOne) SetCapacity(i int32) *AlertUpdateOne {
 	auo.mutation.ResetCapacity()
 	auo.mutation.SetCapacity(i)
 	return auo
 }
 
 // AddCapacity adds i to capacity.
-func (auo *AlertUpdateOne) AddCapacity(i int) *AlertUpdateOne {
+func (auo *AlertUpdateOne) AddCapacity(i int32) *AlertUpdateOne {
 	auo.mutation.AddCapacity(i)
 	return auo
 }
 
 // SetLeakSpeed sets the leakSpeed field.
-func (auo *AlertUpdateOne) SetLeakSpeed(i int) *AlertUpdateOne {
-	auo.mutation.ResetLeakSpeed()
-	auo.mutation.SetLeakSpeed(i)
-	return auo
-}
-
-// AddLeakSpeed adds i to leakSpeed.
-func (auo *AlertUpdateOne) AddLeakSpeed(i int) *AlertUpdateOne {
-	auo.mutation.AddLeakSpeed(i)
-	return auo
-}
-
-// SetReprocess sets the reprocess field.
-func (auo *AlertUpdateOne) SetReprocess(b bool) *AlertUpdateOne {
-	auo.mutation.SetReprocess(b)
+func (auo *AlertUpdateOne) SetLeakSpeed(s string) *AlertUpdateOne {
+	auo.mutation.SetLeakSpeed(s)
 	return auo
 }
 
@@ -1369,14 +1329,14 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (a *Alert, err error) {
 	}
 	if value, ok := auo.mutation.EventsCount(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldEventsCount,
 		})
 	}
 	if value, ok := auo.mutation.AddedEventsCount(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldEventsCount,
 		})
@@ -1516,37 +1476,23 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (a *Alert, err error) {
 	}
 	if value, ok := auo.mutation.Capacity(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldCapacity,
 		})
 	}
 	if value, ok := auo.mutation.AddedCapacity(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeInt32,
 			Value:  value,
 			Column: alert.FieldCapacity,
 		})
 	}
 	if value, ok := auo.mutation.LeakSpeed(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: alert.FieldLeakSpeed,
-		})
-	}
-	if value, ok := auo.mutation.AddedLeakSpeed(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: alert.FieldLeakSpeed,
-		})
-	}
-	if value, ok := auo.mutation.Reprocess(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: alert.FieldReprocess,
 		})
 	}
 	if auo.mutation.OwnerCleared() {

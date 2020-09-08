@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/crowdsecurity/crowdsec/pkg/apiserver/middlewares"
+
 	"github.com/crowdsecurity/crowdsec/pkg/apiserver/controllers"
 	"github.com/crowdsecurity/crowdsec/pkg/csconfig"
 	"github.com/crowdsecurity/crowdsec/pkg/database"
@@ -85,7 +87,7 @@ func (s *APIServer) Run() {
 	router.DELETE("/alerts", controller.DeleteAlerts)
 
 	apiKeyAuth := router.Group("/")
-	apiKeyAuth.Use(middlewares.apiKeyRequired(&controller))
+	apiKeyAuth.Use(middlewares.APIKeyRequired(&controller))
 	{
 		apiKeyAuth.GET("/decisions", controller.GetDecision)
 	}
@@ -94,7 +96,7 @@ func (s *APIServer) Run() {
 }
 
 func (s *APIServer) Generate(name string) (string, error) {
-	key, err := middlewares.generateKey(keyLength)
+	key, err := middlewares.GenerateKey(keyLength)
 	if err != nil {
 		return "", fmt.Errorf("unable to generate api key: %s", err)
 	}

@@ -16,7 +16,7 @@ var (
 		{Name: "scenario", Type: field.TypeString},
 		{Name: "bucket_id", Type: field.TypeString},
 		{Name: "message", Type: field.TypeString},
-		{Name: "events_count", Type: field.TypeInt},
+		{Name: "events_count", Type: field.TypeInt32},
 		{Name: "started_at", Type: field.TypeTime},
 		{Name: "stopped_at", Type: field.TypeTime},
 		{Name: "source_ip", Type: field.TypeString, Nullable: true},
@@ -28,9 +28,8 @@ var (
 		{Name: "source_longitude", Type: field.TypeFloat32, Nullable: true},
 		{Name: "source_scope", Type: field.TypeString},
 		{Name: "source_value", Type: field.TypeString},
-		{Name: "capacity", Type: field.TypeInt},
-		{Name: "leak_speed", Type: field.TypeInt},
-		{Name: "reprocess", Type: field.TypeBool},
+		{Name: "capacity", Type: field.TypeInt32},
+		{Name: "leak_speed", Type: field.TypeString},
 		{Name: "machine_alerts", Type: field.TypeInt, Nullable: true},
 	}
 	// AlertsTable holds the schema information for the "alerts" table.
@@ -41,7 +40,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "alerts_machines_alerts",
-				Columns: []*schema.Column{AlertsColumns[21]},
+				Columns: []*schema.Column{AlertsColumns[20]},
 
 				RefColumns: []*schema.Column{MachinesColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -76,8 +75,8 @@ var (
 		{Name: "until", Type: field.TypeTime},
 		{Name: "scenario", Type: field.TypeString},
 		{Name: "decision_type", Type: field.TypeString},
-		{Name: "source_ip_start", Type: field.TypeUint32, Nullable: true},
-		{Name: "source_ip_end", Type: field.TypeUint32, Nullable: true},
+		{Name: "source_ip_start", Type: field.TypeInt64, Nullable: true},
+		{Name: "source_ip_end", Type: field.TypeInt64, Nullable: true},
 		{Name: "source_scope", Type: field.TypeString},
 		{Name: "source_value", Type: field.TypeString},
 		{Name: "alert_decisions", Type: field.TypeInt, Nullable: true},

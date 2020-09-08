@@ -47,8 +47,8 @@ type AlertMutation struct {
 	scenario           *string
 	bucketId           *string
 	message            *string
-	eventsCount        *int
-	addeventsCount     *int
+	eventsCount        *int32
+	addeventsCount     *int32
 	startedAt          *time.Time
 	stoppedAt          *time.Time
 	sourceIp           *string
@@ -62,11 +62,9 @@ type AlertMutation struct {
 	addsourceLongitude *float32
 	sourceScope        *string
 	sourceValue        *string
-	capacity           *int
-	addcapacity        *int
-	leakSpeed          *int
-	addleakSpeed       *int
-	reprocess          *bool
+	capacity           *int32
+	addcapacity        *int32
+	leakSpeed          *string
 	clearedFields      map[string]struct{}
 	owner              *int
 	clearedowner       bool
@@ -345,13 +343,13 @@ func (m *AlertMutation) ResetMessage() {
 }
 
 // SetEventsCount sets the eventsCount field.
-func (m *AlertMutation) SetEventsCount(i int) {
+func (m *AlertMutation) SetEventsCount(i int32) {
 	m.eventsCount = &i
 	m.addeventsCount = nil
 }
 
 // EventsCount returns the eventsCount value in the mutation.
-func (m *AlertMutation) EventsCount() (r int, exists bool) {
+func (m *AlertMutation) EventsCount() (r int32, exists bool) {
 	v := m.eventsCount
 	if v == nil {
 		return
@@ -363,7 +361,7 @@ func (m *AlertMutation) EventsCount() (r int, exists bool) {
 // If the Alert object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *AlertMutation) OldEventsCount(ctx context.Context) (v int, err error) {
+func (m *AlertMutation) OldEventsCount(ctx context.Context) (v int32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldEventsCount is allowed only on UpdateOne operations")
 	}
@@ -378,7 +376,7 @@ func (m *AlertMutation) OldEventsCount(ctx context.Context) (v int, err error) {
 }
 
 // AddEventsCount adds i to eventsCount.
-func (m *AlertMutation) AddEventsCount(i int) {
+func (m *AlertMutation) AddEventsCount(i int32) {
 	if m.addeventsCount != nil {
 		*m.addeventsCount += i
 	} else {
@@ -387,7 +385,7 @@ func (m *AlertMutation) AddEventsCount(i int) {
 }
 
 // AddedEventsCount returns the value that was added to the eventsCount field in this mutation.
-func (m *AlertMutation) AddedEventsCount() (r int, exists bool) {
+func (m *AlertMutation) AddedEventsCount() (r int32, exists bool) {
 	v := m.addeventsCount
 	if v == nil {
 		return
@@ -942,13 +940,13 @@ func (m *AlertMutation) ResetSourceValue() {
 }
 
 // SetCapacity sets the capacity field.
-func (m *AlertMutation) SetCapacity(i int) {
+func (m *AlertMutation) SetCapacity(i int32) {
 	m.capacity = &i
 	m.addcapacity = nil
 }
 
 // Capacity returns the capacity value in the mutation.
-func (m *AlertMutation) Capacity() (r int, exists bool) {
+func (m *AlertMutation) Capacity() (r int32, exists bool) {
 	v := m.capacity
 	if v == nil {
 		return
@@ -960,7 +958,7 @@ func (m *AlertMutation) Capacity() (r int, exists bool) {
 // If the Alert object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *AlertMutation) OldCapacity(ctx context.Context) (v int, err error) {
+func (m *AlertMutation) OldCapacity(ctx context.Context) (v int32, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldCapacity is allowed only on UpdateOne operations")
 	}
@@ -975,7 +973,7 @@ func (m *AlertMutation) OldCapacity(ctx context.Context) (v int, err error) {
 }
 
 // AddCapacity adds i to capacity.
-func (m *AlertMutation) AddCapacity(i int) {
+func (m *AlertMutation) AddCapacity(i int32) {
 	if m.addcapacity != nil {
 		*m.addcapacity += i
 	} else {
@@ -984,7 +982,7 @@ func (m *AlertMutation) AddCapacity(i int) {
 }
 
 // AddedCapacity returns the value that was added to the capacity field in this mutation.
-func (m *AlertMutation) AddedCapacity() (r int, exists bool) {
+func (m *AlertMutation) AddedCapacity() (r int32, exists bool) {
 	v := m.addcapacity
 	if v == nil {
 		return
@@ -999,13 +997,12 @@ func (m *AlertMutation) ResetCapacity() {
 }
 
 // SetLeakSpeed sets the leakSpeed field.
-func (m *AlertMutation) SetLeakSpeed(i int) {
-	m.leakSpeed = &i
-	m.addleakSpeed = nil
+func (m *AlertMutation) SetLeakSpeed(s string) {
+	m.leakSpeed = &s
 }
 
 // LeakSpeed returns the leakSpeed value in the mutation.
-func (m *AlertMutation) LeakSpeed() (r int, exists bool) {
+func (m *AlertMutation) LeakSpeed() (r string, exists bool) {
 	v := m.leakSpeed
 	if v == nil {
 		return
@@ -1017,7 +1014,7 @@ func (m *AlertMutation) LeakSpeed() (r int, exists bool) {
 // If the Alert object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *AlertMutation) OldLeakSpeed(ctx context.Context) (v int, err error) {
+func (m *AlertMutation) OldLeakSpeed(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldLeakSpeed is allowed only on UpdateOne operations")
 	}
@@ -1031,65 +1028,9 @@ func (m *AlertMutation) OldLeakSpeed(ctx context.Context) (v int, err error) {
 	return oldValue.LeakSpeed, nil
 }
 
-// AddLeakSpeed adds i to leakSpeed.
-func (m *AlertMutation) AddLeakSpeed(i int) {
-	if m.addleakSpeed != nil {
-		*m.addleakSpeed += i
-	} else {
-		m.addleakSpeed = &i
-	}
-}
-
-// AddedLeakSpeed returns the value that was added to the leakSpeed field in this mutation.
-func (m *AlertMutation) AddedLeakSpeed() (r int, exists bool) {
-	v := m.addleakSpeed
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetLeakSpeed reset all changes of the "leakSpeed" field.
 func (m *AlertMutation) ResetLeakSpeed() {
 	m.leakSpeed = nil
-	m.addleakSpeed = nil
-}
-
-// SetReprocess sets the reprocess field.
-func (m *AlertMutation) SetReprocess(b bool) {
-	m.reprocess = &b
-}
-
-// Reprocess returns the reprocess value in the mutation.
-func (m *AlertMutation) Reprocess() (r bool, exists bool) {
-	v := m.reprocess
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldReprocess returns the old reprocess value of the Alert.
-// If the Alert object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *AlertMutation) OldReprocess(ctx context.Context) (v bool, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldReprocess is allowed only on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldReprocess requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldReprocess: %w", err)
-	}
-	return oldValue.Reprocess, nil
-}
-
-// ResetReprocess reset all changes of the "reprocess" field.
-func (m *AlertMutation) ResetReprocess() {
-	m.reprocess = nil
 }
 
 // SetOwnerID sets the owner edge to Machine by id.
@@ -1271,7 +1212,7 @@ func (m *AlertMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *AlertMutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 19)
 	if m.created_at != nil {
 		fields = append(fields, alert.FieldCreatedAt)
 	}
@@ -1329,9 +1270,6 @@ func (m *AlertMutation) Fields() []string {
 	if m.leakSpeed != nil {
 		fields = append(fields, alert.FieldLeakSpeed)
 	}
-	if m.reprocess != nil {
-		fields = append(fields, alert.FieldReprocess)
-	}
 	return fields
 }
 
@@ -1378,8 +1316,6 @@ func (m *AlertMutation) Field(name string) (ent.Value, bool) {
 		return m.Capacity()
 	case alert.FieldLeakSpeed:
 		return m.LeakSpeed()
-	case alert.FieldReprocess:
-		return m.Reprocess()
 	}
 	return nil, false
 }
@@ -1427,8 +1363,6 @@ func (m *AlertMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldCapacity(ctx)
 	case alert.FieldLeakSpeed:
 		return m.OldLeakSpeed(ctx)
-	case alert.FieldReprocess:
-		return m.OldReprocess(ctx)
 	}
 	return nil, fmt.Errorf("unknown Alert field %s", name)
 }
@@ -1474,7 +1408,7 @@ func (m *AlertMutation) SetField(name string, value ent.Value) error {
 		m.SetMessage(v)
 		return nil
 	case alert.FieldEventsCount:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1558,25 +1492,18 @@ func (m *AlertMutation) SetField(name string, value ent.Value) error {
 		m.SetSourceValue(v)
 		return nil
 	case alert.FieldCapacity:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCapacity(v)
 		return nil
 	case alert.FieldLeakSpeed:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLeakSpeed(v)
-		return nil
-	case alert.FieldReprocess:
-		v, ok := value.(bool)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetReprocess(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Alert field %s", name)
@@ -1598,9 +1525,6 @@ func (m *AlertMutation) AddedFields() []string {
 	if m.addcapacity != nil {
 		fields = append(fields, alert.FieldCapacity)
 	}
-	if m.addleakSpeed != nil {
-		fields = append(fields, alert.FieldLeakSpeed)
-	}
 	return fields
 }
 
@@ -1617,8 +1541,6 @@ func (m *AlertMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedSourceLongitude()
 	case alert.FieldCapacity:
 		return m.AddedCapacity()
-	case alert.FieldLeakSpeed:
-		return m.AddedLeakSpeed()
 	}
 	return nil, false
 }
@@ -1629,7 +1551,7 @@ func (m *AlertMutation) AddedField(name string) (ent.Value, bool) {
 func (m *AlertMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case alert.FieldEventsCount:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1650,18 +1572,11 @@ func (m *AlertMutation) AddField(name string, value ent.Value) error {
 		m.AddSourceLongitude(v)
 		return nil
 	case alert.FieldCapacity:
-		v, ok := value.(int)
+		v, ok := value.(int32)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddCapacity(v)
-		return nil
-	case alert.FieldLeakSpeed:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddLeakSpeed(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Alert numeric field %s", name)
@@ -1792,9 +1707,6 @@ func (m *AlertMutation) ResetField(name string) error {
 		return nil
 	case alert.FieldLeakSpeed:
 		m.ResetLeakSpeed()
-		return nil
-	case alert.FieldReprocess:
-		m.ResetReprocess()
 		return nil
 	}
 	return fmt.Errorf("unknown Alert field %s", name)
@@ -2748,10 +2660,10 @@ type DecisionMutation struct {
 	until            *time.Time
 	scenario         *string
 	decisionType     *string
-	sourceIpStart    *uint32
-	addsourceIpStart *uint32
-	sourceIpEnd      *uint32
-	addsourceIpEnd   *uint32
+	sourceIpStart    *int64
+	addsourceIpStart *int64
+	sourceIpEnd      *int64
+	addsourceIpEnd   *int64
 	sourceScope      *string
 	sourceValue      *string
 	clearedFields    map[string]struct{}
@@ -3026,13 +2938,13 @@ func (m *DecisionMutation) ResetDecisionType() {
 }
 
 // SetSourceIpStart sets the sourceIpStart field.
-func (m *DecisionMutation) SetSourceIpStart(u uint32) {
-	m.sourceIpStart = &u
+func (m *DecisionMutation) SetSourceIpStart(i int64) {
+	m.sourceIpStart = &i
 	m.addsourceIpStart = nil
 }
 
 // SourceIpStart returns the sourceIpStart value in the mutation.
-func (m *DecisionMutation) SourceIpStart() (r uint32, exists bool) {
+func (m *DecisionMutation) SourceIpStart() (r int64, exists bool) {
 	v := m.sourceIpStart
 	if v == nil {
 		return
@@ -3044,7 +2956,7 @@ func (m *DecisionMutation) SourceIpStart() (r uint32, exists bool) {
 // If the Decision object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *DecisionMutation) OldSourceIpStart(ctx context.Context) (v uint32, err error) {
+func (m *DecisionMutation) OldSourceIpStart(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldSourceIpStart is allowed only on UpdateOne operations")
 	}
@@ -3058,17 +2970,17 @@ func (m *DecisionMutation) OldSourceIpStart(ctx context.Context) (v uint32, err 
 	return oldValue.SourceIpStart, nil
 }
 
-// AddSourceIpStart adds u to sourceIpStart.
-func (m *DecisionMutation) AddSourceIpStart(u uint32) {
+// AddSourceIpStart adds i to sourceIpStart.
+func (m *DecisionMutation) AddSourceIpStart(i int64) {
 	if m.addsourceIpStart != nil {
-		*m.addsourceIpStart += u
+		*m.addsourceIpStart += i
 	} else {
-		m.addsourceIpStart = &u
+		m.addsourceIpStart = &i
 	}
 }
 
 // AddedSourceIpStart returns the value that was added to the sourceIpStart field in this mutation.
-func (m *DecisionMutation) AddedSourceIpStart() (r uint32, exists bool) {
+func (m *DecisionMutation) AddedSourceIpStart() (r int64, exists bool) {
 	v := m.addsourceIpStart
 	if v == nil {
 		return
@@ -3097,13 +3009,13 @@ func (m *DecisionMutation) ResetSourceIpStart() {
 }
 
 // SetSourceIpEnd sets the sourceIpEnd field.
-func (m *DecisionMutation) SetSourceIpEnd(u uint32) {
-	m.sourceIpEnd = &u
+func (m *DecisionMutation) SetSourceIpEnd(i int64) {
+	m.sourceIpEnd = &i
 	m.addsourceIpEnd = nil
 }
 
 // SourceIpEnd returns the sourceIpEnd value in the mutation.
-func (m *DecisionMutation) SourceIpEnd() (r uint32, exists bool) {
+func (m *DecisionMutation) SourceIpEnd() (r int64, exists bool) {
 	v := m.sourceIpEnd
 	if v == nil {
 		return
@@ -3115,7 +3027,7 @@ func (m *DecisionMutation) SourceIpEnd() (r uint32, exists bool) {
 // If the Decision object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *DecisionMutation) OldSourceIpEnd(ctx context.Context) (v uint32, err error) {
+func (m *DecisionMutation) OldSourceIpEnd(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldSourceIpEnd is allowed only on UpdateOne operations")
 	}
@@ -3129,17 +3041,17 @@ func (m *DecisionMutation) OldSourceIpEnd(ctx context.Context) (v uint32, err er
 	return oldValue.SourceIpEnd, nil
 }
 
-// AddSourceIpEnd adds u to sourceIpEnd.
-func (m *DecisionMutation) AddSourceIpEnd(u uint32) {
+// AddSourceIpEnd adds i to sourceIpEnd.
+func (m *DecisionMutation) AddSourceIpEnd(i int64) {
 	if m.addsourceIpEnd != nil {
-		*m.addsourceIpEnd += u
+		*m.addsourceIpEnd += i
 	} else {
-		m.addsourceIpEnd = &u
+		m.addsourceIpEnd = &i
 	}
 }
 
 // AddedSourceIpEnd returns the value that was added to the sourceIpEnd field in this mutation.
-func (m *DecisionMutation) AddedSourceIpEnd() (r uint32, exists bool) {
+func (m *DecisionMutation) AddedSourceIpEnd() (r int64, exists bool) {
 	v := m.addsourceIpEnd
 	if v == nil {
 		return
@@ -3420,14 +3332,14 @@ func (m *DecisionMutation) SetField(name string, value ent.Value) error {
 		m.SetDecisionType(v)
 		return nil
 	case decision.FieldSourceIpStart:
-		v, ok := value.(uint32)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSourceIpStart(v)
 		return nil
 	case decision.FieldSourceIpEnd:
-		v, ok := value.(uint32)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3483,14 +3395,14 @@ func (m *DecisionMutation) AddedField(name string) (ent.Value, bool) {
 func (m *DecisionMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case decision.FieldSourceIpStart:
-		v, ok := value.(uint32)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddSourceIpStart(v)
 		return nil
 	case decision.FieldSourceIpEnd:
-		v, ok := value.(uint32)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

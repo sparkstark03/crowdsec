@@ -129,7 +129,7 @@ func Message(v string) predicate.Alert {
 }
 
 // EventsCount applies equality check predicate on the "eventsCount" field. It's identical to EventsCountEQ.
-func EventsCount(v int) predicate.Alert {
+func EventsCount(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldEventsCount), v))
 	})
@@ -213,23 +213,16 @@ func SourceValue(v string) predicate.Alert {
 }
 
 // Capacity applies equality check predicate on the "capacity" field. It's identical to CapacityEQ.
-func Capacity(v int) predicate.Alert {
+func Capacity(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldCapacity), v))
 	})
 }
 
 // LeakSpeed applies equality check predicate on the "leakSpeed" field. It's identical to LeakSpeedEQ.
-func LeakSpeed(v int) predicate.Alert {
+func LeakSpeed(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldLeakSpeed), v))
-	})
-}
-
-// Reprocess applies equality check predicate on the "reprocess" field. It's identical to ReprocessEQ.
-func Reprocess(v bool) predicate.Alert {
-	return predicate.Alert(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldReprocess), v))
 	})
 }
 
@@ -719,21 +712,21 @@ func MessageContainsFold(v string) predicate.Alert {
 }
 
 // EventsCountEQ applies the EQ predicate on the "eventsCount" field.
-func EventsCountEQ(v int) predicate.Alert {
+func EventsCountEQ(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldEventsCount), v))
 	})
 }
 
 // EventsCountNEQ applies the NEQ predicate on the "eventsCount" field.
-func EventsCountNEQ(v int) predicate.Alert {
+func EventsCountNEQ(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldEventsCount), v))
 	})
 }
 
 // EventsCountIn applies the In predicate on the "eventsCount" field.
-func EventsCountIn(vs ...int) predicate.Alert {
+func EventsCountIn(vs ...int32) predicate.Alert {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -750,7 +743,7 @@ func EventsCountIn(vs ...int) predicate.Alert {
 }
 
 // EventsCountNotIn applies the NotIn predicate on the "eventsCount" field.
-func EventsCountNotIn(vs ...int) predicate.Alert {
+func EventsCountNotIn(vs ...int32) predicate.Alert {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -767,28 +760,28 @@ func EventsCountNotIn(vs ...int) predicate.Alert {
 }
 
 // EventsCountGT applies the GT predicate on the "eventsCount" field.
-func EventsCountGT(v int) predicate.Alert {
+func EventsCountGT(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldEventsCount), v))
 	})
 }
 
 // EventsCountGTE applies the GTE predicate on the "eventsCount" field.
-func EventsCountGTE(v int) predicate.Alert {
+func EventsCountGTE(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldEventsCount), v))
 	})
 }
 
 // EventsCountLT applies the LT predicate on the "eventsCount" field.
-func EventsCountLT(v int) predicate.Alert {
+func EventsCountLT(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldEventsCount), v))
 	})
 }
 
 // EventsCountLTE applies the LTE predicate on the "eventsCount" field.
-func EventsCountLTE(v int) predicate.Alert {
+func EventsCountLTE(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldEventsCount), v))
 	})
@@ -1974,21 +1967,21 @@ func SourceValueContainsFold(v string) predicate.Alert {
 }
 
 // CapacityEQ applies the EQ predicate on the "capacity" field.
-func CapacityEQ(v int) predicate.Alert {
+func CapacityEQ(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldCapacity), v))
 	})
 }
 
 // CapacityNEQ applies the NEQ predicate on the "capacity" field.
-func CapacityNEQ(v int) predicate.Alert {
+func CapacityNEQ(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldCapacity), v))
 	})
 }
 
 // CapacityIn applies the In predicate on the "capacity" field.
-func CapacityIn(vs ...int) predicate.Alert {
+func CapacityIn(vs ...int32) predicate.Alert {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -2005,7 +1998,7 @@ func CapacityIn(vs ...int) predicate.Alert {
 }
 
 // CapacityNotIn applies the NotIn predicate on the "capacity" field.
-func CapacityNotIn(vs ...int) predicate.Alert {
+func CapacityNotIn(vs ...int32) predicate.Alert {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -2022,49 +2015,49 @@ func CapacityNotIn(vs ...int) predicate.Alert {
 }
 
 // CapacityGT applies the GT predicate on the "capacity" field.
-func CapacityGT(v int) predicate.Alert {
+func CapacityGT(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldCapacity), v))
 	})
 }
 
 // CapacityGTE applies the GTE predicate on the "capacity" field.
-func CapacityGTE(v int) predicate.Alert {
+func CapacityGTE(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldCapacity), v))
 	})
 }
 
 // CapacityLT applies the LT predicate on the "capacity" field.
-func CapacityLT(v int) predicate.Alert {
+func CapacityLT(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldCapacity), v))
 	})
 }
 
 // CapacityLTE applies the LTE predicate on the "capacity" field.
-func CapacityLTE(v int) predicate.Alert {
+func CapacityLTE(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldCapacity), v))
 	})
 }
 
 // LeakSpeedEQ applies the EQ predicate on the "leakSpeed" field.
-func LeakSpeedEQ(v int) predicate.Alert {
+func LeakSpeedEQ(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldLeakSpeed), v))
 	})
 }
 
 // LeakSpeedNEQ applies the NEQ predicate on the "leakSpeed" field.
-func LeakSpeedNEQ(v int) predicate.Alert {
+func LeakSpeedNEQ(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldLeakSpeed), v))
 	})
 }
 
 // LeakSpeedIn applies the In predicate on the "leakSpeed" field.
-func LeakSpeedIn(vs ...int) predicate.Alert {
+func LeakSpeedIn(vs ...string) predicate.Alert {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -2081,7 +2074,7 @@ func LeakSpeedIn(vs ...int) predicate.Alert {
 }
 
 // LeakSpeedNotIn applies the NotIn predicate on the "leakSpeed" field.
-func LeakSpeedNotIn(vs ...int) predicate.Alert {
+func LeakSpeedNotIn(vs ...string) predicate.Alert {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -2098,44 +2091,65 @@ func LeakSpeedNotIn(vs ...int) predicate.Alert {
 }
 
 // LeakSpeedGT applies the GT predicate on the "leakSpeed" field.
-func LeakSpeedGT(v int) predicate.Alert {
+func LeakSpeedGT(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldLeakSpeed), v))
 	})
 }
 
 // LeakSpeedGTE applies the GTE predicate on the "leakSpeed" field.
-func LeakSpeedGTE(v int) predicate.Alert {
+func LeakSpeedGTE(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldLeakSpeed), v))
 	})
 }
 
 // LeakSpeedLT applies the LT predicate on the "leakSpeed" field.
-func LeakSpeedLT(v int) predicate.Alert {
+func LeakSpeedLT(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldLeakSpeed), v))
 	})
 }
 
 // LeakSpeedLTE applies the LTE predicate on the "leakSpeed" field.
-func LeakSpeedLTE(v int) predicate.Alert {
+func LeakSpeedLTE(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldLeakSpeed), v))
 	})
 }
 
-// ReprocessEQ applies the EQ predicate on the "reprocess" field.
-func ReprocessEQ(v bool) predicate.Alert {
+// LeakSpeedContains applies the Contains predicate on the "leakSpeed" field.
+func LeakSpeedContains(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldReprocess), v))
+		s.Where(sql.Contains(s.C(FieldLeakSpeed), v))
 	})
 }
 
-// ReprocessNEQ applies the NEQ predicate on the "reprocess" field.
-func ReprocessNEQ(v bool) predicate.Alert {
+// LeakSpeedHasPrefix applies the HasPrefix predicate on the "leakSpeed" field.
+func LeakSpeedHasPrefix(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldReprocess), v))
+		s.Where(sql.HasPrefix(s.C(FieldLeakSpeed), v))
+	})
+}
+
+// LeakSpeedHasSuffix applies the HasSuffix predicate on the "leakSpeed" field.
+func LeakSpeedHasSuffix(v string) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldLeakSpeed), v))
+	})
+}
+
+// LeakSpeedEqualFold applies the EqualFold predicate on the "leakSpeed" field.
+func LeakSpeedEqualFold(v string) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldLeakSpeed), v))
+	})
+}
+
+// LeakSpeedContainsFold applies the ContainsFold predicate on the "leakSpeed" field.
+func LeakSpeedContainsFold(v string) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldLeakSpeed), v))
 	})
 }
 
