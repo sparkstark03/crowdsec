@@ -46,7 +46,7 @@ type Alert struct {
 	Message string `json:"message,omitempty"`
 
 	// the Meta data of the Alert itself
-	Meta *Meta `json:"meta,omitempty"`
+	Meta Meta `json:"meta,omitempty"`
 
 	// scenario
 	Scenario string `json:"scenario,omitempty"`
@@ -152,13 +152,11 @@ func (m *Alert) validateMeta(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.Meta != nil {
-		if err := m.Meta.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("meta")
-			}
-			return err
+	if err := m.Meta.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("meta")
 		}
+		return err
 	}
 
 	return nil

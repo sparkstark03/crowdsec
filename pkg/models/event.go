@@ -6,8 +6,6 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"strconv"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -19,7 +17,7 @@ import (
 type Event struct {
 
 	// meta
-	Meta []*Meta `json:"meta"`
+	Meta Meta `json:"meta,omitempty"`
 
 	// timestamp
 	Timestamp string `json:"timestamp,omitempty"`
@@ -45,20 +43,11 @@ func (m *Event) validateMeta(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(m.Meta); i++ {
-		if swag.IsZero(m.Meta[i]) { // not required
-			continue
+	if err := m.Meta.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("meta")
 		}
-
-		if m.Meta[i] != nil {
-			if err := m.Meta[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("meta" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
+		return err
 	}
 
 	return nil

@@ -6,6 +6,9 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -13,7 +16,38 @@ import (
 // Meta Meta
 //
 // swagger:model Meta
-type Meta struct {
+type Meta []*MetaItems0
+
+// Validate validates this meta
+func (m Meta) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	for i := 0; i < len(m); i++ {
+		if swag.IsZero(m[i]) { // not required
+			continue
+		}
+
+		if m[i] != nil {
+			if err := m[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName(strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// MetaItems0 meta items0
+//
+// swagger:model MetaItems0
+type MetaItems0 struct {
 
 	// key
 	Key string `json:"key,omitempty"`
@@ -22,13 +56,13 @@ type Meta struct {
 	Value string `json:"value,omitempty"`
 }
 
-// Validate validates this meta
-func (m *Meta) Validate(formats strfmt.Registry) error {
+// Validate validates this meta items0
+func (m *MetaItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *Meta) MarshalBinary() ([]byte, error) {
+func (m *MetaItems0) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -36,8 +70,8 @@ func (m *Meta) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Meta) UnmarshalBinary(b []byte) error {
-	var res Meta
+func (m *MetaItems0) UnmarshalBinary(b []byte) error {
+	var res MetaItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
