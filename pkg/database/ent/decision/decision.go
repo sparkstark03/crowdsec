@@ -19,16 +19,16 @@ const (
 	FieldUntil = "until"
 	// FieldScenario holds the string denoting the scenario field in the database.
 	FieldScenario = "scenario"
-	// FieldDecisionType holds the string denoting the decisiontype field in the database.
-	FieldDecisionType = "decision_type"
-	// FieldSourceIpStart holds the string denoting the sourceipstart field in the database.
-	FieldSourceIpStart = "source_ip_start"
-	// FieldSourceIpEnd holds the string denoting the sourceipend field in the database.
-	FieldSourceIpEnd = "source_ip_end"
-	// FieldSourceScope holds the string denoting the sourcescope field in the database.
-	FieldSourceScope = "source_scope"
-	// FieldSourceValue holds the string denoting the sourcevalue field in the database.
-	FieldSourceValue = "source_value"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
+	// FieldStartIP holds the string denoting the start_ip field in the database.
+	FieldStartIP = "start_ip"
+	// FieldEndIP holds the string denoting the end_ip field in the database.
+	FieldEndIP = "end_ip"
+	// FieldScope holds the string denoting the scope field in the database.
+	FieldScope = "scope"
+	// FieldTarget holds the string denoting the target field in the database.
+	FieldTarget = "target"
 
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
 	EdgeOwner = "owner"
@@ -51,11 +51,11 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldUntil,
 	FieldScenario,
-	FieldDecisionType,
-	FieldSourceIpStart,
-	FieldSourceIpEnd,
-	FieldSourceScope,
-	FieldSourceValue,
+	FieldType,
+	FieldStartIP,
+	FieldEndIP,
+	FieldScope,
+	FieldTarget,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the Decision type.

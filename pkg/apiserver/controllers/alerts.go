@@ -66,11 +66,11 @@ func FormatAlert(result []*ent.Alert) []models.Alert {
 			outputDecisions = append(outputDecisions, &models.Decision{
 				Duration: decisionItem.Until.Sub(time.Now()).String(), // transform into time.Time ?
 				Scenario: decisionItem.Scenario,
-				Type:     decisionItem.DecisionType,
-				StartIP:  decisionItem.SourceIpStart,
-				EndIP:    decisionItem.SourceIpEnd,
-				Scope:    decisionItem.SourceScope,
-				Target:   decisionItem.SourceValue,
+				Type:     decisionItem.Type,
+				StartIP:  decisionItem.StartIP,
+				EndIP:    decisionItem.EndIP,
+				Scope:    decisionItem.Scope,
+				Target:   decisionItem.Target,
 			})
 			outputAlert.Decisions = outputDecisions
 		}
@@ -184,11 +184,11 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 				bulk[i] = c.Client.Decision.Create().
 					SetUntil(time.Now().Add(duration)).
 					SetScenario(decisionItem.Scenario).
-					SetDecisionType(decisionItem.Type).
-					SetSourceIpStart(decisionItem.StartIP).
-					SetSourceIpEnd(decisionItem.EndIP).
-					SetSourceValue(decisionItem.Target).
-					SetSourceScope(decisionItem.Scope).
+					SetType(decisionItem.Type).
+					SetStartIP(decisionItem.StartIP).
+					SetEndIP(decisionItem.EndIP).
+					SetTarget(decisionItem.Target).
+					SetScope(decisionItem.Scope).
 					SetOwner(alert)
 			}
 			_, err := c.Client.Decision.CreateBulk(bulk...).Save(c.Ectx)
@@ -204,7 +204,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 		responses = append(responses, resp)
 	}
 
-	gctx.JSON(http.StatusOK, gin.H{"data": responses})
+	gctx.JSON(http.StatusOK, responses)
 	return
 }
 
@@ -272,8 +272,8 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 	}
 	if startIP != 0 && endIP != 0 {
 		alerts = alerts.Where(alert.And(
-			alert.HasDecisionsWith(decision.SourceIpStartGTE(startIP)),
-			alert.HasDecisionsWith(decision.SourceIpEndLTE(endIP)),
+			alert.HasDecisionsWith(decision.StartIPGTE(startIP)),
+			alert.HasDecisionsWith(decision.EndIP(endIP)),
 		))
 	}
 	alerts = alerts.
@@ -293,7 +293,7 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 
 	data := FormatAlert(result)
 
-	gctx.JSON(http.StatusOK, gin.H{"data": data})
+	gctx.JSON(http.StatusOK, data)
 	return
 }
 
@@ -361,8 +361,8 @@ func (c *Controller) DeleteAlerts(gctx *gin.Context) {
 	}
 	if startIP != 0 && endIP != 0 {
 		alerts = alerts.Where(alert.And(
-			alert.HasDecisionsWith(decision.SourceIpStartGTE(startIP)),
-			alert.HasDecisionsWith(decision.SourceIpEndLTE(endIP)),
+			alert.HasDecisionsWith(decision.StartIP(startIP)),
+			alert.HasDecisionsWith(decision.EndIP(endIP)),
 		))
 	}
 

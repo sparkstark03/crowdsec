@@ -1869,7 +1869,7 @@ type BlockerMutation struct {
 	revoked       *bool
 	ip_address    *string
 	_type         *string
-	expiration    *time.Time
+	until         *time.Time
 	last_pull     *time.Time
 	clearedFields map[string]struct{}
 	done          bool
@@ -2240,54 +2240,54 @@ func (m *BlockerMutation) ResetType() {
 	delete(m.clearedFields, blocker.FieldType)
 }
 
-// SetExpiration sets the expiration field.
-func (m *BlockerMutation) SetExpiration(t time.Time) {
-	m.expiration = &t
+// SetUntil sets the until field.
+func (m *BlockerMutation) SetUntil(t time.Time) {
+	m.until = &t
 }
 
-// Expiration returns the expiration value in the mutation.
-func (m *BlockerMutation) Expiration() (r time.Time, exists bool) {
-	v := m.expiration
+// Until returns the until value in the mutation.
+func (m *BlockerMutation) Until() (r time.Time, exists bool) {
+	v := m.until
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldExpiration returns the old expiration value of the Blocker.
+// OldUntil returns the old until value of the Blocker.
 // If the Blocker object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *BlockerMutation) OldExpiration(ctx context.Context) (v time.Time, err error) {
+func (m *BlockerMutation) OldUntil(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldExpiration is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldUntil is allowed only on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldExpiration requires an ID field in the mutation")
+		return v, fmt.Errorf("OldUntil requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldExpiration: %w", err)
+		return v, fmt.Errorf("querying old value for OldUntil: %w", err)
 	}
-	return oldValue.Expiration, nil
+	return oldValue.Until, nil
 }
 
-// ClearExpiration clears the value of expiration.
-func (m *BlockerMutation) ClearExpiration() {
-	m.expiration = nil
-	m.clearedFields[blocker.FieldExpiration] = struct{}{}
+// ClearUntil clears the value of until.
+func (m *BlockerMutation) ClearUntil() {
+	m.until = nil
+	m.clearedFields[blocker.FieldUntil] = struct{}{}
 }
 
-// ExpirationCleared returns if the field expiration was cleared in this mutation.
-func (m *BlockerMutation) ExpirationCleared() bool {
-	_, ok := m.clearedFields[blocker.FieldExpiration]
+// UntilCleared returns if the field until was cleared in this mutation.
+func (m *BlockerMutation) UntilCleared() bool {
+	_, ok := m.clearedFields[blocker.FieldUntil]
 	return ok
 }
 
-// ResetExpiration reset all changes of the "expiration" field.
-func (m *BlockerMutation) ResetExpiration() {
-	m.expiration = nil
-	delete(m.clearedFields, blocker.FieldExpiration)
+// ResetUntil reset all changes of the "until" field.
+func (m *BlockerMutation) ResetUntil() {
+	m.until = nil
+	delete(m.clearedFields, blocker.FieldUntil)
 }
 
 // SetLastPull sets the last_pull field.
@@ -2363,8 +2363,8 @@ func (m *BlockerMutation) Fields() []string {
 	if m._type != nil {
 		fields = append(fields, blocker.FieldType)
 	}
-	if m.expiration != nil {
-		fields = append(fields, blocker.FieldExpiration)
+	if m.until != nil {
+		fields = append(fields, blocker.FieldUntil)
 	}
 	if m.last_pull != nil {
 		fields = append(fields, blocker.FieldLastPull)
@@ -2391,8 +2391,8 @@ func (m *BlockerMutation) Field(name string) (ent.Value, bool) {
 		return m.IPAddress()
 	case blocker.FieldType:
 		return m.GetType()
-	case blocker.FieldExpiration:
-		return m.Expiration()
+	case blocker.FieldUntil:
+		return m.Until()
 	case blocker.FieldLastPull:
 		return m.LastPull()
 	}
@@ -2418,8 +2418,8 @@ func (m *BlockerMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldIPAddress(ctx)
 	case blocker.FieldType:
 		return m.OldType(ctx)
-	case blocker.FieldExpiration:
-		return m.OldExpiration(ctx)
+	case blocker.FieldUntil:
+		return m.OldUntil(ctx)
 	case blocker.FieldLastPull:
 		return m.OldLastPull(ctx)
 	}
@@ -2480,12 +2480,12 @@ func (m *BlockerMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetType(v)
 		return nil
-	case blocker.FieldExpiration:
+	case blocker.FieldUntil:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetExpiration(v)
+		m.SetUntil(v)
 		return nil
 	case blocker.FieldLastPull:
 		v, ok := value.(time.Time)
@@ -2530,8 +2530,8 @@ func (m *BlockerMutation) ClearedFields() []string {
 	if m.FieldCleared(blocker.FieldType) {
 		fields = append(fields, blocker.FieldType)
 	}
-	if m.FieldCleared(blocker.FieldExpiration) {
-		fields = append(fields, blocker.FieldExpiration)
+	if m.FieldCleared(blocker.FieldUntil) {
+		fields = append(fields, blocker.FieldUntil)
 	}
 	return fields
 }
@@ -2553,8 +2553,8 @@ func (m *BlockerMutation) ClearField(name string) error {
 	case blocker.FieldType:
 		m.ClearType()
 		return nil
-	case blocker.FieldExpiration:
-		m.ClearExpiration()
+	case blocker.FieldUntil:
+		m.ClearUntil()
 		return nil
 	}
 	return fmt.Errorf("unknown Blocker nullable field %s", name)
@@ -2586,8 +2586,8 @@ func (m *BlockerMutation) ResetField(name string) error {
 	case blocker.FieldType:
 		m.ResetType()
 		return nil
-	case blocker.FieldExpiration:
-		m.ResetExpiration()
+	case blocker.FieldUntil:
+		m.ResetUntil()
 		return nil
 	case blocker.FieldLastPull:
 		m.ResetLastPull()
@@ -2652,25 +2652,25 @@ func (m *BlockerMutation) ResetEdge(name string) error {
 // nodes in the graph.
 type DecisionMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	created_at       *time.Time
-	updated_at       *time.Time
-	until            *time.Time
-	scenario         *string
-	decisionType     *string
-	sourceIpStart    *int64
-	addsourceIpStart *int64
-	sourceIpEnd      *int64
-	addsourceIpEnd   *int64
-	sourceScope      *string
-	sourceValue      *string
-	clearedFields    map[string]struct{}
-	owner            *int
-	clearedowner     bool
-	done             bool
-	oldValue         func(context.Context) (*Decision, error)
+	op            Op
+	typ           string
+	id            *int
+	created_at    *time.Time
+	updated_at    *time.Time
+	until         *time.Time
+	scenario      *string
+	_type         *string
+	start_ip      *int64
+	addstart_ip   *int64
+	end_ip        *int64
+	addend_ip     *int64
+	scope         *string
+	target        *string
+	clearedFields map[string]struct{}
+	owner         *int
+	clearedowner  bool
+	done          bool
+	oldValue      func(context.Context) (*Decision, error)
 }
 
 var _ ent.Mutation = (*DecisionMutation)(nil)
@@ -2900,257 +2900,257 @@ func (m *DecisionMutation) ResetScenario() {
 	m.scenario = nil
 }
 
-// SetDecisionType sets the decisionType field.
-func (m *DecisionMutation) SetDecisionType(s string) {
-	m.decisionType = &s
+// SetType sets the type field.
+func (m *DecisionMutation) SetType(s string) {
+	m._type = &s
 }
 
-// DecisionType returns the decisionType value in the mutation.
-func (m *DecisionMutation) DecisionType() (r string, exists bool) {
-	v := m.decisionType
+// GetType returns the type value in the mutation.
+func (m *DecisionMutation) GetType() (r string, exists bool) {
+	v := m._type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDecisionType returns the old decisionType value of the Decision.
+// OldType returns the old type value of the Decision.
 // If the Decision object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *DecisionMutation) OldDecisionType(ctx context.Context) (v string, err error) {
+func (m *DecisionMutation) OldType(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldDecisionType is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldType is allowed only on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldDecisionType requires an ID field in the mutation")
+		return v, fmt.Errorf("OldType requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDecisionType: %w", err)
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
 	}
-	return oldValue.DecisionType, nil
+	return oldValue.Type, nil
 }
 
-// ResetDecisionType reset all changes of the "decisionType" field.
-func (m *DecisionMutation) ResetDecisionType() {
-	m.decisionType = nil
+// ResetType reset all changes of the "type" field.
+func (m *DecisionMutation) ResetType() {
+	m._type = nil
 }
 
-// SetSourceIpStart sets the sourceIpStart field.
-func (m *DecisionMutation) SetSourceIpStart(i int64) {
-	m.sourceIpStart = &i
-	m.addsourceIpStart = nil
+// SetStartIP sets the start_ip field.
+func (m *DecisionMutation) SetStartIP(i int64) {
+	m.start_ip = &i
+	m.addstart_ip = nil
 }
 
-// SourceIpStart returns the sourceIpStart value in the mutation.
-func (m *DecisionMutation) SourceIpStart() (r int64, exists bool) {
-	v := m.sourceIpStart
+// StartIP returns the start_ip value in the mutation.
+func (m *DecisionMutation) StartIP() (r int64, exists bool) {
+	v := m.start_ip
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldSourceIpStart returns the old sourceIpStart value of the Decision.
+// OldStartIP returns the old start_ip value of the Decision.
 // If the Decision object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *DecisionMutation) OldSourceIpStart(ctx context.Context) (v int64, err error) {
+func (m *DecisionMutation) OldStartIP(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldSourceIpStart is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldStartIP is allowed only on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldSourceIpStart requires an ID field in the mutation")
+		return v, fmt.Errorf("OldStartIP requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSourceIpStart: %w", err)
+		return v, fmt.Errorf("querying old value for OldStartIP: %w", err)
 	}
-	return oldValue.SourceIpStart, nil
+	return oldValue.StartIP, nil
 }
 
-// AddSourceIpStart adds i to sourceIpStart.
-func (m *DecisionMutation) AddSourceIpStart(i int64) {
-	if m.addsourceIpStart != nil {
-		*m.addsourceIpStart += i
+// AddStartIP adds i to start_ip.
+func (m *DecisionMutation) AddStartIP(i int64) {
+	if m.addstart_ip != nil {
+		*m.addstart_ip += i
 	} else {
-		m.addsourceIpStart = &i
+		m.addstart_ip = &i
 	}
 }
 
-// AddedSourceIpStart returns the value that was added to the sourceIpStart field in this mutation.
-func (m *DecisionMutation) AddedSourceIpStart() (r int64, exists bool) {
-	v := m.addsourceIpStart
+// AddedStartIP returns the value that was added to the start_ip field in this mutation.
+func (m *DecisionMutation) AddedStartIP() (r int64, exists bool) {
+	v := m.addstart_ip
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearSourceIpStart clears the value of sourceIpStart.
-func (m *DecisionMutation) ClearSourceIpStart() {
-	m.sourceIpStart = nil
-	m.addsourceIpStart = nil
-	m.clearedFields[decision.FieldSourceIpStart] = struct{}{}
+// ClearStartIP clears the value of start_ip.
+func (m *DecisionMutation) ClearStartIP() {
+	m.start_ip = nil
+	m.addstart_ip = nil
+	m.clearedFields[decision.FieldStartIP] = struct{}{}
 }
 
-// SourceIpStartCleared returns if the field sourceIpStart was cleared in this mutation.
-func (m *DecisionMutation) SourceIpStartCleared() bool {
-	_, ok := m.clearedFields[decision.FieldSourceIpStart]
+// StartIPCleared returns if the field start_ip was cleared in this mutation.
+func (m *DecisionMutation) StartIPCleared() bool {
+	_, ok := m.clearedFields[decision.FieldStartIP]
 	return ok
 }
 
-// ResetSourceIpStart reset all changes of the "sourceIpStart" field.
-func (m *DecisionMutation) ResetSourceIpStart() {
-	m.sourceIpStart = nil
-	m.addsourceIpStart = nil
-	delete(m.clearedFields, decision.FieldSourceIpStart)
+// ResetStartIP reset all changes of the "start_ip" field.
+func (m *DecisionMutation) ResetStartIP() {
+	m.start_ip = nil
+	m.addstart_ip = nil
+	delete(m.clearedFields, decision.FieldStartIP)
 }
 
-// SetSourceIpEnd sets the sourceIpEnd field.
-func (m *DecisionMutation) SetSourceIpEnd(i int64) {
-	m.sourceIpEnd = &i
-	m.addsourceIpEnd = nil
+// SetEndIP sets the end_ip field.
+func (m *DecisionMutation) SetEndIP(i int64) {
+	m.end_ip = &i
+	m.addend_ip = nil
 }
 
-// SourceIpEnd returns the sourceIpEnd value in the mutation.
-func (m *DecisionMutation) SourceIpEnd() (r int64, exists bool) {
-	v := m.sourceIpEnd
+// EndIP returns the end_ip value in the mutation.
+func (m *DecisionMutation) EndIP() (r int64, exists bool) {
+	v := m.end_ip
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldSourceIpEnd returns the old sourceIpEnd value of the Decision.
+// OldEndIP returns the old end_ip value of the Decision.
 // If the Decision object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *DecisionMutation) OldSourceIpEnd(ctx context.Context) (v int64, err error) {
+func (m *DecisionMutation) OldEndIP(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldSourceIpEnd is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldEndIP is allowed only on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldSourceIpEnd requires an ID field in the mutation")
+		return v, fmt.Errorf("OldEndIP requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSourceIpEnd: %w", err)
+		return v, fmt.Errorf("querying old value for OldEndIP: %w", err)
 	}
-	return oldValue.SourceIpEnd, nil
+	return oldValue.EndIP, nil
 }
 
-// AddSourceIpEnd adds i to sourceIpEnd.
-func (m *DecisionMutation) AddSourceIpEnd(i int64) {
-	if m.addsourceIpEnd != nil {
-		*m.addsourceIpEnd += i
+// AddEndIP adds i to end_ip.
+func (m *DecisionMutation) AddEndIP(i int64) {
+	if m.addend_ip != nil {
+		*m.addend_ip += i
 	} else {
-		m.addsourceIpEnd = &i
+		m.addend_ip = &i
 	}
 }
 
-// AddedSourceIpEnd returns the value that was added to the sourceIpEnd field in this mutation.
-func (m *DecisionMutation) AddedSourceIpEnd() (r int64, exists bool) {
-	v := m.addsourceIpEnd
+// AddedEndIP returns the value that was added to the end_ip field in this mutation.
+func (m *DecisionMutation) AddedEndIP() (r int64, exists bool) {
+	v := m.addend_ip
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearSourceIpEnd clears the value of sourceIpEnd.
-func (m *DecisionMutation) ClearSourceIpEnd() {
-	m.sourceIpEnd = nil
-	m.addsourceIpEnd = nil
-	m.clearedFields[decision.FieldSourceIpEnd] = struct{}{}
+// ClearEndIP clears the value of end_ip.
+func (m *DecisionMutation) ClearEndIP() {
+	m.end_ip = nil
+	m.addend_ip = nil
+	m.clearedFields[decision.FieldEndIP] = struct{}{}
 }
 
-// SourceIpEndCleared returns if the field sourceIpEnd was cleared in this mutation.
-func (m *DecisionMutation) SourceIpEndCleared() bool {
-	_, ok := m.clearedFields[decision.FieldSourceIpEnd]
+// EndIPCleared returns if the field end_ip was cleared in this mutation.
+func (m *DecisionMutation) EndIPCleared() bool {
+	_, ok := m.clearedFields[decision.FieldEndIP]
 	return ok
 }
 
-// ResetSourceIpEnd reset all changes of the "sourceIpEnd" field.
-func (m *DecisionMutation) ResetSourceIpEnd() {
-	m.sourceIpEnd = nil
-	m.addsourceIpEnd = nil
-	delete(m.clearedFields, decision.FieldSourceIpEnd)
+// ResetEndIP reset all changes of the "end_ip" field.
+func (m *DecisionMutation) ResetEndIP() {
+	m.end_ip = nil
+	m.addend_ip = nil
+	delete(m.clearedFields, decision.FieldEndIP)
 }
 
-// SetSourceScope sets the sourceScope field.
-func (m *DecisionMutation) SetSourceScope(s string) {
-	m.sourceScope = &s
+// SetScope sets the scope field.
+func (m *DecisionMutation) SetScope(s string) {
+	m.scope = &s
 }
 
-// SourceScope returns the sourceScope value in the mutation.
-func (m *DecisionMutation) SourceScope() (r string, exists bool) {
-	v := m.sourceScope
+// Scope returns the scope value in the mutation.
+func (m *DecisionMutation) Scope() (r string, exists bool) {
+	v := m.scope
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldSourceScope returns the old sourceScope value of the Decision.
+// OldScope returns the old scope value of the Decision.
 // If the Decision object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *DecisionMutation) OldSourceScope(ctx context.Context) (v string, err error) {
+func (m *DecisionMutation) OldScope(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldSourceScope is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldScope is allowed only on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldSourceScope requires an ID field in the mutation")
+		return v, fmt.Errorf("OldScope requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSourceScope: %w", err)
+		return v, fmt.Errorf("querying old value for OldScope: %w", err)
 	}
-	return oldValue.SourceScope, nil
+	return oldValue.Scope, nil
 }
 
-// ResetSourceScope reset all changes of the "sourceScope" field.
-func (m *DecisionMutation) ResetSourceScope() {
-	m.sourceScope = nil
+// ResetScope reset all changes of the "scope" field.
+func (m *DecisionMutation) ResetScope() {
+	m.scope = nil
 }
 
-// SetSourceValue sets the sourceValue field.
-func (m *DecisionMutation) SetSourceValue(s string) {
-	m.sourceValue = &s
+// SetTarget sets the target field.
+func (m *DecisionMutation) SetTarget(s string) {
+	m.target = &s
 }
 
-// SourceValue returns the sourceValue value in the mutation.
-func (m *DecisionMutation) SourceValue() (r string, exists bool) {
-	v := m.sourceValue
+// Target returns the target value in the mutation.
+func (m *DecisionMutation) Target() (r string, exists bool) {
+	v := m.target
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldSourceValue returns the old sourceValue value of the Decision.
+// OldTarget returns the old target value of the Decision.
 // If the Decision object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *DecisionMutation) OldSourceValue(ctx context.Context) (v string, err error) {
+func (m *DecisionMutation) OldTarget(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldSourceValue is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldTarget is allowed only on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldSourceValue requires an ID field in the mutation")
+		return v, fmt.Errorf("OldTarget requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSourceValue: %w", err)
+		return v, fmt.Errorf("querying old value for OldTarget: %w", err)
 	}
-	return oldValue.SourceValue, nil
+	return oldValue.Target, nil
 }
 
-// ResetSourceValue reset all changes of the "sourceValue" field.
-func (m *DecisionMutation) ResetSourceValue() {
-	m.sourceValue = nil
+// ResetTarget reset all changes of the "target" field.
+func (m *DecisionMutation) ResetTarget() {
+	m.target = nil
 }
 
 // SetOwnerID sets the owner edge to Alert by id.
@@ -3219,20 +3219,20 @@ func (m *DecisionMutation) Fields() []string {
 	if m.scenario != nil {
 		fields = append(fields, decision.FieldScenario)
 	}
-	if m.decisionType != nil {
-		fields = append(fields, decision.FieldDecisionType)
+	if m._type != nil {
+		fields = append(fields, decision.FieldType)
 	}
-	if m.sourceIpStart != nil {
-		fields = append(fields, decision.FieldSourceIpStart)
+	if m.start_ip != nil {
+		fields = append(fields, decision.FieldStartIP)
 	}
-	if m.sourceIpEnd != nil {
-		fields = append(fields, decision.FieldSourceIpEnd)
+	if m.end_ip != nil {
+		fields = append(fields, decision.FieldEndIP)
 	}
-	if m.sourceScope != nil {
-		fields = append(fields, decision.FieldSourceScope)
+	if m.scope != nil {
+		fields = append(fields, decision.FieldScope)
 	}
-	if m.sourceValue != nil {
-		fields = append(fields, decision.FieldSourceValue)
+	if m.target != nil {
+		fields = append(fields, decision.FieldTarget)
 	}
 	return fields
 }
@@ -3250,16 +3250,16 @@ func (m *DecisionMutation) Field(name string) (ent.Value, bool) {
 		return m.Until()
 	case decision.FieldScenario:
 		return m.Scenario()
-	case decision.FieldDecisionType:
-		return m.DecisionType()
-	case decision.FieldSourceIpStart:
-		return m.SourceIpStart()
-	case decision.FieldSourceIpEnd:
-		return m.SourceIpEnd()
-	case decision.FieldSourceScope:
-		return m.SourceScope()
-	case decision.FieldSourceValue:
-		return m.SourceValue()
+	case decision.FieldType:
+		return m.GetType()
+	case decision.FieldStartIP:
+		return m.StartIP()
+	case decision.FieldEndIP:
+		return m.EndIP()
+	case decision.FieldScope:
+		return m.Scope()
+	case decision.FieldTarget:
+		return m.Target()
 	}
 	return nil, false
 }
@@ -3277,16 +3277,16 @@ func (m *DecisionMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldUntil(ctx)
 	case decision.FieldScenario:
 		return m.OldScenario(ctx)
-	case decision.FieldDecisionType:
-		return m.OldDecisionType(ctx)
-	case decision.FieldSourceIpStart:
-		return m.OldSourceIpStart(ctx)
-	case decision.FieldSourceIpEnd:
-		return m.OldSourceIpEnd(ctx)
-	case decision.FieldSourceScope:
-		return m.OldSourceScope(ctx)
-	case decision.FieldSourceValue:
-		return m.OldSourceValue(ctx)
+	case decision.FieldType:
+		return m.OldType(ctx)
+	case decision.FieldStartIP:
+		return m.OldStartIP(ctx)
+	case decision.FieldEndIP:
+		return m.OldEndIP(ctx)
+	case decision.FieldScope:
+		return m.OldScope(ctx)
+	case decision.FieldTarget:
+		return m.OldTarget(ctx)
 	}
 	return nil, fmt.Errorf("unknown Decision field %s", name)
 }
@@ -3324,40 +3324,40 @@ func (m *DecisionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetScenario(v)
 		return nil
-	case decision.FieldDecisionType:
+	case decision.FieldType:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDecisionType(v)
+		m.SetType(v)
 		return nil
-	case decision.FieldSourceIpStart:
+	case decision.FieldStartIP:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetSourceIpStart(v)
+		m.SetStartIP(v)
 		return nil
-	case decision.FieldSourceIpEnd:
+	case decision.FieldEndIP:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetSourceIpEnd(v)
+		m.SetEndIP(v)
 		return nil
-	case decision.FieldSourceScope:
+	case decision.FieldScope:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetSourceScope(v)
+		m.SetScope(v)
 		return nil
-	case decision.FieldSourceValue:
+	case decision.FieldTarget:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetSourceValue(v)
+		m.SetTarget(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Decision field %s", name)
@@ -3367,11 +3367,11 @@ func (m *DecisionMutation) SetField(name string, value ent.Value) error {
 // or decremented during this mutation.
 func (m *DecisionMutation) AddedFields() []string {
 	var fields []string
-	if m.addsourceIpStart != nil {
-		fields = append(fields, decision.FieldSourceIpStart)
+	if m.addstart_ip != nil {
+		fields = append(fields, decision.FieldStartIP)
 	}
-	if m.addsourceIpEnd != nil {
-		fields = append(fields, decision.FieldSourceIpEnd)
+	if m.addend_ip != nil {
+		fields = append(fields, decision.FieldEndIP)
 	}
 	return fields
 }
@@ -3381,10 +3381,10 @@ func (m *DecisionMutation) AddedFields() []string {
 // that this field was not set, or was not define in the schema.
 func (m *DecisionMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case decision.FieldSourceIpStart:
-		return m.AddedSourceIpStart()
-	case decision.FieldSourceIpEnd:
-		return m.AddedSourceIpEnd()
+	case decision.FieldStartIP:
+		return m.AddedStartIP()
+	case decision.FieldEndIP:
+		return m.AddedEndIP()
 	}
 	return nil, false
 }
@@ -3394,19 +3394,19 @@ func (m *DecisionMutation) AddedField(name string) (ent.Value, bool) {
 // type mismatch the field type.
 func (m *DecisionMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case decision.FieldSourceIpStart:
+	case decision.FieldStartIP:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddSourceIpStart(v)
+		m.AddStartIP(v)
 		return nil
-	case decision.FieldSourceIpEnd:
+	case decision.FieldEndIP:
 		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddSourceIpEnd(v)
+		m.AddEndIP(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Decision numeric field %s", name)
@@ -3416,11 +3416,11 @@ func (m *DecisionMutation) AddField(name string, value ent.Value) error {
 // during this mutation.
 func (m *DecisionMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(decision.FieldSourceIpStart) {
-		fields = append(fields, decision.FieldSourceIpStart)
+	if m.FieldCleared(decision.FieldStartIP) {
+		fields = append(fields, decision.FieldStartIP)
 	}
-	if m.FieldCleared(decision.FieldSourceIpEnd) {
-		fields = append(fields, decision.FieldSourceIpEnd)
+	if m.FieldCleared(decision.FieldEndIP) {
+		fields = append(fields, decision.FieldEndIP)
 	}
 	return fields
 }
@@ -3436,11 +3436,11 @@ func (m *DecisionMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *DecisionMutation) ClearField(name string) error {
 	switch name {
-	case decision.FieldSourceIpStart:
-		m.ClearSourceIpStart()
+	case decision.FieldStartIP:
+		m.ClearStartIP()
 		return nil
-	case decision.FieldSourceIpEnd:
-		m.ClearSourceIpEnd()
+	case decision.FieldEndIP:
+		m.ClearEndIP()
 		return nil
 	}
 	return fmt.Errorf("unknown Decision nullable field %s", name)
@@ -3463,20 +3463,20 @@ func (m *DecisionMutation) ResetField(name string) error {
 	case decision.FieldScenario:
 		m.ResetScenario()
 		return nil
-	case decision.FieldDecisionType:
-		m.ResetDecisionType()
+	case decision.FieldType:
+		m.ResetType()
 		return nil
-	case decision.FieldSourceIpStart:
-		m.ResetSourceIpStart()
+	case decision.FieldStartIP:
+		m.ResetStartIP()
 		return nil
-	case decision.FieldSourceIpEnd:
-		m.ResetSourceIpEnd()
+	case decision.FieldEndIP:
+		m.ResetEndIP()
 		return nil
-	case decision.FieldSourceScope:
-		m.ResetSourceScope()
+	case decision.FieldScope:
+		m.ResetScope()
 		return nil
-	case decision.FieldSourceValue:
-		m.ResetSourceValue()
+	case decision.FieldTarget:
+		m.ResetTarget()
 		return nil
 	}
 	return fmt.Errorf("unknown Decision field %s", name)

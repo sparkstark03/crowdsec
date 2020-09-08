@@ -94,16 +94,16 @@ func (bc *BlockerCreate) SetNillableType(s *string) *BlockerCreate {
 	return bc
 }
 
-// SetExpiration sets the expiration field.
-func (bc *BlockerCreate) SetExpiration(t time.Time) *BlockerCreate {
-	bc.mutation.SetExpiration(t)
+// SetUntil sets the until field.
+func (bc *BlockerCreate) SetUntil(t time.Time) *BlockerCreate {
+	bc.mutation.SetUntil(t)
 	return bc
 }
 
-// SetNillableExpiration sets the expiration field if the given value is not nil.
-func (bc *BlockerCreate) SetNillableExpiration(t *time.Time) *BlockerCreate {
+// SetNillableUntil sets the until field if the given value is not nil.
+func (bc *BlockerCreate) SetNillableUntil(t *time.Time) *BlockerCreate {
 	if t != nil {
-		bc.SetExpiration(*t)
+		bc.SetUntil(*t)
 	}
 	return bc
 }
@@ -194,6 +194,10 @@ func (bc *BlockerCreate) preSave() error {
 		v := blocker.DefaultType
 		bc.mutation.SetType(v)
 	}
+	if _, ok := bc.mutation.Until(); !ok {
+		v := blocker.DefaultUntil()
+		bc.mutation.SetUntil(v)
+	}
 	if _, ok := bc.mutation.LastPull(); !ok {
 		v := blocker.DefaultLastPull()
 		bc.mutation.SetLastPull(v)
@@ -281,13 +285,13 @@ func (bc *BlockerCreate) createSpec() (*Blocker, *sqlgraph.CreateSpec) {
 		})
 		b.Type = value
 	}
-	if value, ok := bc.mutation.Expiration(); ok {
+	if value, ok := bc.mutation.Until(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: blocker.FieldExpiration,
+			Column: blocker.FieldUntil,
 		})
-		b.Expiration = value
+		b.Until = value
 	}
 	if value, ok := bc.mutation.LastPull(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

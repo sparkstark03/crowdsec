@@ -61,49 +61,49 @@ func (dc *DecisionCreate) SetScenario(s string) *DecisionCreate {
 	return dc
 }
 
-// SetDecisionType sets the decisionType field.
-func (dc *DecisionCreate) SetDecisionType(s string) *DecisionCreate {
-	dc.mutation.SetDecisionType(s)
+// SetType sets the type field.
+func (dc *DecisionCreate) SetType(s string) *DecisionCreate {
+	dc.mutation.SetType(s)
 	return dc
 }
 
-// SetSourceIpStart sets the sourceIpStart field.
-func (dc *DecisionCreate) SetSourceIpStart(i int64) *DecisionCreate {
-	dc.mutation.SetSourceIpStart(i)
+// SetStartIP sets the start_ip field.
+func (dc *DecisionCreate) SetStartIP(i int64) *DecisionCreate {
+	dc.mutation.SetStartIP(i)
 	return dc
 }
 
-// SetNillableSourceIpStart sets the sourceIpStart field if the given value is not nil.
-func (dc *DecisionCreate) SetNillableSourceIpStart(i *int64) *DecisionCreate {
+// SetNillableStartIP sets the start_ip field if the given value is not nil.
+func (dc *DecisionCreate) SetNillableStartIP(i *int64) *DecisionCreate {
 	if i != nil {
-		dc.SetSourceIpStart(*i)
+		dc.SetStartIP(*i)
 	}
 	return dc
 }
 
-// SetSourceIpEnd sets the sourceIpEnd field.
-func (dc *DecisionCreate) SetSourceIpEnd(i int64) *DecisionCreate {
-	dc.mutation.SetSourceIpEnd(i)
+// SetEndIP sets the end_ip field.
+func (dc *DecisionCreate) SetEndIP(i int64) *DecisionCreate {
+	dc.mutation.SetEndIP(i)
 	return dc
 }
 
-// SetNillableSourceIpEnd sets the sourceIpEnd field if the given value is not nil.
-func (dc *DecisionCreate) SetNillableSourceIpEnd(i *int64) *DecisionCreate {
+// SetNillableEndIP sets the end_ip field if the given value is not nil.
+func (dc *DecisionCreate) SetNillableEndIP(i *int64) *DecisionCreate {
 	if i != nil {
-		dc.SetSourceIpEnd(*i)
+		dc.SetEndIP(*i)
 	}
 	return dc
 }
 
-// SetSourceScope sets the sourceScope field.
-func (dc *DecisionCreate) SetSourceScope(s string) *DecisionCreate {
-	dc.mutation.SetSourceScope(s)
+// SetScope sets the scope field.
+func (dc *DecisionCreate) SetScope(s string) *DecisionCreate {
+	dc.mutation.SetScope(s)
 	return dc
 }
 
-// SetSourceValue sets the sourceValue field.
-func (dc *DecisionCreate) SetSourceValue(s string) *DecisionCreate {
-	dc.mutation.SetSourceValue(s)
+// SetTarget sets the target field.
+func (dc *DecisionCreate) SetTarget(s string) *DecisionCreate {
+	dc.mutation.SetTarget(s)
 	return dc
 }
 
@@ -187,14 +187,14 @@ func (dc *DecisionCreate) preSave() error {
 	if _, ok := dc.mutation.Scenario(); !ok {
 		return &ValidationError{Name: "scenario", err: errors.New("ent: missing required field \"scenario\"")}
 	}
-	if _, ok := dc.mutation.DecisionType(); !ok {
-		return &ValidationError{Name: "decisionType", err: errors.New("ent: missing required field \"decisionType\"")}
+	if _, ok := dc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New("ent: missing required field \"type\"")}
 	}
-	if _, ok := dc.mutation.SourceScope(); !ok {
-		return &ValidationError{Name: "sourceScope", err: errors.New("ent: missing required field \"sourceScope\"")}
+	if _, ok := dc.mutation.Scope(); !ok {
+		return &ValidationError{Name: "scope", err: errors.New("ent: missing required field \"scope\"")}
 	}
-	if _, ok := dc.mutation.SourceValue(); !ok {
-		return &ValidationError{Name: "sourceValue", err: errors.New("ent: missing required field \"sourceValue\"")}
+	if _, ok := dc.mutation.Target(); !ok {
+		return &ValidationError{Name: "target", err: errors.New("ent: missing required field \"target\"")}
 	}
 	return nil
 }
@@ -255,45 +255,45 @@ func (dc *DecisionCreate) createSpec() (*Decision, *sqlgraph.CreateSpec) {
 		})
 		d.Scenario = value
 	}
-	if value, ok := dc.mutation.DecisionType(); ok {
+	if value, ok := dc.mutation.GetType(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: decision.FieldDecisionType,
+			Column: decision.FieldType,
 		})
-		d.DecisionType = value
+		d.Type = value
 	}
-	if value, ok := dc.mutation.SourceIpStart(); ok {
+	if value, ok := dc.mutation.StartIP(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt64,
 			Value:  value,
-			Column: decision.FieldSourceIpStart,
+			Column: decision.FieldStartIP,
 		})
-		d.SourceIpStart = value
+		d.StartIP = value
 	}
-	if value, ok := dc.mutation.SourceIpEnd(); ok {
+	if value, ok := dc.mutation.EndIP(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt64,
 			Value:  value,
-			Column: decision.FieldSourceIpEnd,
+			Column: decision.FieldEndIP,
 		})
-		d.SourceIpEnd = value
+		d.EndIP = value
 	}
-	if value, ok := dc.mutation.SourceScope(); ok {
+	if value, ok := dc.mutation.Scope(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: decision.FieldSourceScope,
+			Column: decision.FieldScope,
 		})
-		d.SourceScope = value
+		d.Scope = value
 	}
-	if value, ok := dc.mutation.SourceValue(); ok {
+	if value, ok := dc.mutation.Target(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: decision.FieldSourceValue,
+			Column: decision.FieldTarget,
 		})
-		d.SourceValue = value
+		d.Target = value
 	}
 	if nodes := dc.mutation.OwnerIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

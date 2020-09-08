@@ -21,8 +21,7 @@ import (
 )
 
 var (
-	keyLength        = 32
-	apiKeyHeaderName = "X-Api-Key"
+	keyLength = 32
 )
 
 type APIServer struct {
@@ -50,10 +49,8 @@ func NewServer(config *csconfig.CrowdSec) (*APIServer, error) {
 }
 
 func (s *APIServer) Run() {
-	controller := controllers.Controller{
-		Ectx:   s.ctx,
-		Client: s.dbClient,
-	}
+	controller := controllers.New(s.ctx, s.dbClient, middlewares.APIKeyHeader)
+
 	defer controller.Client.Close()
 	file, err := os.Create(s.logFile)
 	if err != nil {
@@ -87,9 +84,10 @@ func (s *APIServer) Run() {
 	router.DELETE("/alerts", controller.DeleteAlerts)
 
 	apiKeyAuth := router.Group("/")
-	apiKeyAuth.Use(middlewares.APIKeyRequired(&controller))
+	apiKeyAuth.Use(middlewares.APIKeyRequired(controller))
 	{
 		apiKeyAuth.GET("/decisions", controller.GetDecision)
+		apiKeyAuth.GET("/decisions/stream", controller.StreamDecision)
 	}
 
 	router.Run(s.url)

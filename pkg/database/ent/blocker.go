@@ -30,8 +30,8 @@ type Blocker struct {
 	IPAddress string `json:"ip_address,omitempty"`
 	// Type holds the value of the "type" field.
 	Type string `json:"type,omitempty"`
-	// Expiration holds the value of the "expiration" field.
-	Expiration time.Time `json:"expiration,omitempty"`
+	// Until holds the value of the "until" field.
+	Until time.Time `json:"until,omitempty"`
 	// LastPull holds the value of the "last_pull" field.
 	LastPull time.Time `json:"last_pull,omitempty"`
 }
@@ -47,7 +47,7 @@ func (*Blocker) scanValues() []interface{} {
 		&sql.NullBool{},   // revoked
 		&sql.NullString{}, // ip_address
 		&sql.NullString{}, // type
-		&sql.NullTime{},   // expiration
+		&sql.NullTime{},   // until
 		&sql.NullTime{},   // last_pull
 	}
 }
@@ -100,9 +100,9 @@ func (b *Blocker) assignValues(values ...interface{}) error {
 		b.Type = value.String
 	}
 	if value, ok := values[7].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field expiration", values[7])
+		return fmt.Errorf("unexpected type %T for field until", values[7])
 	} else if value.Valid {
-		b.Expiration = value.Time
+		b.Until = value.Time
 	}
 	if value, ok := values[8].(*sql.NullTime); !ok {
 		return fmt.Errorf("unexpected type %T for field last_pull", values[8])
@@ -149,8 +149,8 @@ func (b *Blocker) String() string {
 	builder.WriteString(b.IPAddress)
 	builder.WriteString(", type=")
 	builder.WriteString(b.Type)
-	builder.WriteString(", expiration=")
-	builder.WriteString(b.Expiration.Format(time.ANSIC))
+	builder.WriteString(", until=")
+	builder.WriteString(b.Until.Format(time.ANSIC))
 	builder.WriteString(", last_pull=")
 	builder.WriteString(b.LastPull.Format(time.ANSIC))
 	builder.WriteByte(')')

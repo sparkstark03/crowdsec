@@ -22,11 +22,11 @@ func (Decision) Fields() []ent.Field {
 			Default(time.Now),
 		field.Time("until"),
 		field.String("scenario"),
-		field.String("decisionType"),
-		field.Int64("sourceIpStart").Optional(),
-		field.Int64("sourceIpEnd").Optional(),
-		field.String("sourceScope"),
-		field.String("sourceValue"),
+		field.String("type"),
+		field.Int64("start_ip").Optional(),
+		field.Int64("end_ip").Optional(),
+		field.String("scope"),
+		field.String("target"),
 	}
 }
 

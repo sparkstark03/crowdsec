@@ -25,8 +25,8 @@ const (
 	FieldIPAddress = "ip_address"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
-	// FieldExpiration holds the string denoting the expiration field in the database.
-	FieldExpiration = "expiration"
+	// FieldUntil holds the string denoting the until field in the database.
+	FieldUntil = "until"
 	// FieldLastPull holds the string denoting the last_pull field in the database.
 	FieldLastPull = "last_pull"
 
@@ -44,7 +44,7 @@ var Columns = []string{
 	FieldRevoked,
 	FieldIPAddress,
 	FieldType,
-	FieldExpiration,
+	FieldUntil,
 	FieldLastPull,
 }
 
@@ -57,6 +57,8 @@ var (
 	DefaultIPAddress string
 	// DefaultType holds the default value on creation for the type field.
 	DefaultType string
+	// DefaultUntil holds the default value on creation for the until field.
+	DefaultUntil func() time.Time
 	// DefaultLastPull holds the default value on creation for the last_pull field.
 	DefaultLastPull func() time.Time
 )

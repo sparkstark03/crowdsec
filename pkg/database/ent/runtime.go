@@ -46,6 +46,10 @@ func init() {
 	blockerDescType := blockerFields[6].Descriptor()
 	// blocker.DefaultType holds the default value on creation for the type field.
 	blocker.DefaultType = blockerDescType.Default.(string)
+	// blockerDescUntil is the schema descriptor for until field.
+	blockerDescUntil := blockerFields[7].Descriptor()
+	// blocker.DefaultUntil holds the default value on creation for the until field.
+	blocker.DefaultUntil = blockerDescUntil.Default.(func() time.Time)
 	// blockerDescLastPull is the schema descriptor for last_pull field.
 	blockerDescLastPull := blockerFields[8].Descriptor()
 	// blocker.DefaultLastPull holds the default value on creation for the last_pull field.

@@ -25,16 +25,16 @@ type Decision struct {
 	Until time.Time `json:"until,omitempty"`
 	// Scenario holds the value of the "scenario" field.
 	Scenario string `json:"scenario,omitempty"`
-	// DecisionType holds the value of the "decisionType" field.
-	DecisionType string `json:"decisionType,omitempty"`
-	// SourceIpStart holds the value of the "sourceIpStart" field.
-	SourceIpStart int64 `json:"sourceIpStart,omitempty"`
-	// SourceIpEnd holds the value of the "sourceIpEnd" field.
-	SourceIpEnd int64 `json:"sourceIpEnd,omitempty"`
-	// SourceScope holds the value of the "sourceScope" field.
-	SourceScope string `json:"sourceScope,omitempty"`
-	// SourceValue holds the value of the "sourceValue" field.
-	SourceValue string `json:"sourceValue,omitempty"`
+	// Type holds the value of the "type" field.
+	Type string `json:"type,omitempty"`
+	// StartIP holds the value of the "start_ip" field.
+	StartIP int64 `json:"start_ip,omitempty"`
+	// EndIP holds the value of the "end_ip" field.
+	EndIP int64 `json:"end_ip,omitempty"`
+	// Scope holds the value of the "scope" field.
+	Scope string `json:"scope,omitempty"`
+	// Target holds the value of the "target" field.
+	Target string `json:"target,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DecisionQuery when eager-loading is set.
 	Edges           DecisionEdges `json:"edges"`
@@ -72,11 +72,11 @@ func (*Decision) scanValues() []interface{} {
 		&sql.NullTime{},   // updated_at
 		&sql.NullTime{},   // until
 		&sql.NullString{}, // scenario
-		&sql.NullString{}, // decisionType
-		&sql.NullInt64{},  // sourceIpStart
-		&sql.NullInt64{},  // sourceIpEnd
-		&sql.NullString{}, // sourceScope
-		&sql.NullString{}, // sourceValue
+		&sql.NullString{}, // type
+		&sql.NullInt64{},  // start_ip
+		&sql.NullInt64{},  // end_ip
+		&sql.NullString{}, // scope
+		&sql.NullString{}, // target
 	}
 }
 
@@ -120,29 +120,29 @@ func (d *Decision) assignValues(values ...interface{}) error {
 		d.Scenario = value.String
 	}
 	if value, ok := values[4].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field decisionType", values[4])
+		return fmt.Errorf("unexpected type %T for field type", values[4])
 	} else if value.Valid {
-		d.DecisionType = value.String
+		d.Type = value.String
 	}
 	if value, ok := values[5].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field sourceIpStart", values[5])
+		return fmt.Errorf("unexpected type %T for field start_ip", values[5])
 	} else if value.Valid {
-		d.SourceIpStart = value.Int64
+		d.StartIP = value.Int64
 	}
 	if value, ok := values[6].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field sourceIpEnd", values[6])
+		return fmt.Errorf("unexpected type %T for field end_ip", values[6])
 	} else if value.Valid {
-		d.SourceIpEnd = value.Int64
+		d.EndIP = value.Int64
 	}
 	if value, ok := values[7].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field sourceScope", values[7])
+		return fmt.Errorf("unexpected type %T for field scope", values[7])
 	} else if value.Valid {
-		d.SourceScope = value.String
+		d.Scope = value.String
 	}
 	if value, ok := values[8].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field sourceValue", values[8])
+		return fmt.Errorf("unexpected type %T for field target", values[8])
 	} else if value.Valid {
-		d.SourceValue = value.String
+		d.Target = value.String
 	}
 	values = values[9:]
 	if len(values) == len(decision.ForeignKeys) {
@@ -192,16 +192,16 @@ func (d *Decision) String() string {
 	builder.WriteString(d.Until.Format(time.ANSIC))
 	builder.WriteString(", scenario=")
 	builder.WriteString(d.Scenario)
-	builder.WriteString(", decisionType=")
-	builder.WriteString(d.DecisionType)
-	builder.WriteString(", sourceIpStart=")
-	builder.WriteString(fmt.Sprintf("%v", d.SourceIpStart))
-	builder.WriteString(", sourceIpEnd=")
-	builder.WriteString(fmt.Sprintf("%v", d.SourceIpEnd))
-	builder.WriteString(", sourceScope=")
-	builder.WriteString(d.SourceScope)
-	builder.WriteString(", sourceValue=")
-	builder.WriteString(d.SourceValue)
+	builder.WriteString(", type=")
+	builder.WriteString(d.Type)
+	builder.WriteString(", start_ip=")
+	builder.WriteString(fmt.Sprintf("%v", d.StartIP))
+	builder.WriteString(", end_ip=")
+	builder.WriteString(fmt.Sprintf("%v", d.EndIP))
+	builder.WriteString(", scope=")
+	builder.WriteString(d.Scope)
+	builder.WriteString(", target=")
+	builder.WriteString(d.Target)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	apiKeyHeaderName = "X-Api-Key"
+	APIKeyHeader = "X-Api-Key"
 )
 
 func GenerateKey(n int) (string, error) {
@@ -27,7 +27,7 @@ func GenerateKey(n int) (string, error) {
 
 func APIKeyRequired(controller *controllers.Controller) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		val, ok := c.Request.Header[apiKeyHeaderName]
+		val, ok := c.Request.Header[APIKeyHeader]
 		if !ok {
 			c.JSON(http.StatusForbidden, gin.H{"error": "access forbidden"})
 			c.Abort()

@@ -57,7 +57,7 @@ var (
 		{Name: "revoked", Type: field.TypeBool},
 		{Name: "ip_address", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "type", Type: field.TypeString, Nullable: true, Default: ""},
-		{Name: "expiration", Type: field.TypeTime, Nullable: true},
+		{Name: "until", Type: field.TypeTime, Nullable: true},
 		{Name: "last_pull", Type: field.TypeTime},
 	}
 	// BlockersTable holds the schema information for the "blockers" table.
@@ -74,11 +74,11 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "until", Type: field.TypeTime},
 		{Name: "scenario", Type: field.TypeString},
-		{Name: "decision_type", Type: field.TypeString},
-		{Name: "source_ip_start", Type: field.TypeInt64, Nullable: true},
-		{Name: "source_ip_end", Type: field.TypeInt64, Nullable: true},
-		{Name: "source_scope", Type: field.TypeString},
-		{Name: "source_value", Type: field.TypeString},
+		{Name: "type", Type: field.TypeString},
+		{Name: "start_ip", Type: field.TypeInt64, Nullable: true},
+		{Name: "end_ip", Type: field.TypeInt64, Nullable: true},
+		{Name: "scope", Type: field.TypeString},
+		{Name: "target", Type: field.TypeString},
 		{Name: "alert_decisions", Type: field.TypeInt, Nullable: true},
 	}
 	// DecisionsTable holds the schema information for the "decisions" table.

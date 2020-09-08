@@ -24,7 +24,7 @@ func (Blocker) Fields() []ent.Field {
 		field.Bool("revoked"),
 		field.String("ip_address").Default("").Optional(),
 		field.String("type").Default("").Optional(), // rupture ou stream
-		field.Time("expiration").Optional(),
+		field.Time("until").Default(time.Now).Optional(),
 		field.Time("last_pull").
 			Default(time.Now),
 	}

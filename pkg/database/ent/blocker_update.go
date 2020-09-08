@@ -114,23 +114,23 @@ func (bu *BlockerUpdate) ClearType() *BlockerUpdate {
 	return bu
 }
 
-// SetExpiration sets the expiration field.
-func (bu *BlockerUpdate) SetExpiration(t time.Time) *BlockerUpdate {
-	bu.mutation.SetExpiration(t)
+// SetUntil sets the until field.
+func (bu *BlockerUpdate) SetUntil(t time.Time) *BlockerUpdate {
+	bu.mutation.SetUntil(t)
 	return bu
 }
 
-// SetNillableExpiration sets the expiration field if the given value is not nil.
-func (bu *BlockerUpdate) SetNillableExpiration(t *time.Time) *BlockerUpdate {
+// SetNillableUntil sets the until field if the given value is not nil.
+func (bu *BlockerUpdate) SetNillableUntil(t *time.Time) *BlockerUpdate {
 	if t != nil {
-		bu.SetExpiration(*t)
+		bu.SetUntil(*t)
 	}
 	return bu
 }
 
-// ClearExpiration clears the value of expiration.
-func (bu *BlockerUpdate) ClearExpiration() *BlockerUpdate {
-	bu.mutation.ClearExpiration()
+// ClearUntil clears the value of until.
+func (bu *BlockerUpdate) ClearUntil() *BlockerUpdate {
+	bu.mutation.ClearUntil()
 	return bu
 }
 
@@ -283,17 +283,17 @@ func (bu *BlockerUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: blocker.FieldType,
 		})
 	}
-	if value, ok := bu.mutation.Expiration(); ok {
+	if value, ok := bu.mutation.Until(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: blocker.FieldExpiration,
+			Column: blocker.FieldUntil,
 		})
 	}
-	if bu.mutation.ExpirationCleared() {
+	if bu.mutation.UntilCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Column: blocker.FieldExpiration,
+			Column: blocker.FieldUntil,
 		})
 	}
 	if value, ok := bu.mutation.LastPull(); ok {
@@ -407,23 +407,23 @@ func (buo *BlockerUpdateOne) ClearType() *BlockerUpdateOne {
 	return buo
 }
 
-// SetExpiration sets the expiration field.
-func (buo *BlockerUpdateOne) SetExpiration(t time.Time) *BlockerUpdateOne {
-	buo.mutation.SetExpiration(t)
+// SetUntil sets the until field.
+func (buo *BlockerUpdateOne) SetUntil(t time.Time) *BlockerUpdateOne {
+	buo.mutation.SetUntil(t)
 	return buo
 }
 
-// SetNillableExpiration sets the expiration field if the given value is not nil.
-func (buo *BlockerUpdateOne) SetNillableExpiration(t *time.Time) *BlockerUpdateOne {
+// SetNillableUntil sets the until field if the given value is not nil.
+func (buo *BlockerUpdateOne) SetNillableUntil(t *time.Time) *BlockerUpdateOne {
 	if t != nil {
-		buo.SetExpiration(*t)
+		buo.SetUntil(*t)
 	}
 	return buo
 }
 
-// ClearExpiration clears the value of expiration.
-func (buo *BlockerUpdateOne) ClearExpiration() *BlockerUpdateOne {
-	buo.mutation.ClearExpiration()
+// ClearUntil clears the value of until.
+func (buo *BlockerUpdateOne) ClearUntil() *BlockerUpdateOne {
+	buo.mutation.ClearUntil()
 	return buo
 }
 
@@ -574,17 +574,17 @@ func (buo *BlockerUpdateOne) sqlSave(ctx context.Context) (b *Blocker, err error
 			Column: blocker.FieldType,
 		})
 	}
-	if value, ok := buo.mutation.Expiration(); ok {
+	if value, ok := buo.mutation.Until(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: blocker.FieldExpiration,
+			Column: blocker.FieldUntil,
 		})
 	}
-	if buo.mutation.ExpirationCleared() {
+	if buo.mutation.UntilCleared() {
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
-			Column: blocker.FieldExpiration,
+			Column: blocker.FieldUntil,
 		})
 	}
 	if value, ok := buo.mutation.LastPull(); ok {

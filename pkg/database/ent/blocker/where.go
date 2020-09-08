@@ -141,10 +141,10 @@ func Type(v string) predicate.Blocker {
 	})
 }
 
-// Expiration applies equality check predicate on the "expiration" field. It's identical to ExpirationEQ.
-func Expiration(v time.Time) predicate.Blocker {
+// Until applies equality check predicate on the "until" field. It's identical to UntilEQ.
+func Until(v time.Time) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldExpiration), v))
+		s.Where(sql.EQ(s.C(FieldUntil), v))
 	})
 }
 
@@ -793,22 +793,22 @@ func TypeContainsFold(v string) predicate.Blocker {
 	})
 }
 
-// ExpirationEQ applies the EQ predicate on the "expiration" field.
-func ExpirationEQ(v time.Time) predicate.Blocker {
+// UntilEQ applies the EQ predicate on the "until" field.
+func UntilEQ(v time.Time) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldExpiration), v))
+		s.Where(sql.EQ(s.C(FieldUntil), v))
 	})
 }
 
-// ExpirationNEQ applies the NEQ predicate on the "expiration" field.
-func ExpirationNEQ(v time.Time) predicate.Blocker {
+// UntilNEQ applies the NEQ predicate on the "until" field.
+func UntilNEQ(v time.Time) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldExpiration), v))
+		s.Where(sql.NEQ(s.C(FieldUntil), v))
 	})
 }
 
-// ExpirationIn applies the In predicate on the "expiration" field.
-func ExpirationIn(vs ...time.Time) predicate.Blocker {
+// UntilIn applies the In predicate on the "until" field.
+func UntilIn(vs ...time.Time) predicate.Blocker {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -820,12 +820,12 @@ func ExpirationIn(vs ...time.Time) predicate.Blocker {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldExpiration), v...))
+		s.Where(sql.In(s.C(FieldUntil), v...))
 	})
 }
 
-// ExpirationNotIn applies the NotIn predicate on the "expiration" field.
-func ExpirationNotIn(vs ...time.Time) predicate.Blocker {
+// UntilNotIn applies the NotIn predicate on the "until" field.
+func UntilNotIn(vs ...time.Time) predicate.Blocker {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -837,49 +837,49 @@ func ExpirationNotIn(vs ...time.Time) predicate.Blocker {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldExpiration), v...))
+		s.Where(sql.NotIn(s.C(FieldUntil), v...))
 	})
 }
 
-// ExpirationGT applies the GT predicate on the "expiration" field.
-func ExpirationGT(v time.Time) predicate.Blocker {
+// UntilGT applies the GT predicate on the "until" field.
+func UntilGT(v time.Time) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldExpiration), v))
+		s.Where(sql.GT(s.C(FieldUntil), v))
 	})
 }
 
-// ExpirationGTE applies the GTE predicate on the "expiration" field.
-func ExpirationGTE(v time.Time) predicate.Blocker {
+// UntilGTE applies the GTE predicate on the "until" field.
+func UntilGTE(v time.Time) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldExpiration), v))
+		s.Where(sql.GTE(s.C(FieldUntil), v))
 	})
 }
 
-// ExpirationLT applies the LT predicate on the "expiration" field.
-func ExpirationLT(v time.Time) predicate.Blocker {
+// UntilLT applies the LT predicate on the "until" field.
+func UntilLT(v time.Time) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldExpiration), v))
+		s.Where(sql.LT(s.C(FieldUntil), v))
 	})
 }
 
-// ExpirationLTE applies the LTE predicate on the "expiration" field.
-func ExpirationLTE(v time.Time) predicate.Blocker {
+// UntilLTE applies the LTE predicate on the "until" field.
+func UntilLTE(v time.Time) predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldExpiration), v))
+		s.Where(sql.LTE(s.C(FieldUntil), v))
 	})
 }
 
-// ExpirationIsNil applies the IsNil predicate on the "expiration" field.
-func ExpirationIsNil() predicate.Blocker {
+// UntilIsNil applies the IsNil predicate on the "until" field.
+func UntilIsNil() predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldExpiration)))
+		s.Where(sql.IsNull(s.C(FieldUntil)))
 	})
 }
 
-// ExpirationNotNil applies the NotNil predicate on the "expiration" field.
-func ExpirationNotNil() predicate.Blocker {
+// UntilNotNil applies the NotNil predicate on the "until" field.
+func UntilNotNil() predicate.Blocker {
 	return predicate.Blocker(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldExpiration)))
+		s.Where(sql.NotNull(s.C(FieldUntil)))
 	})
 }
 

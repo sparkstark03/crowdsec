@@ -121,38 +121,38 @@ func Scenario(v string) predicate.Decision {
 	})
 }
 
-// DecisionType applies equality check predicate on the "decisionType" field. It's identical to DecisionTypeEQ.
-func DecisionType(v string) predicate.Decision {
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDecisionType), v))
+		s.Where(sql.EQ(s.C(FieldType), v))
 	})
 }
 
-// SourceIpStart applies equality check predicate on the "sourceIpStart" field. It's identical to SourceIpStartEQ.
-func SourceIpStart(v int64) predicate.Decision {
+// StartIP applies equality check predicate on the "start_ip" field. It's identical to StartIPEQ.
+func StartIP(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceIpStart), v))
+		s.Where(sql.EQ(s.C(FieldStartIP), v))
 	})
 }
 
-// SourceIpEnd applies equality check predicate on the "sourceIpEnd" field. It's identical to SourceIpEndEQ.
-func SourceIpEnd(v int64) predicate.Decision {
+// EndIP applies equality check predicate on the "end_ip" field. It's identical to EndIPEQ.
+func EndIP(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceIpEnd), v))
+		s.Where(sql.EQ(s.C(FieldEndIP), v))
 	})
 }
 
-// SourceScope applies equality check predicate on the "sourceScope" field. It's identical to SourceScopeEQ.
-func SourceScope(v string) predicate.Decision {
+// Scope applies equality check predicate on the "scope" field. It's identical to ScopeEQ.
+func Scope(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceScope), v))
+		s.Where(sql.EQ(s.C(FieldScope), v))
 	})
 }
 
-// SourceValue applies equality check predicate on the "sourceValue" field. It's identical to SourceValueEQ.
-func SourceValue(v string) predicate.Decision {
+// Target applies equality check predicate on the "target" field. It's identical to TargetEQ.
+func Target(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceValue), v))
+		s.Where(sql.EQ(s.C(FieldTarget), v))
 	})
 }
 
@@ -495,22 +495,22 @@ func ScenarioContainsFold(v string) predicate.Decision {
 	})
 }
 
-// DecisionTypeEQ applies the EQ predicate on the "decisionType" field.
-func DecisionTypeEQ(v string) predicate.Decision {
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDecisionType), v))
+		s.Where(sql.EQ(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeNEQ applies the NEQ predicate on the "decisionType" field.
-func DecisionTypeNEQ(v string) predicate.Decision {
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDecisionType), v))
+		s.Where(sql.NEQ(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeIn applies the In predicate on the "decisionType" field.
-func DecisionTypeIn(vs ...string) predicate.Decision {
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...string) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -522,12 +522,12 @@ func DecisionTypeIn(vs ...string) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldDecisionType), v...))
+		s.Where(sql.In(s.C(FieldType), v...))
 	})
 }
 
-// DecisionTypeNotIn applies the NotIn predicate on the "decisionType" field.
-func DecisionTypeNotIn(vs ...string) predicate.Decision {
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...string) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -539,89 +539,89 @@ func DecisionTypeNotIn(vs ...string) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldDecisionType), v...))
+		s.Where(sql.NotIn(s.C(FieldType), v...))
 	})
 }
 
-// DecisionTypeGT applies the GT predicate on the "decisionType" field.
-func DecisionTypeGT(v string) predicate.Decision {
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldDecisionType), v))
+		s.Where(sql.GT(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeGTE applies the GTE predicate on the "decisionType" field.
-func DecisionTypeGTE(v string) predicate.Decision {
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldDecisionType), v))
+		s.Where(sql.GTE(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeLT applies the LT predicate on the "decisionType" field.
-func DecisionTypeLT(v string) predicate.Decision {
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldDecisionType), v))
+		s.Where(sql.LT(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeLTE applies the LTE predicate on the "decisionType" field.
-func DecisionTypeLTE(v string) predicate.Decision {
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldDecisionType), v))
+		s.Where(sql.LTE(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeContains applies the Contains predicate on the "decisionType" field.
-func DecisionTypeContains(v string) predicate.Decision {
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldDecisionType), v))
+		s.Where(sql.Contains(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeHasPrefix applies the HasPrefix predicate on the "decisionType" field.
-func DecisionTypeHasPrefix(v string) predicate.Decision {
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldDecisionType), v))
+		s.Where(sql.HasPrefix(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeHasSuffix applies the HasSuffix predicate on the "decisionType" field.
-func DecisionTypeHasSuffix(v string) predicate.Decision {
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldDecisionType), v))
+		s.Where(sql.HasSuffix(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeEqualFold applies the EqualFold predicate on the "decisionType" field.
-func DecisionTypeEqualFold(v string) predicate.Decision {
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldDecisionType), v))
+		s.Where(sql.EqualFold(s.C(FieldType), v))
 	})
 }
 
-// DecisionTypeContainsFold applies the ContainsFold predicate on the "decisionType" field.
-func DecisionTypeContainsFold(v string) predicate.Decision {
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldDecisionType), v))
+		s.Where(sql.ContainsFold(s.C(FieldType), v))
 	})
 }
 
-// SourceIpStartEQ applies the EQ predicate on the "sourceIpStart" field.
-func SourceIpStartEQ(v int64) predicate.Decision {
+// StartIPEQ applies the EQ predicate on the "start_ip" field.
+func StartIPEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceIpStart), v))
+		s.Where(sql.EQ(s.C(FieldStartIP), v))
 	})
 }
 
-// SourceIpStartNEQ applies the NEQ predicate on the "sourceIpStart" field.
-func SourceIpStartNEQ(v int64) predicate.Decision {
+// StartIPNEQ applies the NEQ predicate on the "start_ip" field.
+func StartIPNEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldSourceIpStart), v))
+		s.Where(sql.NEQ(s.C(FieldStartIP), v))
 	})
 }
 
-// SourceIpStartIn applies the In predicate on the "sourceIpStart" field.
-func SourceIpStartIn(vs ...int64) predicate.Decision {
+// StartIPIn applies the In predicate on the "start_ip" field.
+func StartIPIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -633,12 +633,12 @@ func SourceIpStartIn(vs ...int64) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldSourceIpStart), v...))
+		s.Where(sql.In(s.C(FieldStartIP), v...))
 	})
 }
 
-// SourceIpStartNotIn applies the NotIn predicate on the "sourceIpStart" field.
-func SourceIpStartNotIn(vs ...int64) predicate.Decision {
+// StartIPNotIn applies the NotIn predicate on the "start_ip" field.
+func StartIPNotIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -650,68 +650,68 @@ func SourceIpStartNotIn(vs ...int64) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldSourceIpStart), v...))
+		s.Where(sql.NotIn(s.C(FieldStartIP), v...))
 	})
 }
 
-// SourceIpStartGT applies the GT predicate on the "sourceIpStart" field.
-func SourceIpStartGT(v int64) predicate.Decision {
+// StartIPGT applies the GT predicate on the "start_ip" field.
+func StartIPGT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldSourceIpStart), v))
+		s.Where(sql.GT(s.C(FieldStartIP), v))
 	})
 }
 
-// SourceIpStartGTE applies the GTE predicate on the "sourceIpStart" field.
-func SourceIpStartGTE(v int64) predicate.Decision {
+// StartIPGTE applies the GTE predicate on the "start_ip" field.
+func StartIPGTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldSourceIpStart), v))
+		s.Where(sql.GTE(s.C(FieldStartIP), v))
 	})
 }
 
-// SourceIpStartLT applies the LT predicate on the "sourceIpStart" field.
-func SourceIpStartLT(v int64) predicate.Decision {
+// StartIPLT applies the LT predicate on the "start_ip" field.
+func StartIPLT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldSourceIpStart), v))
+		s.Where(sql.LT(s.C(FieldStartIP), v))
 	})
 }
 
-// SourceIpStartLTE applies the LTE predicate on the "sourceIpStart" field.
-func SourceIpStartLTE(v int64) predicate.Decision {
+// StartIPLTE applies the LTE predicate on the "start_ip" field.
+func StartIPLTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldSourceIpStart), v))
+		s.Where(sql.LTE(s.C(FieldStartIP), v))
 	})
 }
 
-// SourceIpStartIsNil applies the IsNil predicate on the "sourceIpStart" field.
-func SourceIpStartIsNil() predicate.Decision {
+// StartIPIsNil applies the IsNil predicate on the "start_ip" field.
+func StartIPIsNil() predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldSourceIpStart)))
+		s.Where(sql.IsNull(s.C(FieldStartIP)))
 	})
 }
 
-// SourceIpStartNotNil applies the NotNil predicate on the "sourceIpStart" field.
-func SourceIpStartNotNil() predicate.Decision {
+// StartIPNotNil applies the NotNil predicate on the "start_ip" field.
+func StartIPNotNil() predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldSourceIpStart)))
+		s.Where(sql.NotNull(s.C(FieldStartIP)))
 	})
 }
 
-// SourceIpEndEQ applies the EQ predicate on the "sourceIpEnd" field.
-func SourceIpEndEQ(v int64) predicate.Decision {
+// EndIPEQ applies the EQ predicate on the "end_ip" field.
+func EndIPEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceIpEnd), v))
+		s.Where(sql.EQ(s.C(FieldEndIP), v))
 	})
 }
 
-// SourceIpEndNEQ applies the NEQ predicate on the "sourceIpEnd" field.
-func SourceIpEndNEQ(v int64) predicate.Decision {
+// EndIPNEQ applies the NEQ predicate on the "end_ip" field.
+func EndIPNEQ(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldSourceIpEnd), v))
+		s.Where(sql.NEQ(s.C(FieldEndIP), v))
 	})
 }
 
-// SourceIpEndIn applies the In predicate on the "sourceIpEnd" field.
-func SourceIpEndIn(vs ...int64) predicate.Decision {
+// EndIPIn applies the In predicate on the "end_ip" field.
+func EndIPIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -723,12 +723,12 @@ func SourceIpEndIn(vs ...int64) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldSourceIpEnd), v...))
+		s.Where(sql.In(s.C(FieldEndIP), v...))
 	})
 }
 
-// SourceIpEndNotIn applies the NotIn predicate on the "sourceIpEnd" field.
-func SourceIpEndNotIn(vs ...int64) predicate.Decision {
+// EndIPNotIn applies the NotIn predicate on the "end_ip" field.
+func EndIPNotIn(vs ...int64) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -740,68 +740,68 @@ func SourceIpEndNotIn(vs ...int64) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldSourceIpEnd), v...))
+		s.Where(sql.NotIn(s.C(FieldEndIP), v...))
 	})
 }
 
-// SourceIpEndGT applies the GT predicate on the "sourceIpEnd" field.
-func SourceIpEndGT(v int64) predicate.Decision {
+// EndIPGT applies the GT predicate on the "end_ip" field.
+func EndIPGT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldSourceIpEnd), v))
+		s.Where(sql.GT(s.C(FieldEndIP), v))
 	})
 }
 
-// SourceIpEndGTE applies the GTE predicate on the "sourceIpEnd" field.
-func SourceIpEndGTE(v int64) predicate.Decision {
+// EndIPGTE applies the GTE predicate on the "end_ip" field.
+func EndIPGTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldSourceIpEnd), v))
+		s.Where(sql.GTE(s.C(FieldEndIP), v))
 	})
 }
 
-// SourceIpEndLT applies the LT predicate on the "sourceIpEnd" field.
-func SourceIpEndLT(v int64) predicate.Decision {
+// EndIPLT applies the LT predicate on the "end_ip" field.
+func EndIPLT(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldSourceIpEnd), v))
+		s.Where(sql.LT(s.C(FieldEndIP), v))
 	})
 }
 
-// SourceIpEndLTE applies the LTE predicate on the "sourceIpEnd" field.
-func SourceIpEndLTE(v int64) predicate.Decision {
+// EndIPLTE applies the LTE predicate on the "end_ip" field.
+func EndIPLTE(v int64) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldSourceIpEnd), v))
+		s.Where(sql.LTE(s.C(FieldEndIP), v))
 	})
 }
 
-// SourceIpEndIsNil applies the IsNil predicate on the "sourceIpEnd" field.
-func SourceIpEndIsNil() predicate.Decision {
+// EndIPIsNil applies the IsNil predicate on the "end_ip" field.
+func EndIPIsNil() predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldSourceIpEnd)))
+		s.Where(sql.IsNull(s.C(FieldEndIP)))
 	})
 }
 
-// SourceIpEndNotNil applies the NotNil predicate on the "sourceIpEnd" field.
-func SourceIpEndNotNil() predicate.Decision {
+// EndIPNotNil applies the NotNil predicate on the "end_ip" field.
+func EndIPNotNil() predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldSourceIpEnd)))
+		s.Where(sql.NotNull(s.C(FieldEndIP)))
 	})
 }
 
-// SourceScopeEQ applies the EQ predicate on the "sourceScope" field.
-func SourceScopeEQ(v string) predicate.Decision {
+// ScopeEQ applies the EQ predicate on the "scope" field.
+func ScopeEQ(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceScope), v))
+		s.Where(sql.EQ(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeNEQ applies the NEQ predicate on the "sourceScope" field.
-func SourceScopeNEQ(v string) predicate.Decision {
+// ScopeNEQ applies the NEQ predicate on the "scope" field.
+func ScopeNEQ(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldSourceScope), v))
+		s.Where(sql.NEQ(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeIn applies the In predicate on the "sourceScope" field.
-func SourceScopeIn(vs ...string) predicate.Decision {
+// ScopeIn applies the In predicate on the "scope" field.
+func ScopeIn(vs ...string) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -813,12 +813,12 @@ func SourceScopeIn(vs ...string) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldSourceScope), v...))
+		s.Where(sql.In(s.C(FieldScope), v...))
 	})
 }
 
-// SourceScopeNotIn applies the NotIn predicate on the "sourceScope" field.
-func SourceScopeNotIn(vs ...string) predicate.Decision {
+// ScopeNotIn applies the NotIn predicate on the "scope" field.
+func ScopeNotIn(vs ...string) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -830,89 +830,89 @@ func SourceScopeNotIn(vs ...string) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldSourceScope), v...))
+		s.Where(sql.NotIn(s.C(FieldScope), v...))
 	})
 }
 
-// SourceScopeGT applies the GT predicate on the "sourceScope" field.
-func SourceScopeGT(v string) predicate.Decision {
+// ScopeGT applies the GT predicate on the "scope" field.
+func ScopeGT(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldSourceScope), v))
+		s.Where(sql.GT(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeGTE applies the GTE predicate on the "sourceScope" field.
-func SourceScopeGTE(v string) predicate.Decision {
+// ScopeGTE applies the GTE predicate on the "scope" field.
+func ScopeGTE(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldSourceScope), v))
+		s.Where(sql.GTE(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeLT applies the LT predicate on the "sourceScope" field.
-func SourceScopeLT(v string) predicate.Decision {
+// ScopeLT applies the LT predicate on the "scope" field.
+func ScopeLT(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldSourceScope), v))
+		s.Where(sql.LT(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeLTE applies the LTE predicate on the "sourceScope" field.
-func SourceScopeLTE(v string) predicate.Decision {
+// ScopeLTE applies the LTE predicate on the "scope" field.
+func ScopeLTE(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldSourceScope), v))
+		s.Where(sql.LTE(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeContains applies the Contains predicate on the "sourceScope" field.
-func SourceScopeContains(v string) predicate.Decision {
+// ScopeContains applies the Contains predicate on the "scope" field.
+func ScopeContains(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldSourceScope), v))
+		s.Where(sql.Contains(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeHasPrefix applies the HasPrefix predicate on the "sourceScope" field.
-func SourceScopeHasPrefix(v string) predicate.Decision {
+// ScopeHasPrefix applies the HasPrefix predicate on the "scope" field.
+func ScopeHasPrefix(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldSourceScope), v))
+		s.Where(sql.HasPrefix(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeHasSuffix applies the HasSuffix predicate on the "sourceScope" field.
-func SourceScopeHasSuffix(v string) predicate.Decision {
+// ScopeHasSuffix applies the HasSuffix predicate on the "scope" field.
+func ScopeHasSuffix(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldSourceScope), v))
+		s.Where(sql.HasSuffix(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeEqualFold applies the EqualFold predicate on the "sourceScope" field.
-func SourceScopeEqualFold(v string) predicate.Decision {
+// ScopeEqualFold applies the EqualFold predicate on the "scope" field.
+func ScopeEqualFold(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldSourceScope), v))
+		s.Where(sql.EqualFold(s.C(FieldScope), v))
 	})
 }
 
-// SourceScopeContainsFold applies the ContainsFold predicate on the "sourceScope" field.
-func SourceScopeContainsFold(v string) predicate.Decision {
+// ScopeContainsFold applies the ContainsFold predicate on the "scope" field.
+func ScopeContainsFold(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldSourceScope), v))
+		s.Where(sql.ContainsFold(s.C(FieldScope), v))
 	})
 }
 
-// SourceValueEQ applies the EQ predicate on the "sourceValue" field.
-func SourceValueEQ(v string) predicate.Decision {
+// TargetEQ applies the EQ predicate on the "target" field.
+func TargetEQ(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldSourceValue), v))
+		s.Where(sql.EQ(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueNEQ applies the NEQ predicate on the "sourceValue" field.
-func SourceValueNEQ(v string) predicate.Decision {
+// TargetNEQ applies the NEQ predicate on the "target" field.
+func TargetNEQ(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldSourceValue), v))
+		s.Where(sql.NEQ(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueIn applies the In predicate on the "sourceValue" field.
-func SourceValueIn(vs ...string) predicate.Decision {
+// TargetIn applies the In predicate on the "target" field.
+func TargetIn(vs ...string) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -924,12 +924,12 @@ func SourceValueIn(vs ...string) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldSourceValue), v...))
+		s.Where(sql.In(s.C(FieldTarget), v...))
 	})
 }
 
-// SourceValueNotIn applies the NotIn predicate on the "sourceValue" field.
-func SourceValueNotIn(vs ...string) predicate.Decision {
+// TargetNotIn applies the NotIn predicate on the "target" field.
+func TargetNotIn(vs ...string) predicate.Decision {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -941,70 +941,70 @@ func SourceValueNotIn(vs ...string) predicate.Decision {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldSourceValue), v...))
+		s.Where(sql.NotIn(s.C(FieldTarget), v...))
 	})
 }
 
-// SourceValueGT applies the GT predicate on the "sourceValue" field.
-func SourceValueGT(v string) predicate.Decision {
+// TargetGT applies the GT predicate on the "target" field.
+func TargetGT(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldSourceValue), v))
+		s.Where(sql.GT(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueGTE applies the GTE predicate on the "sourceValue" field.
-func SourceValueGTE(v string) predicate.Decision {
+// TargetGTE applies the GTE predicate on the "target" field.
+func TargetGTE(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldSourceValue), v))
+		s.Where(sql.GTE(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueLT applies the LT predicate on the "sourceValue" field.
-func SourceValueLT(v string) predicate.Decision {
+// TargetLT applies the LT predicate on the "target" field.
+func TargetLT(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldSourceValue), v))
+		s.Where(sql.LT(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueLTE applies the LTE predicate on the "sourceValue" field.
-func SourceValueLTE(v string) predicate.Decision {
+// TargetLTE applies the LTE predicate on the "target" field.
+func TargetLTE(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldSourceValue), v))
+		s.Where(sql.LTE(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueContains applies the Contains predicate on the "sourceValue" field.
-func SourceValueContains(v string) predicate.Decision {
+// TargetContains applies the Contains predicate on the "target" field.
+func TargetContains(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldSourceValue), v))
+		s.Where(sql.Contains(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueHasPrefix applies the HasPrefix predicate on the "sourceValue" field.
-func SourceValueHasPrefix(v string) predicate.Decision {
+// TargetHasPrefix applies the HasPrefix predicate on the "target" field.
+func TargetHasPrefix(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldSourceValue), v))
+		s.Where(sql.HasPrefix(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueHasSuffix applies the HasSuffix predicate on the "sourceValue" field.
-func SourceValueHasSuffix(v string) predicate.Decision {
+// TargetHasSuffix applies the HasSuffix predicate on the "target" field.
+func TargetHasSuffix(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldSourceValue), v))
+		s.Where(sql.HasSuffix(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueEqualFold applies the EqualFold predicate on the "sourceValue" field.
-func SourceValueEqualFold(v string) predicate.Decision {
+// TargetEqualFold applies the EqualFold predicate on the "target" field.
+func TargetEqualFold(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldSourceValue), v))
+		s.Where(sql.EqualFold(s.C(FieldTarget), v))
 	})
 }
 
-// SourceValueContainsFold applies the ContainsFold predicate on the "sourceValue" field.
-func SourceValueContainsFold(v string) predicate.Decision {
+// TargetContainsFold applies the ContainsFold predicate on the "target" field.
+func TargetContainsFold(v string) predicate.Decision {
 	return predicate.Decision(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldSourceValue), v))
+		s.Where(sql.ContainsFold(s.C(FieldTarget), v))
 	})
 }
 
