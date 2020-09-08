@@ -13,7 +13,7 @@ import (
 )
 
 func QueryMachine(ctx context.Context, client *ent.Client, machineId string) (*ent.Machine, error) {
-	machine, err := client.Machine.
+	machine, err := client.Debug().Machine.
 		Query().
 		Where(machine.MachineIdEQ(machineId)).
 		Only(ctx)
@@ -29,6 +29,16 @@ func (c *Controller) CreateMachine(gctx *gin.Context) {
 		gctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	machineExist, err := c.Client.Machine.
+		Query().
+		Where(machine.MachineIdEQ(input.MachineID)).
+		Select(machine.FieldMachineId).Strings(c.Ectx)
+	if len(machineExist) > 0 {
+		gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("user '%s' already exist", input.MachineID)})
+		return
+	}
+
 	machine, err := c.Client.Machine.
 		Create().
 		SetMachineId(input.MachineID).

@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	json "encoding/json"
-	"io"
+	"flag"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/crowdsecurity/crowdsec/pkg/models"
@@ -23,35 +23,65 @@ const machinesURL = URL + "machines"
 const alertsURL = URL + "alerts"
 
 func main() {
-	jsonFile, err := ioutil.ReadFile("sample.json")
+
+	duration := flag.String("d", "2m", "Default duration is 2 minutes. Supported format (30s, 1m, 4h)")
+	flag.Parse()
+
+	jsonFile, err := ioutil.ReadFile("machines.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	var data Data
-
-	err = json.Unmarshal([]byte(jsonFile), &data)
+	var machines []models.WatcherRegistrationRequest
+	err = json.Unmarshal([]byte(jsonFile), &machines)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	// Create machines
-	for _, machine := range data.Machines {
+	for _, machine := range machines {
 		b := new(bytes.Buffer)
 		json.NewEncoder(b).Encode(machine)
 		res, err := http.Post(machinesURL, "application/json;charset=utf-8", b)
 		if err != nil {
 			log.Fatalln(err)
 		}
-		io.Copy(os.Stdout, res.Body)
+		bodyBytes, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("%v\n\n", bodyString)
 		time.Sleep(1 * time.Second)
 	}
 
-	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(data.Alerts)
-	res, err := http.Post(alertsURL, "application/json;charset=utf-8", b)
+	jsonFile, err = ioutil.ReadFile("alerts.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
-	io.Copy(os.Stdout, res.Body)
+	var alerts []models.Alert
+	err = json.Unmarshal([]byte(jsonFile), &alerts)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, alert := range alerts {
+		for _, decision := range alert.Decisions {
+			decision.Duration = *duration
+		}
+		b := new(bytes.Buffer)
+		data := []models.Alert{}
+		data = append(data, alert)
+		json.NewEncoder(b).Encode(data)
+		res, err := http.Post(alertsURL, "application/json;charset=utf-8", b)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		bodyBytes, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bodyString := string(bodyBytes)
+		fmt.Printf("%v\n\n", bodyString)
+	}
 }

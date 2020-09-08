@@ -74,15 +74,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 	ret["deleted"] = []*models.Decision{}
 
 	if _, ok := gctx.Request.URL.Query()["startup"]; ok {
-		err := c.Client.Debug().Decision.Query().Select(
-			decision.FieldUntil,
-			decision.FieldScenario,
-			decision.FieldType,
-			decision.FieldStartIP,
-			decision.FieldEndIP,
-			decision.FieldTarget,
-			decision.FieldScope,
-		).Scan(c.Ectx, data)
+		data, err := c.Client.Debug().Decision.Query().All(c.Ectx)
 		if err != nil {
 			log.Errorf("failed querying decisions: %v", err)
 			gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed querying decision"})
@@ -122,15 +114,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 		log.Errorf("unable to convert last pull time '%s' to time.Time: %s", results[0], err)
 	}
 
-	err = c.Client.Debug().Decision.Query().Where(decision.CreatedAtGT(lastPullTime)).Select(
-		decision.FieldUntil,
-		decision.FieldScenario,
-		decision.FieldType,
-		decision.FieldStartIP,
-		decision.FieldEndIP,
-		decision.FieldTarget,
-		decision.FieldScope,
-	).Scan(c.Ectx, data)
+	data, err = c.Client.Debug().Decision.Query().Where(decision.CreatedAtGT(lastPullTime)).All(c.Ectx)
 	if err != nil {
 		log.Errorf("unable to get new decision for stream: %s", err)
 		if err != nil {
@@ -152,15 +136,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 		ret["new"] = append(ret["new"], decision)
 	}
 
-	err = c.Client.Debug().Decision.Query().Where(decision.UntilLT(time.Now())).Select(
-		decision.FieldUntil,
-		decision.FieldScenario,
-		decision.FieldType,
-		decision.FieldStartIP,
-		decision.FieldEndIP,
-		decision.FieldTarget,
-		decision.FieldScope,
-	).Scan(c.Ectx, data)
+	data, err = c.Client.Debug().Decision.Query().Where(decision.UntilLT(time.Now())).All(c.Ectx)
 	if err != nil {
 		log.Errorf("unable to get old decision for stream: %s", err)
 		if err != nil {
