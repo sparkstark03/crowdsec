@@ -17,6 +17,10 @@ var (
 	APIKeyHeader = "X-Api-Key"
 )
 
+type APIKey struct {
+	HeaderName string
+}
+
 func GenerateKey(n int) (string, error) {
 	bytes := make([]byte, n)
 	if _, err := rand.Read(bytes); err != nil {
@@ -25,7 +29,13 @@ func GenerateKey(n int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-func APIKeyRequired(controller *controllers.Controller) gin.HandlerFunc {
+func NewAPIKey() *APIKey {
+	return &APIKey{
+		HeaderName: APIKeyHeader,
+	}
+}
+
+func (a *APIKey) MiddlewareFunc(controller *controllers.Controller) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		val, ok := c.Request.Header[APIKeyHeader]
 		if !ok {
@@ -38,7 +48,7 @@ func APIKeyRequired(controller *controllers.Controller) gin.HandlerFunc {
 		hashedKey.Write([]byte(val[0]))
 
 		hashStr := fmt.Sprintf("%x", hashedKey.Sum(nil))
-		exist, err := controller.Client.Blocker.Query().Where(blocker.APIKeyEQ(hashStr)).Select(blocker.FieldAPIKey).Strings(controller.Ectx)
+		exist, err := controller.DBClient.Ent.Blocker.Query().Where(blocker.APIKeyEQ(hashStr)).Select(blocker.FieldAPIKey).Strings(controller.DBClient.CTX)
 		if err != nil {
 			log.Errorf("unable to get current api key: %s", err)
 			c.Abort()

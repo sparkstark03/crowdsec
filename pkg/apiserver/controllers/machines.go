@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"net/http"
 
@@ -30,7 +31,7 @@ func (c *Controller) CreateMachine(gctx *gin.Context) {
 		return
 	}
 
-	machineExist, err := c.Client.Machine.
+	machineExist, err := c.DBClient.Ent.Machine.
 		Query().
 		Where(machine.MachineIdEQ(input.MachineID)).
 		Select(machine.FieldMachineId).Strings(c.Ectx)
@@ -39,10 +40,15 @@ func (c *Controller) CreateMachine(gctx *gin.Context) {
 		return
 	}
 
-	machine, err := c.Client.Machine.
+	HashedPassword := sha256.New()
+	HashedPassword.Write([]byte(input.Password))
+
+	hashPassword := fmt.Sprintf("%x", HashedPassword.Sum(nil))
+
+	machine, err := c.DBClient.Ent.Machine.
 		Create().
 		SetMachineId(input.MachineID).
-		SetPassword(input.Password).
+		SetPassword(hashPassword).
 		SetIpAddress(gctx.ClientIP()).
 		Save(c.Ectx)
 

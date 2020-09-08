@@ -88,7 +88,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 	}
 	for _, alertItem := range input {
 
-		machine, err := QueryMachine(c.Ectx, c.Client, alertItem.MachineID)
+		machine, err := QueryMachine(c.Ectx, c.DBClient.Ent, alertItem.MachineID)
 		if err != nil {
 			log.Errorf("failed query machine: %v", err)
 			gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert, machineId not exist"})
@@ -105,7 +105,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 			log.Errorf("unable to parse stop at time '%s': %s", alertItem.StopAt, err)
 		}
 
-		alert, err := c.Client.Alert.
+		alert, err := c.DBClient.Ent.Alert.
 			Create().
 			SetScenario(alertItem.Scenario).
 			SetBucketId(alertItem.AlertID).
@@ -144,12 +144,12 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 					log.Errorf("unable to marshal metas '%s' : %s", eventItem.Meta, err)
 				}
 
-				bulk[i] = c.Client.Event.Create().
+				bulk[i] = c.DBClient.Ent.Event.Create().
 					SetTime(ts).
 					SetSerialized(string(marshallMetas)).
 					SetOwner(alert)
 			}
-			_, err := c.Client.Event.CreateBulk(bulk...).Save(c.Ectx)
+			_, err := c.DBClient.Ent.Event.CreateBulk(bulk...).Save(c.Ectx)
 			if err != nil {
 				log.Errorf("failed creating event: %v", err)
 				gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
@@ -160,12 +160,12 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 		if len(alertItem.Meta) > 0 {
 			bulk := make([]*ent.MetaCreate, len(alertItem.Meta))
 			for i, metaItem := range alertItem.Meta {
-				bulk[i] = c.Client.Meta.Create().
+				bulk[i] = c.DBClient.Ent.Meta.Create().
 					SetKey(metaItem.Key).
 					SetValue(metaItem.Value).
 					SetOwner(alert)
 			}
-			_, err := c.Client.Meta.CreateBulk(bulk...).Save(c.Ectx)
+			_, err := c.DBClient.Ent.Meta.CreateBulk(bulk...).Save(c.Ectx)
 			if err != nil {
 				log.Errorf("failed creating meta: %v", err)
 				gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
@@ -181,7 +181,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 					log.Errorf("unable to parse decision duration '%s': %s", decisionItem.Duration, err)
 					continue
 				}
-				bulk[i] = c.Client.Decision.Create().
+				bulk[i] = c.DBClient.Ent.Decision.Create().
 					SetUntil(time.Now().Add(duration)).
 					SetScenario(decisionItem.Scenario).
 					SetType(decisionItem.Type).
@@ -191,7 +191,7 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 					SetScope(decisionItem.Scope).
 					SetOwner(alert)
 			}
-			_, err := c.Client.Decision.CreateBulk(bulk...).Save(c.Ectx)
+			_, err := c.DBClient.Ent.Decision.CreateBulk(bulk...).Save(c.Ectx)
 			if err != nil {
 				log.Errorf("failed creating decision: %v", err)
 				gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating alert"})
@@ -213,7 +213,7 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 	var startIP int64
 	var endIP int64
 	var hasActiveDecision bool
-	alerts := c.Client.Debug().Alert.Query()
+	alerts := c.DBClient.Ent.Debug().Alert.Query()
 	for param, value := range gctx.Request.URL.Query() {
 		switch param {
 		case "source_scope":
@@ -302,7 +302,7 @@ func (c *Controller) DeleteAlerts(gctx *gin.Context) {
 	var startIP int64
 	var endIP int64
 	var hasActiveDecision bool
-	alerts := c.Client.Debug().Alert.Delete()
+	alerts := c.DBClient.Ent.Debug().Alert.Delete()
 	for param, value := range gctx.Request.URL.Query() {
 		switch param {
 		case "source_scope":

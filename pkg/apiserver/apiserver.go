@@ -9,12 +9,11 @@ import (
 	"os"
 	"time"
 
-	jwt "github.com/appleboy/gin-jwt/v2"
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/crowdsecurity/crowdsec/pkg/apiserver/controllers"
 	"github.com/crowdsecurity/crowdsec/pkg/apiserver/middlewares"
 	"github.com/crowdsecurity/crowdsec/pkg/csconfig"
 	"github.com/crowdsecurity/crowdsec/pkg/database"
-	"github.com/crowdsecurity/crowdsec/pkg/database/ent"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -26,11 +25,13 @@ var (
 )
 
 type APIServer struct {
-	url      string
-	certPath string
-	dbClient *ent.Client
-	logFile  string
-	ctx      context.Context
+	url         string
+	certPath    string
+	dbClient    *database.Client
+	logFile     string
+	ctx         context.Context
+	middlewares *middlewares.Middlewares
+	controller  *controllers.Controller
 }
 
 func NewServer(config *csconfig.CrowdSec) (*APIServer, error) {
@@ -39,24 +40,27 @@ func NewServer(config *csconfig.CrowdSec) (*APIServer, error) {
 		return &APIServer{}, fmt.Errorf("unable to init database client: %s", config.DBConfig.Path)
 	}
 
+	middleware, err := middlewares.NewMiddlewares(dbClient)
+	if err != nil {
+		return &APIServer{}, err
+	}
+	ctx := context.Background()
+
+	controller := controllers.New(ctx, dbClient, middleware.APIKey.HeaderName)
 	return &APIServer{
-		url:      config.APIServerConfig.URL,
-		certPath: config.APIServerConfig.CertPath,
-		logFile:  config.APIServerConfig.LogFile,
-		dbClient: dbClient,
-		ctx:      context.Background(),
+		url:         config.APIServerConfig.URL,
+		certPath:    config.APIServerConfig.CertPath,
+		logFile:     config.APIServerConfig.LogFile,
+		dbClient:    dbClient,
+		middlewares: middleware,
+		controller:  controller,
 	}, nil
 
 }
 
 func (s *APIServer) Run() {
-	secret := os.Getenv("SECRET")
-	if secret == "" {
-		secret = "crowdsecret"
-	}
-	controller := controllers.New(s.ctx, s.dbClient, middlewares.APIKeyHeader)
+	defer s.controller.DBClient.Ent.Close()
 
-	defer controller.Client.Close()
 	file, err := os.Create(s.logFile)
 	if err != nil {
 		log.Fatalf(err.Error())
@@ -79,59 +83,28 @@ func (s *APIServer) Run() {
 	}))
 
 	router.Use(gin.Recovery())
+	router.POST("/watchers", s.controller.CreateMachine)
 
-	// init jwt middleware
-	jwtMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
-		Realm:           "Crowdsec API local",
-		Key:             []byte(secret),
-		Timeout:         time.Hour * 24,
-		MaxRefresh:      time.Hour * 24,
-		IdentityKey:     "id",
-		PayloadFunc:     middlewares.PayloadFunc,
-		IdentityHandler: middlewares.IdentityHandler,
-		Authenticator:   middlewares.Authenticator,
-		Authorizator:    middlewares.Authorizator,
-		Unauthorized:    middlewares.Unauthorized,
-		TokenLookup:     "header: Authorization, query: token, cookie: jwt",
-		TokenHeadName:   "Bearer",
-		TimeFunc:        time.Now,
+	router.POST("/watchers/login", s.middlewares.JWT.Middleware.LoginHandler)
+	router.NoRoute(s.middlewares.JWT.Middleware.MiddlewareFunc(), func(c *gin.Context) {
+		_ = jwt.ExtractClaims(c)
+		c.JSON(http.StatusNotFound, gin.H{"error": "Page not found"})
 	})
 
-	if err != nil {
-		log.Fatal("JWT Error:" + err.Error())
-	}
-
-	errInit := jwtMiddleware.MiddlewareInit()
-	if errInit != nil {
-		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
-	}
-
-	router.POST("/watchers/login", jwtMiddleware.LoginHandler)
-
-	//router.NoRoute(jwtMiddleware.MiddlewareFunc(), func(c *gin.Context) {
-	//	_ = jwt.ExtractClaims(c)
-	//	c.JSON(http.StatusNotFound, gin.H{"error": "Page not found"})
-	//})
-
-	router.POST("/machines", controller.CreateMachine)
-	router.POST("/alerts", controller.CreateAlert)
-	router.GET("/alerts", controller.FindAlerts)
-	router.DELETE("/alerts", controller.DeleteAlerts)
-
 	jwtAuth := router.Group("/")
-	jwtAuth.GET("/refresh_token", jwtMiddleware.RefreshHandler)
-	jwtAuth.Use(jwtMiddleware.MiddlewareFunc())
+	jwtAuth.GET("/refresh_token", s.middlewares.JWT.Middleware.RefreshHandler)
+	jwtAuth.Use(s.middlewares.JWT.Middleware.MiddlewareFunc())
 	{
-		jwtAuth.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"message": "Protected Page by jwt"})
-		})
+		jwtAuth.POST("/alerts", s.controller.CreateAlert)
+		jwtAuth.GET("/alerts", s.controller.FindAlerts)
+		jwtAuth.DELETE("/alerts", s.controller.DeleteAlerts)
 	}
 
 	apiKeyAuth := router.Group("/")
-	apiKeyAuth.Use(middlewares.APIKeyRequired(controller))
+	apiKeyAuth.Use(s.middlewares.APIKey.MiddlewareFunc(s.controller))
 	{
-		apiKeyAuth.GET("/decisions", controller.GetDecision)
-		apiKeyAuth.GET("/decisions/stream", controller.StreamDecision)
+		apiKeyAuth.GET("/decisions", s.controller.GetDecision)
+		apiKeyAuth.GET("/decisions/stream", s.controller.StreamDecision)
 	}
 
 	router.Run(s.url)
@@ -146,7 +119,7 @@ func (s *APIServer) Generate(name string) (string, error) {
 	hashedKey := sha256.New()
 	hashedKey.Write([]byte(key))
 
-	_, err = s.dbClient.Blocker.
+	_, err = s.dbClient.Ent.Blocker.
 		Create().
 		SetName(name).
 		SetAPIKey(fmt.Sprintf("%x", hashedKey.Sum(nil))).

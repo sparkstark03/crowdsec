@@ -3,19 +3,19 @@ package controllers
 import (
 	"context"
 
-	"github.com/crowdsecurity/crowdsec/pkg/database/ent"
+	"github.com/crowdsecurity/crowdsec/pkg/database"
 )
 
 type Controller struct {
 	Ectx         context.Context
-	Client       *ent.Client
+	DBClient     *database.Client
 	APIKeyHeader string
 }
 
-func New(ctx context.Context, client *ent.Client, APIKeyHeader string) *Controller {
+func New(ctx context.Context, client *database.Client, APIKeyHeader string) *Controller {
 	return &Controller{
 		Ectx:         ctx,
-		Client:       client,
+		DBClient:     client,
 		APIKeyHeader: APIKeyHeader,
 	}
 }

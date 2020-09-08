@@ -46,11 +46,11 @@
       {
         "duration": "4h",
         "scenario": "crowdsecurity/scenario1",
-        "decision_type": "ban",
-        "source_ip_start": 185273099,
-        "source_ip_end": 185273099,
-        "source_value": "11.11.11.11",
-        "source_scope": "scope1"
+        "type": "ban",
+        "start_ip": 185273099,
+        "end_ip": 185273099,
+        "target": "11.11.11.11",
+        "scope": "scope1"
       }
     ]
   },
@@ -101,11 +101,11 @@
       {
         "duration": "4h",
         "scenario": "crowdsecurity/scenario2",
-        "decision_type": "ban",
-        "source_ip_start": 370546198,
-        "source_ip_end": 370546198,
-        "source_value": "22.22.22.22",
-        "source_scope": "scope2"
+        "type": "ban",
+        "start_ip": 370546198,
+        "end_ip": 370546198,
+        "target": "22.22.22.22",
+        "scope": "scope2"
       }
     ]
   },
@@ -156,11 +156,11 @@
       {
         "duration": "4h",
         "scenario": "crowdsecurity/scenario3",
-        "decision_type": "ban",
-        "source_ip_start": 555819297,
-        "source_ip_end": 555819297,
-        "source_value": "33.33.33.33",
-        "source_scope": "scope3"
+        "type": "ban",
+        "start_ip": 555819297,
+        "end_ip": 555819297,
+        "target": "33.33.33.33",
+        "scope": "scope3"
       }
     ]
   }
