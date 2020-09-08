@@ -45,9 +45,27 @@ func (s *DecisionsService) List(ctx context.Context, opts DecisionsListOpts) (*m
 	return &decisions, resp, nil
 }
 
-func (s *DecisionsService) StartStream(ctx context.Context) (*Response, error) {
-	u := "decisions/stream?startup=true"
+func (s *DecisionsService) GetStream(ctx context.Context, startup bool) (*models.DecisionsStreamResponse, *Response, error) {
+	var decisions models.DecisionsStreamResponse
+
+	u := fmt.Sprintf("decisions/stream?startup=%t", startup)
 	req, err := s.client.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resp, err := s.client.Do(ctx, req, &decisions)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return &decisions, resp, nil
+}
+
+func (s *DecisionsService) StopStream(ctx context.Context) (*Response, error) {
+
+	u := "decisions"
+	req, err := s.client.NewRequest("DELETE", u, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -56,26 +74,41 @@ func (s *DecisionsService) StartStream(ctx context.Context) (*Response, error) {
 	if err != nil {
 		return resp, err
 	}
-
 	return resp, nil
 }
 
-func (s *DecisionsService) StopStream(ctx context.Context) (*Response, error) {
-	return nil, nil
+func (s *DecisionsService) Delete(ctx context.Context, opts DecisionsDeleteOpts) (*models.DeleteDecisionResponse, *Response, error) {
+	var decisions models.DeleteDecisionResponse
+	params, err := qs.Values(opts)
+	if err != nil {
+		return nil, nil, err
+	}
+	u := fmt.Sprintf("decisions/?%s", params.Encode())
 
+	req, err := s.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resp, err := s.client.Do(ctx, req, &decisions)
+	if err != nil {
+		return nil, resp, err
+	}
+	return &decisions, resp, nil
 }
 
-// func (s *DecisionsService) StreamPoll(ctx context.Context) ([]Decision, []Decision, *Response, error) {
-// 	return nil, nil
+func (s *DecisionsService) DeleteOne(ctx context.Context, decision_id string) (*models.DeleteDecisionResponse, *Response, error) {
+	var decisions models.DeleteDecisionResponse
+	u := fmt.Sprintf("decisions/%s", decision_id)
 
-// }
+	req, err := s.client.NewRequest("DELETE", u, nil)
+	if err != nil {
+		return nil, nil, err
+	}
 
-// func (s *DecisionsService) List(ctx context.Context, Opts DecisionsListOpts) ([]Decision, *Response, error) {
-// 	return nil, nil
-
-// }
-
-// func (s *DecisionsService) Delete(ctx context.Context, Opts DecisionsDeleteOpts) ([]Decision, *Response, error) {
-// 	return nil, nil
-
-// }
+	resp, err := s.client.Do(ctx, req, &decisions)
+	if err != nil {
+		return nil, resp, err
+	}
+	return &decisions, resp, nil
+}
