@@ -19,7 +19,7 @@ func (c *Controller) GetDecision(gctx *gin.Context) {
 	var results []models.Decision
 	var data []*ent.Decision
 
-	decisions := c.Client.Debug().Decision.Query().
+	decisions := c.DBClient.Ent.Debug().Decision.Query().
 		Where(decision.UntilGTE(time.Now()))
 	for param, value := range gctx.Request.URL.Query() {
 		switch param {
@@ -74,7 +74,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 	ret["deleted"] = []*models.Decision{}
 
 	if _, ok := gctx.Request.URL.Query()["startup"]; ok {
-		data, err := c.Client.Debug().Decision.Query().All(c.Ectx)
+		data, err := c.DBClient.Ent.Debug().Decision.Query().All(c.Ectx)
 		if err != nil {
 			log.Errorf("failed querying decisions: %v", err)
 			gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed querying decision"})
@@ -104,7 +104,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 	hashedKey.Write([]byte(val[0]))
 
 	hashStr := fmt.Sprintf("%x", hashedKey.Sum(nil))
-	results, err := c.Client.Blocker.Query().Where(blocker.APIKeyEQ(hashStr)).Select(blocker.FieldLastPull).Strings(c.Ectx)
+	results, err := c.DBClient.Ent.Blocker.Query().Where(blocker.APIKeyEQ(hashStr)).Select(blocker.FieldLastPull).Strings(c.Ectx)
 	if err != nil {
 		gctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	}
@@ -114,7 +114,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 		log.Errorf("unable to convert last pull time '%s' to time.Time: %s", results[0], err)
 	}
 
-	data, err = c.Client.Debug().Decision.Query().Where(decision.CreatedAtGT(lastPullTime)).All(c.Ectx)
+	data, err = c.DBClient.Ent.Debug().Decision.Query().Where(decision.CreatedAtGT(lastPullTime)).All(c.Ectx)
 	if err != nil {
 		log.Errorf("unable to get new decision for stream: %s", err)
 		if err != nil {
@@ -136,7 +136,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 		ret["new"] = append(ret["new"], decision)
 	}
 
-	data, err = c.Client.Debug().Decision.Query().Where(decision.UntilLT(time.Now())).All(c.Ectx)
+	data, err = c.DBClient.Ent.Debug().Decision.Query().Where(decision.UntilLT(time.Now())).All(c.Ectx)
 	if err != nil {
 		log.Errorf("unable to get old decision for stream: %s", err)
 		if err != nil {
