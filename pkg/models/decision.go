@@ -24,20 +24,11 @@ type Decision struct {
 	// (only relevant for GET ops) when the target is an IP or range, its numeric representation
 	EndIP int64 `json:"end_ip,omitempty"`
 
-	// message
-	Message string `json:"message,omitempty"`
-
 	// the origin of the decision : cscli, crowdsec
 	Origin string `json:"origin,omitempty"`
 
 	// scenario
 	Scenario string `json:"scenario,omitempty"`
-
-	// scenario hash
-	ScenarioHash string `json:"scenario_hash,omitempty"`
-
-	// scenario version
-	ScenarioVersion string `json:"scenario_version,omitempty"`
 
 	// the scope of decision : does it apply to an IP, a range, a username, etc
 	Scope string `json:"scope,omitempty"`

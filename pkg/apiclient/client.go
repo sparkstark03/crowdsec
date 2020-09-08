@@ -1,7 +1,10 @@
 package apiclient
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 )
@@ -40,10 +43,20 @@ func NewClient(httpClient *http.Client) *ApiClient {
 }
 
 type Response struct {
-	*http.Response
+	Response *http.Response
 	//add our pagination stuff
 	//NextPage int
 	//...
+}
+
+type ErrorResponse struct {
+	Response *http.Response // HTTP response that caused this error
+	Message  string         `json:"message"` // error message
+	Errors   []string       `json:"errors"`  // more detail on individual errors
+}
+
+func (e *ErrorResponse) Error() string {
+	return fmt.Sprintf("API error (%s) : %+v", e.Message, e.Errors)
 }
 
 func newResponse(r *http.Response) *Response {
@@ -56,7 +69,13 @@ func CheckResponse(r *http.Response) error {
 	if c := r.StatusCode; 200 <= c && c <= 299 {
 		return nil
 	}
-	return fmt.Errorf("error from api : %+v", r)
+	log.Printf("we has error %d : %+v", r.StatusCode, r.Body)
+	errorResponse := &ErrorResponse{Response: r}
+	data, err := ioutil.ReadAll(r.Body)
+	if err == nil && data != nil {
+		json.Unmarshal(data, errorResponse)
+	}
+	return errorResponse
 }
 
 type ListOpts struct {
