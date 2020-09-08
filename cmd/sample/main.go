@@ -110,7 +110,7 @@ func main() {
 		if _, ok := sessions[alert.MachineID]; !ok {
 			log.Fatal("don't have session for machine '%s' to push alerts", machine.MachineId)
 		}
-		httpToken := sessions["machine1"].Token
+		httpToken := sessions[alert.MachineID].Token
 		for _, decision := range alert.Decisions {
 			decision.Duration = *duration
 		}
