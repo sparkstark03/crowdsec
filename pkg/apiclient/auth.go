@@ -1,56 +1,54 @@
 package apiclient
 
 import (
-	"context"
-
-	"github.com/crowdsecurity/crowdsec/pkg/models"
+	"errors"
+	"net/http"
 )
 
-// type ApiAlerts service
+type APIKeyTransport struct {
+	APIKey string
 
-type AuthService service
-
-func (s *AuthService) UnregisterWatcher(ctx context.Context) (*Response, error) {
-
-	u := "watchers"
-	req, err := s.client.NewRequest("DELETE", u, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.client.Do(ctx, req, nil)
-	if err != nil {
-		return resp, err
-	}
-	return resp, nil
+	// Transport is the underlying HTTP transport to use when making requests.
+	// It will default to http.DefaultTransport if nil.
+	Transport http.RoundTripper
 }
 
-func (s *AuthService) RegisterWatcher(ctx context.Context, registration models.WatcherRegistrationRequest) (*Response, error) {
-
-	u := "watchers"
-	req, err := s.client.NewRequest("POST", u, &registration)
-	if err != nil {
-		return nil, err
+// RoundTrip implements the RoundTripper interface.
+func (t *APIKeyTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if t.APIKey == "" {
+		return nil, errors.New("t.APIKey is empty")
 	}
 
-	resp, err := s.client.Do(ctx, req, nil)
-	if err != nil {
-		return resp, err
-	}
-	return resp, nil
+	// We must make a copy of the Request so
+	// that we don't modify the Request we were given. This is required by the
+	// specification of http.RoundTripper.
+	req = cloneRequest(req)
+	req.Header.Add("X-Api-Key", t.APIKey)
+	// Make the HTTP request.
+	return t.transport().RoundTrip(req)
 }
 
-func (s *AuthService) AuthenticateWatcher(ctx context.Context, auth models.WatcherAuthRequest) (*Response, error) {
+func (t *APIKeyTransport) Client() *http.Client {
+	return &http.Client{Transport: t}
+}
 
-	u := "watchers/login"
-	req, err := s.client.NewRequest("POST", u, &auth)
-	if err != nil {
-		return nil, err
+func (t *APIKeyTransport) transport() http.RoundTripper {
+	if t.Transport != nil {
+		return t.Transport
 	}
+	return http.DefaultTransport
+}
 
-	resp, err := s.client.Do(ctx, req, nil)
-	if err != nil {
-		return resp, err
+// cloneRequest returns a clone of the provided *http.Request. The clone is a
+// shallow copy of the struct and its Header map.
+func cloneRequest(r *http.Request) *http.Request {
+	// shallow copy of the struct
+	r2 := new(http.Request)
+	*r2 = *r
+	// deep copy of the Header
+	r2.Header = make(http.Header, len(r.Header))
+	for k, s := range r.Header {
+		r2.Header[k] = append([]string(nil), s...)
 	}
-	return resp, nil
+	return r2
 }
