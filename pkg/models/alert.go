@@ -45,6 +45,9 @@ type Alert struct {
 	// a human readable message
 	Message string `json:"message,omitempty"`
 
+	// the Meta data of the Alert itself
+	Meta *Meta `json:"meta,omitempty"`
+
 	// scenario
 	Scenario string `json:"scenario,omitempty"`
 
@@ -76,6 +79,10 @@ func (m *Alert) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEvents(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMeta(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -134,6 +141,24 @@ func (m *Alert) validateEvents(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *Alert) validateMeta(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Meta) { // not required
+		return nil
+	}
+
+	if m.Meta != nil {
+		if err := m.Meta.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("meta")
+			}
+			return err
+		}
 	}
 
 	return nil

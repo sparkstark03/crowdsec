@@ -27,11 +27,11 @@ type Source struct {
 	// provided as a convenience when the source is an IP
 	IP string `json:"ip,omitempty"`
 
-	// lat
-	Lat string `json:"lat,omitempty"`
+	// latitude
+	Latitude float32 `json:"latitude,omitempty"`
 
-	// long
-	Long string `json:"long,omitempty"`
+	// longitude
+	Longitude float32 `json:"longitude,omitempty"`
 
 	// provided as a convenience when the source is an IP
 	Range string `json:"range,omitempty"`

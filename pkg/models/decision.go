@@ -15,14 +15,14 @@ import (
 // swagger:model Decision
 type Decision struct {
 
-	// only relevant for GET operations
+	// (only relevant for GET ops) the unique id
 	DecisionID string `json:"decision_id,omitempty"`
 
 	// duration
 	Duration string `json:"duration,omitempty"`
 
-	// when the target is an IP or range, its numeric representation
-	EndIP string `json:"end_ip,omitempty"`
+	// (only relevant for GET ops) when the target is an IP or range, its numeric representation
+	EndIP int64 `json:"end_ip,omitempty"`
 
 	// message
 	Message string `json:"message,omitempty"`
@@ -42,8 +42,8 @@ type Decision struct {
 	// the scope of decision : does it apply to an IP, a range, a username, etc
 	Scope string `json:"scope,omitempty"`
 
-	// when the target is an IP or range, its numeric representation
-	StartIP string `json:"start_ip,omitempty"`
+	// (only relevant for GET ops) when the target is an IP or range, its numeric representation
+	StartIP int64 `json:"start_ip,omitempty"`
 
 	// the target of the decision : an IP, a range, a username, etc
 	Target string `json:"target,omitempty"`
