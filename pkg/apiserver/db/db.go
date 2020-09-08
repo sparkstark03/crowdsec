@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/crowdsecurity/crowdsec/pkg/csconfig"
-	"github.com/crowdsecurity/crowdsec/pkg/database/ent"
+	"github.com/crowdsecurity/crowdsec/pkg/database"
 )
 
-func NewClient(config *csconfig.DatabaseConfig) (*ent.Client, error) {
-	client, err := ent.Open("sqlite3", fmt.Sprintf("file:%s?_fk=1", config.Path))
+type DBConfig struct {
+	Type string `yaml:"type"`
+	Path string `yaml:"path"`
+}
+
+func newDatabaseClient(config *DBConfig) (*database.Client, error) {
+	client, err := database.Open("sqlite3", fmt.Sprintf("file:%s?_fk=1", config.Path))
 	if err != nil {
 		return nil, fmt.Errorf("failed opening connection to sqlite: %v", err)
 	}

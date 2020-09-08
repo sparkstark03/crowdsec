@@ -3,13 +3,15 @@ package main
 import (
 	"log"
 
+	"github.com/crowdsecurity/crowdsec/pkg/apiserver"
+	"github.com/crowdsecurity/crowdsec/pkg/csconfig"
 	"github.com/spf13/cobra"
 )
 
 var (
 	cfgFile string
-	config  *Config
-	csAPI   *API
+	config  *csconfig.CrowdSec
+	csAPI   *apiserver.APIServer
 	rootCmd = &cobra.Command{
 		Use:   "csapi",
 		Short: "csapi allows you to launch or manage crowdsec API",
@@ -24,7 +26,7 @@ var (
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			var err error
 
-			csAPI, err = newAPI(config)
+			csAPI, err = apiserver.NewServer(config)
 			if err != nil {
 				return err
 			}
@@ -39,16 +41,17 @@ func initConfig() {
 	if cfgFile == "" {
 		log.Fatalf("please provide a configuration file with -c")
 	}
-	config, err = newConfig(cfgFile)
+	config, err = csconfig.NewCrowdSecConfig(cfgFile)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "./config.yaml", "path to crowdsec config file")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "../../config/config.yaml", "path to crowdsec config file")
 	rootCmd.AddCommand(NewRunCommand())
 	rootCmd.AddCommand(NewGenerateCommand())
 }
