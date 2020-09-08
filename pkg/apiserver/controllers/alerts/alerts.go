@@ -50,21 +50,21 @@ func FormatAlert(result []*ent.Alert) []models.Alert {
 			outputAlert.Events = outputEvents
 		}
 		for _, metaItem := range alertItem.Edges.Metas {
-			var outputMetas []models.Meta
-			outputMetas = append(outputMetas, models.Meta{
+			var outputMetas []*models.Meta
+			outputMetas = append(outputMetas, &models.Meta{
 				Key:   metaItem.Key,
 				Value: metaItem.Value,
 			})
-			outputAlert.Metas = outputMetas
+			outputAlert.Meta = outputMetas
 		}
 		for _, decisionItem := range alertItem.Edges.Decisions {
-			var outputDecisions []models.Decision
-			outputDecisions = append(outputDecisions, models.Decision{
-				Until:    decisionItem.Until, // transform into time.Time ?
+			var outputDecisions []*models.Decision
+			outputDecisions = append(outputDecisions, &models.Decision{
+				Duration: decisionItem.Duration, // transform into time.Time ?
 				Scenario: decisionItem.Scenario,
 				Type:     decisionItem.DecisionType,
-				StartIP:  decisionItem.SourceIpStart,
-				EndIP:    decisionItem.SourceIpEnd,
+				StartIP:  int64(decisionItem.SourceIpStart),
+				EndIP:    int64(decisionItem.SourceIpEnd),
 				Scope:    decisionItem.SourceScope,
 				Target:   decisionItem.SourceValue,
 			})
