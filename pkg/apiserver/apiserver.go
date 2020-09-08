@@ -124,7 +124,7 @@ func (s *APIServer) Generate(name string) (string, error) {
 		SetName(name).
 		SetAPIKey(fmt.Sprintf("%x", hashedKey.Sum(nil))).
 		SetRevoked(false).
-		Save(s.ctx)
+		Save(s.dbClient.CTX)
 	if err != nil {
 		return "", fmt.Errorf("unable to save api key in database: %s", err)
 	}

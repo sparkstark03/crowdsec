@@ -51,7 +51,7 @@ func (c *Controller) GetDecision(gctx *gin.Context) {
 	for _, dbDecision := range data {
 		duration := dbDecision.Until.Sub(time.Now())
 		decision := models.Decision{
-			DecisionID: fmt.Sprint("%d", dbDecision.ID),
+			DecisionID: fmt.Sprintf("%d", dbDecision.ID),
 			Duration:   duration.String(),
 			EndIP:      dbDecision.EndIP,
 			StartIP:    dbDecision.StartIP,
@@ -83,7 +83,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 		for _, dbDecision := range data {
 			duration := dbDecision.Until.Sub(time.Now())
 			decision := &models.Decision{
-				DecisionID: fmt.Sprint("%d", dbDecision.ID),
+				DecisionID: fmt.Sprintf("%d", dbDecision.ID),
 				Duration:   duration.String(),
 				EndIP:      dbDecision.EndIP,
 				StartIP:    dbDecision.StartIP,
@@ -124,7 +124,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 	for _, dbDecision := range data {
 		duration := dbDecision.Until.Sub(time.Now())
 		decision := &models.Decision{
-			DecisionID: fmt.Sprint("%d", dbDecision.ID),
+			DecisionID: fmt.Sprintf("%d", dbDecision.ID),
 			Duration:   duration.String(),
 			EndIP:      dbDecision.EndIP,
 			StartIP:    dbDecision.StartIP,
@@ -147,7 +147,7 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 	for _, dbDecision := range data {
 		duration := dbDecision.Until.Sub(time.Now())
 		decision := &models.Decision{
-			DecisionID: fmt.Sprint("%d", dbDecision.ID),
+			DecisionID: fmt.Sprintf("%d", dbDecision.ID),
 			Duration:   duration.String(),
 			EndIP:      dbDecision.EndIP,
 			StartIP:    dbDecision.StartIP,
