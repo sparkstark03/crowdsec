@@ -113,29 +113,26 @@ func (s *APIServer) Run() {
 	//	c.JSON(http.StatusNotFound, gin.H{"error": "Page not found"})
 	//})
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "hello world"})
-	})
 	router.POST("/machines", controller.CreateMachine)
+	router.POST("/alerts", controller.CreateAlert)
+	router.GET("/alerts", controller.FindAlerts)
+	router.DELETE("/alerts", controller.DeleteAlerts)
 
 	jwtAuth := router.Group("/")
 	jwtAuth.GET("/refresh_token", jwtMiddleware.RefreshHandler)
 	jwtAuth.Use(jwtMiddleware.MiddlewareFunc())
 	{
-		// /decisions
-		jwtAuth.GET("/decisions", controller.GetDecision)
-
-		// /alerts
-		jwtAuth.POST("/alerts", controller.CreateAlert)
-		jwtAuth.GET("/alerts", controller.FindAlerts)
-		jwtAuth.DELETE("/alerts", controller.DeleteAlerts)
+		jwtAuth.GET("/", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"message": "Protected Page by jwt"})
+		})
 	}
-	//apiKeyAuth := router.Group("/")
-	//apiKeyAuth.Use(middlewares.APIKeyRequired(controller))
-	//{
-	//	apiKeyAuth.GET("/decisions", controller.GetDecision)
-	//	apiKeyAuth.GET("/decisions/stream", controller.StreamDecision)
-	//}
+
+	apiKeyAuth := router.Group("/")
+	apiKeyAuth.Use(middlewares.APIKeyRequired(controller))
+	{
+		apiKeyAuth.GET("/decisions", controller.GetDecision)
+		apiKeyAuth.GET("/decisions/stream", controller.StreamDecision)
+	}
 
 	router.Run(s.url)
 }
