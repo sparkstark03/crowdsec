@@ -586,6 +586,20 @@ func BucketIdHasSuffix(v string) predicate.Alert {
 	})
 }
 
+// BucketIdIsNil applies the IsNil predicate on the "bucketId" field.
+func BucketIdIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldBucketId)))
+	})
+}
+
+// BucketIdNotNil applies the NotNil predicate on the "bucketId" field.
+func BucketIdNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldBucketId)))
+	})
+}
+
 // BucketIdEqualFold applies the EqualFold predicate on the "bucketId" field.
 func BucketIdEqualFold(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
@@ -697,6 +711,20 @@ func MessageHasSuffix(v string) predicate.Alert {
 	})
 }
 
+// MessageIsNil applies the IsNil predicate on the "message" field.
+func MessageIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldMessage)))
+	})
+}
+
+// MessageNotNil applies the NotNil predicate on the "message" field.
+func MessageNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldMessage)))
+	})
+}
+
 // MessageEqualFold applies the EqualFold predicate on the "message" field.
 func MessageEqualFold(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
@@ -787,6 +815,20 @@ func EventsCountLTE(v int32) predicate.Alert {
 	})
 }
 
+// EventsCountIsNil applies the IsNil predicate on the "eventsCount" field.
+func EventsCountIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldEventsCount)))
+	})
+}
+
+// EventsCountNotNil applies the NotNil predicate on the "eventsCount" field.
+func EventsCountNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldEventsCount)))
+	})
+}
+
 // StartedAtEQ applies the EQ predicate on the "startedAt" field.
 func StartedAtEQ(v time.Time) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
@@ -863,6 +905,20 @@ func StartedAtLTE(v time.Time) predicate.Alert {
 	})
 }
 
+// StartedAtIsNil applies the IsNil predicate on the "startedAt" field.
+func StartedAtIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldStartedAt)))
+	})
+}
+
+// StartedAtNotNil applies the NotNil predicate on the "startedAt" field.
+func StartedAtNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldStartedAt)))
+	})
+}
+
 // StoppedAtEQ applies the EQ predicate on the "stoppedAt" field.
 func StoppedAtEQ(v time.Time) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
@@ -936,6 +992,20 @@ func StoppedAtLT(v time.Time) predicate.Alert {
 func StoppedAtLTE(v time.Time) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldStoppedAt), v))
+	})
+}
+
+// StoppedAtIsNil applies the IsNil predicate on the "stoppedAt" field.
+func StoppedAtIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldStoppedAt)))
+	})
+}
+
+// StoppedAtNotNil applies the NotNil predicate on the "stoppedAt" field.
+func StoppedAtNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldStoppedAt)))
 	})
 }
 
@@ -1841,6 +1911,20 @@ func SourceScopeHasSuffix(v string) predicate.Alert {
 	})
 }
 
+// SourceScopeIsNil applies the IsNil predicate on the "sourceScope" field.
+func SourceScopeIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSourceScope)))
+	})
+}
+
+// SourceScopeNotNil applies the NotNil predicate on the "sourceScope" field.
+func SourceScopeNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSourceScope)))
+	})
+}
+
 // SourceScopeEqualFold applies the EqualFold predicate on the "sourceScope" field.
 func SourceScopeEqualFold(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
@@ -1952,6 +2036,20 @@ func SourceValueHasSuffix(v string) predicate.Alert {
 	})
 }
 
+// SourceValueIsNil applies the IsNil predicate on the "sourceValue" field.
+func SourceValueIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldSourceValue)))
+	})
+}
+
+// SourceValueNotNil applies the NotNil predicate on the "sourceValue" field.
+func SourceValueNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldSourceValue)))
+	})
+}
+
 // SourceValueEqualFold applies the EqualFold predicate on the "sourceValue" field.
 func SourceValueEqualFold(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
@@ -2039,6 +2137,20 @@ func CapacityLT(v int32) predicate.Alert {
 func CapacityLTE(v int32) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldCapacity), v))
+	})
+}
+
+// CapacityIsNil applies the IsNil predicate on the "capacity" field.
+func CapacityIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldCapacity)))
+	})
+}
+
+// CapacityNotNil applies the NotNil predicate on the "capacity" field.
+func CapacityNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldCapacity)))
 	})
 }
 
@@ -2136,6 +2248,20 @@ func LeakSpeedHasPrefix(v string) predicate.Alert {
 func LeakSpeedHasSuffix(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldLeakSpeed), v))
+	})
+}
+
+// LeakSpeedIsNil applies the IsNil predicate on the "leakSpeed" field.
+func LeakSpeedIsNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldLeakSpeed)))
+	})
+}
+
+// LeakSpeedNotNil applies the NotNil predicate on the "leakSpeed" field.
+func LeakSpeedNotNil() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldLeakSpeed)))
 	})
 }
 

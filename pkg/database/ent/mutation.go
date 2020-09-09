@@ -300,9 +300,22 @@ func (m *AlertMutation) OldBucketId(ctx context.Context) (v string, err error) {
 	return oldValue.BucketId, nil
 }
 
+// ClearBucketId clears the value of bucketId.
+func (m *AlertMutation) ClearBucketId() {
+	m.bucketId = nil
+	m.clearedFields[alert.FieldBucketId] = struct{}{}
+}
+
+// BucketIdCleared returns if the field bucketId was cleared in this mutation.
+func (m *AlertMutation) BucketIdCleared() bool {
+	_, ok := m.clearedFields[alert.FieldBucketId]
+	return ok
+}
+
 // ResetBucketId reset all changes of the "bucketId" field.
 func (m *AlertMutation) ResetBucketId() {
 	m.bucketId = nil
+	delete(m.clearedFields, alert.FieldBucketId)
 }
 
 // SetMessage sets the message field.
@@ -337,9 +350,22 @@ func (m *AlertMutation) OldMessage(ctx context.Context) (v string, err error) {
 	return oldValue.Message, nil
 }
 
+// ClearMessage clears the value of message.
+func (m *AlertMutation) ClearMessage() {
+	m.message = nil
+	m.clearedFields[alert.FieldMessage] = struct{}{}
+}
+
+// MessageCleared returns if the field message was cleared in this mutation.
+func (m *AlertMutation) MessageCleared() bool {
+	_, ok := m.clearedFields[alert.FieldMessage]
+	return ok
+}
+
 // ResetMessage reset all changes of the "message" field.
 func (m *AlertMutation) ResetMessage() {
 	m.message = nil
+	delete(m.clearedFields, alert.FieldMessage)
 }
 
 // SetEventsCount sets the eventsCount field.
@@ -393,10 +419,24 @@ func (m *AlertMutation) AddedEventsCount() (r int32, exists bool) {
 	return *v, true
 }
 
+// ClearEventsCount clears the value of eventsCount.
+func (m *AlertMutation) ClearEventsCount() {
+	m.eventsCount = nil
+	m.addeventsCount = nil
+	m.clearedFields[alert.FieldEventsCount] = struct{}{}
+}
+
+// EventsCountCleared returns if the field eventsCount was cleared in this mutation.
+func (m *AlertMutation) EventsCountCleared() bool {
+	_, ok := m.clearedFields[alert.FieldEventsCount]
+	return ok
+}
+
 // ResetEventsCount reset all changes of the "eventsCount" field.
 func (m *AlertMutation) ResetEventsCount() {
 	m.eventsCount = nil
 	m.addeventsCount = nil
+	delete(m.clearedFields, alert.FieldEventsCount)
 }
 
 // SetStartedAt sets the startedAt field.
@@ -431,9 +471,22 @@ func (m *AlertMutation) OldStartedAt(ctx context.Context) (v time.Time, err erro
 	return oldValue.StartedAt, nil
 }
 
+// ClearStartedAt clears the value of startedAt.
+func (m *AlertMutation) ClearStartedAt() {
+	m.startedAt = nil
+	m.clearedFields[alert.FieldStartedAt] = struct{}{}
+}
+
+// StartedAtCleared returns if the field startedAt was cleared in this mutation.
+func (m *AlertMutation) StartedAtCleared() bool {
+	_, ok := m.clearedFields[alert.FieldStartedAt]
+	return ok
+}
+
 // ResetStartedAt reset all changes of the "startedAt" field.
 func (m *AlertMutation) ResetStartedAt() {
 	m.startedAt = nil
+	delete(m.clearedFields, alert.FieldStartedAt)
 }
 
 // SetStoppedAt sets the stoppedAt field.
@@ -468,9 +521,22 @@ func (m *AlertMutation) OldStoppedAt(ctx context.Context) (v time.Time, err erro
 	return oldValue.StoppedAt, nil
 }
 
+// ClearStoppedAt clears the value of stoppedAt.
+func (m *AlertMutation) ClearStoppedAt() {
+	m.stoppedAt = nil
+	m.clearedFields[alert.FieldStoppedAt] = struct{}{}
+}
+
+// StoppedAtCleared returns if the field stoppedAt was cleared in this mutation.
+func (m *AlertMutation) StoppedAtCleared() bool {
+	_, ok := m.clearedFields[alert.FieldStoppedAt]
+	return ok
+}
+
 // ResetStoppedAt reset all changes of the "stoppedAt" field.
 func (m *AlertMutation) ResetStoppedAt() {
 	m.stoppedAt = nil
+	delete(m.clearedFields, alert.FieldStoppedAt)
 }
 
 // SetSourceIp sets the sourceIp field.
@@ -897,9 +963,22 @@ func (m *AlertMutation) OldSourceScope(ctx context.Context) (v string, err error
 	return oldValue.SourceScope, nil
 }
 
+// ClearSourceScope clears the value of sourceScope.
+func (m *AlertMutation) ClearSourceScope() {
+	m.sourceScope = nil
+	m.clearedFields[alert.FieldSourceScope] = struct{}{}
+}
+
+// SourceScopeCleared returns if the field sourceScope was cleared in this mutation.
+func (m *AlertMutation) SourceScopeCleared() bool {
+	_, ok := m.clearedFields[alert.FieldSourceScope]
+	return ok
+}
+
 // ResetSourceScope reset all changes of the "sourceScope" field.
 func (m *AlertMutation) ResetSourceScope() {
 	m.sourceScope = nil
+	delete(m.clearedFields, alert.FieldSourceScope)
 }
 
 // SetSourceValue sets the sourceValue field.
@@ -934,9 +1013,22 @@ func (m *AlertMutation) OldSourceValue(ctx context.Context) (v string, err error
 	return oldValue.SourceValue, nil
 }
 
+// ClearSourceValue clears the value of sourceValue.
+func (m *AlertMutation) ClearSourceValue() {
+	m.sourceValue = nil
+	m.clearedFields[alert.FieldSourceValue] = struct{}{}
+}
+
+// SourceValueCleared returns if the field sourceValue was cleared in this mutation.
+func (m *AlertMutation) SourceValueCleared() bool {
+	_, ok := m.clearedFields[alert.FieldSourceValue]
+	return ok
+}
+
 // ResetSourceValue reset all changes of the "sourceValue" field.
 func (m *AlertMutation) ResetSourceValue() {
 	m.sourceValue = nil
+	delete(m.clearedFields, alert.FieldSourceValue)
 }
 
 // SetCapacity sets the capacity field.
@@ -990,10 +1082,24 @@ func (m *AlertMutation) AddedCapacity() (r int32, exists bool) {
 	return *v, true
 }
 
+// ClearCapacity clears the value of capacity.
+func (m *AlertMutation) ClearCapacity() {
+	m.capacity = nil
+	m.addcapacity = nil
+	m.clearedFields[alert.FieldCapacity] = struct{}{}
+}
+
+// CapacityCleared returns if the field capacity was cleared in this mutation.
+func (m *AlertMutation) CapacityCleared() bool {
+	_, ok := m.clearedFields[alert.FieldCapacity]
+	return ok
+}
+
 // ResetCapacity reset all changes of the "capacity" field.
 func (m *AlertMutation) ResetCapacity() {
 	m.capacity = nil
 	m.addcapacity = nil
+	delete(m.clearedFields, alert.FieldCapacity)
 }
 
 // SetLeakSpeed sets the leakSpeed field.
@@ -1028,9 +1134,22 @@ func (m *AlertMutation) OldLeakSpeed(ctx context.Context) (v string, err error) 
 	return oldValue.LeakSpeed, nil
 }
 
+// ClearLeakSpeed clears the value of leakSpeed.
+func (m *AlertMutation) ClearLeakSpeed() {
+	m.leakSpeed = nil
+	m.clearedFields[alert.FieldLeakSpeed] = struct{}{}
+}
+
+// LeakSpeedCleared returns if the field leakSpeed was cleared in this mutation.
+func (m *AlertMutation) LeakSpeedCleared() bool {
+	_, ok := m.clearedFields[alert.FieldLeakSpeed]
+	return ok
+}
+
 // ResetLeakSpeed reset all changes of the "leakSpeed" field.
 func (m *AlertMutation) ResetLeakSpeed() {
 	m.leakSpeed = nil
+	delete(m.clearedFields, alert.FieldLeakSpeed)
 }
 
 // SetOwnerID sets the owner edge to Machine by id.
@@ -1586,6 +1705,21 @@ func (m *AlertMutation) AddField(name string, value ent.Value) error {
 // during this mutation.
 func (m *AlertMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(alert.FieldBucketId) {
+		fields = append(fields, alert.FieldBucketId)
+	}
+	if m.FieldCleared(alert.FieldMessage) {
+		fields = append(fields, alert.FieldMessage)
+	}
+	if m.FieldCleared(alert.FieldEventsCount) {
+		fields = append(fields, alert.FieldEventsCount)
+	}
+	if m.FieldCleared(alert.FieldStartedAt) {
+		fields = append(fields, alert.FieldStartedAt)
+	}
+	if m.FieldCleared(alert.FieldStoppedAt) {
+		fields = append(fields, alert.FieldStoppedAt)
+	}
 	if m.FieldCleared(alert.FieldSourceIp) {
 		fields = append(fields, alert.FieldSourceIp)
 	}
@@ -1607,6 +1741,18 @@ func (m *AlertMutation) ClearedFields() []string {
 	if m.FieldCleared(alert.FieldSourceLongitude) {
 		fields = append(fields, alert.FieldSourceLongitude)
 	}
+	if m.FieldCleared(alert.FieldSourceScope) {
+		fields = append(fields, alert.FieldSourceScope)
+	}
+	if m.FieldCleared(alert.FieldSourceValue) {
+		fields = append(fields, alert.FieldSourceValue)
+	}
+	if m.FieldCleared(alert.FieldCapacity) {
+		fields = append(fields, alert.FieldCapacity)
+	}
+	if m.FieldCleared(alert.FieldLeakSpeed) {
+		fields = append(fields, alert.FieldLeakSpeed)
+	}
 	return fields
 }
 
@@ -1621,6 +1767,21 @@ func (m *AlertMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *AlertMutation) ClearField(name string) error {
 	switch name {
+	case alert.FieldBucketId:
+		m.ClearBucketId()
+		return nil
+	case alert.FieldMessage:
+		m.ClearMessage()
+		return nil
+	case alert.FieldEventsCount:
+		m.ClearEventsCount()
+		return nil
+	case alert.FieldStartedAt:
+		m.ClearStartedAt()
+		return nil
+	case alert.FieldStoppedAt:
+		m.ClearStoppedAt()
+		return nil
 	case alert.FieldSourceIp:
 		m.ClearSourceIp()
 		return nil
@@ -1641,6 +1802,18 @@ func (m *AlertMutation) ClearField(name string) error {
 		return nil
 	case alert.FieldSourceLongitude:
 		m.ClearSourceLongitude()
+		return nil
+	case alert.FieldSourceScope:
+		m.ClearSourceScope()
+		return nil
+	case alert.FieldSourceValue:
+		m.ClearSourceValue()
+		return nil
+	case alert.FieldCapacity:
+		m.ClearCapacity()
+		return nil
+	case alert.FieldLeakSpeed:
+		m.ClearLeakSpeed()
 		return nil
 	}
 	return fmt.Errorf("unknown Alert nullable field %s", name)

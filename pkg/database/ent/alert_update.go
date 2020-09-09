@@ -72,9 +72,37 @@ func (au *AlertUpdate) SetBucketId(s string) *AlertUpdate {
 	return au
 }
 
+// SetNillableBucketId sets the bucketId field if the given value is not nil.
+func (au *AlertUpdate) SetNillableBucketId(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetBucketId(*s)
+	}
+	return au
+}
+
+// ClearBucketId clears the value of bucketId.
+func (au *AlertUpdate) ClearBucketId() *AlertUpdate {
+	au.mutation.ClearBucketId()
+	return au
+}
+
 // SetMessage sets the message field.
 func (au *AlertUpdate) SetMessage(s string) *AlertUpdate {
 	au.mutation.SetMessage(s)
+	return au
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (au *AlertUpdate) SetNillableMessage(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetMessage(*s)
+	}
+	return au
+}
+
+// ClearMessage clears the value of message.
+func (au *AlertUpdate) ClearMessage() *AlertUpdate {
+	au.mutation.ClearMessage()
 	return au
 }
 
@@ -85,9 +113,23 @@ func (au *AlertUpdate) SetEventsCount(i int32) *AlertUpdate {
 	return au
 }
 
+// SetNillableEventsCount sets the eventsCount field if the given value is not nil.
+func (au *AlertUpdate) SetNillableEventsCount(i *int32) *AlertUpdate {
+	if i != nil {
+		au.SetEventsCount(*i)
+	}
+	return au
+}
+
 // AddEventsCount adds i to eventsCount.
 func (au *AlertUpdate) AddEventsCount(i int32) *AlertUpdate {
 	au.mutation.AddEventsCount(i)
+	return au
+}
+
+// ClearEventsCount clears the value of eventsCount.
+func (au *AlertUpdate) ClearEventsCount() *AlertUpdate {
+	au.mutation.ClearEventsCount()
 	return au
 }
 
@@ -97,9 +139,37 @@ func (au *AlertUpdate) SetStartedAt(t time.Time) *AlertUpdate {
 	return au
 }
 
+// SetNillableStartedAt sets the startedAt field if the given value is not nil.
+func (au *AlertUpdate) SetNillableStartedAt(t *time.Time) *AlertUpdate {
+	if t != nil {
+		au.SetStartedAt(*t)
+	}
+	return au
+}
+
+// ClearStartedAt clears the value of startedAt.
+func (au *AlertUpdate) ClearStartedAt() *AlertUpdate {
+	au.mutation.ClearStartedAt()
+	return au
+}
+
 // SetStoppedAt sets the stoppedAt field.
 func (au *AlertUpdate) SetStoppedAt(t time.Time) *AlertUpdate {
 	au.mutation.SetStoppedAt(t)
+	return au
+}
+
+// SetNillableStoppedAt sets the stoppedAt field if the given value is not nil.
+func (au *AlertUpdate) SetNillableStoppedAt(t *time.Time) *AlertUpdate {
+	if t != nil {
+		au.SetStoppedAt(*t)
+	}
+	return au
+}
+
+// ClearStoppedAt clears the value of stoppedAt.
+func (au *AlertUpdate) ClearStoppedAt() *AlertUpdate {
+	au.mutation.ClearStoppedAt()
 	return au
 }
 
@@ -263,9 +333,37 @@ func (au *AlertUpdate) SetSourceScope(s string) *AlertUpdate {
 	return au
 }
 
+// SetNillableSourceScope sets the sourceScope field if the given value is not nil.
+func (au *AlertUpdate) SetNillableSourceScope(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetSourceScope(*s)
+	}
+	return au
+}
+
+// ClearSourceScope clears the value of sourceScope.
+func (au *AlertUpdate) ClearSourceScope() *AlertUpdate {
+	au.mutation.ClearSourceScope()
+	return au
+}
+
 // SetSourceValue sets the sourceValue field.
 func (au *AlertUpdate) SetSourceValue(s string) *AlertUpdate {
 	au.mutation.SetSourceValue(s)
+	return au
+}
+
+// SetNillableSourceValue sets the sourceValue field if the given value is not nil.
+func (au *AlertUpdate) SetNillableSourceValue(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetSourceValue(*s)
+	}
+	return au
+}
+
+// ClearSourceValue clears the value of sourceValue.
+func (au *AlertUpdate) ClearSourceValue() *AlertUpdate {
+	au.mutation.ClearSourceValue()
 	return au
 }
 
@@ -276,15 +374,43 @@ func (au *AlertUpdate) SetCapacity(i int32) *AlertUpdate {
 	return au
 }
 
+// SetNillableCapacity sets the capacity field if the given value is not nil.
+func (au *AlertUpdate) SetNillableCapacity(i *int32) *AlertUpdate {
+	if i != nil {
+		au.SetCapacity(*i)
+	}
+	return au
+}
+
 // AddCapacity adds i to capacity.
 func (au *AlertUpdate) AddCapacity(i int32) *AlertUpdate {
 	au.mutation.AddCapacity(i)
 	return au
 }
 
+// ClearCapacity clears the value of capacity.
+func (au *AlertUpdate) ClearCapacity() *AlertUpdate {
+	au.mutation.ClearCapacity()
+	return au
+}
+
 // SetLeakSpeed sets the leakSpeed field.
 func (au *AlertUpdate) SetLeakSpeed(s string) *AlertUpdate {
 	au.mutation.SetLeakSpeed(s)
+	return au
+}
+
+// SetNillableLeakSpeed sets the leakSpeed field if the given value is not nil.
+func (au *AlertUpdate) SetNillableLeakSpeed(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetLeakSpeed(*s)
+	}
+	return au
+}
+
+// ClearLeakSpeed clears the value of leakSpeed.
+func (au *AlertUpdate) ClearLeakSpeed() *AlertUpdate {
+	au.mutation.ClearLeakSpeed()
 	return au
 }
 
@@ -506,10 +632,22 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: alert.FieldBucketId,
 		})
 	}
+	if au.mutation.BucketIdCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: alert.FieldBucketId,
+		})
+	}
 	if value, ok := au.mutation.Message(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: alert.FieldMessage,
+		})
+	}
+	if au.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: alert.FieldMessage,
 		})
 	}
@@ -527,6 +665,12 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: alert.FieldEventsCount,
 		})
 	}
+	if au.mutation.EventsCountCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Column: alert.FieldEventsCount,
+		})
+	}
 	if value, ok := au.mutation.StartedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -534,10 +678,22 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: alert.FieldStartedAt,
 		})
 	}
+	if au.mutation.StartedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: alert.FieldStartedAt,
+		})
+	}
 	if value, ok := au.mutation.StoppedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
+			Column: alert.FieldStoppedAt,
+		})
+	}
+	if au.mutation.StoppedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
 			Column: alert.FieldStoppedAt,
 		})
 	}
@@ -653,10 +809,22 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: alert.FieldSourceScope,
 		})
 	}
+	if au.mutation.SourceScopeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: alert.FieldSourceScope,
+		})
+	}
 	if value, ok := au.mutation.SourceValue(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: alert.FieldSourceValue,
+		})
+	}
+	if au.mutation.SourceValueCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: alert.FieldSourceValue,
 		})
 	}
@@ -674,10 +842,22 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: alert.FieldCapacity,
 		})
 	}
+	if au.mutation.CapacityCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Column: alert.FieldCapacity,
+		})
+	}
 	if value, ok := au.mutation.LeakSpeed(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: alert.FieldLeakSpeed,
+		})
+	}
+	if au.mutation.LeakSpeedCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: alert.FieldLeakSpeed,
 		})
 	}
@@ -888,9 +1068,37 @@ func (auo *AlertUpdateOne) SetBucketId(s string) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableBucketId sets the bucketId field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableBucketId(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetBucketId(*s)
+	}
+	return auo
+}
+
+// ClearBucketId clears the value of bucketId.
+func (auo *AlertUpdateOne) ClearBucketId() *AlertUpdateOne {
+	auo.mutation.ClearBucketId()
+	return auo
+}
+
 // SetMessage sets the message field.
 func (auo *AlertUpdateOne) SetMessage(s string) *AlertUpdateOne {
 	auo.mutation.SetMessage(s)
+	return auo
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableMessage(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetMessage(*s)
+	}
+	return auo
+}
+
+// ClearMessage clears the value of message.
+func (auo *AlertUpdateOne) ClearMessage() *AlertUpdateOne {
+	auo.mutation.ClearMessage()
 	return auo
 }
 
@@ -901,9 +1109,23 @@ func (auo *AlertUpdateOne) SetEventsCount(i int32) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableEventsCount sets the eventsCount field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableEventsCount(i *int32) *AlertUpdateOne {
+	if i != nil {
+		auo.SetEventsCount(*i)
+	}
+	return auo
+}
+
 // AddEventsCount adds i to eventsCount.
 func (auo *AlertUpdateOne) AddEventsCount(i int32) *AlertUpdateOne {
 	auo.mutation.AddEventsCount(i)
+	return auo
+}
+
+// ClearEventsCount clears the value of eventsCount.
+func (auo *AlertUpdateOne) ClearEventsCount() *AlertUpdateOne {
+	auo.mutation.ClearEventsCount()
 	return auo
 }
 
@@ -913,9 +1135,37 @@ func (auo *AlertUpdateOne) SetStartedAt(t time.Time) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableStartedAt sets the startedAt field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableStartedAt(t *time.Time) *AlertUpdateOne {
+	if t != nil {
+		auo.SetStartedAt(*t)
+	}
+	return auo
+}
+
+// ClearStartedAt clears the value of startedAt.
+func (auo *AlertUpdateOne) ClearStartedAt() *AlertUpdateOne {
+	auo.mutation.ClearStartedAt()
+	return auo
+}
+
 // SetStoppedAt sets the stoppedAt field.
 func (auo *AlertUpdateOne) SetStoppedAt(t time.Time) *AlertUpdateOne {
 	auo.mutation.SetStoppedAt(t)
+	return auo
+}
+
+// SetNillableStoppedAt sets the stoppedAt field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableStoppedAt(t *time.Time) *AlertUpdateOne {
+	if t != nil {
+		auo.SetStoppedAt(*t)
+	}
+	return auo
+}
+
+// ClearStoppedAt clears the value of stoppedAt.
+func (auo *AlertUpdateOne) ClearStoppedAt() *AlertUpdateOne {
+	auo.mutation.ClearStoppedAt()
 	return auo
 }
 
@@ -1079,9 +1329,37 @@ func (auo *AlertUpdateOne) SetSourceScope(s string) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableSourceScope sets the sourceScope field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableSourceScope(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetSourceScope(*s)
+	}
+	return auo
+}
+
+// ClearSourceScope clears the value of sourceScope.
+func (auo *AlertUpdateOne) ClearSourceScope() *AlertUpdateOne {
+	auo.mutation.ClearSourceScope()
+	return auo
+}
+
 // SetSourceValue sets the sourceValue field.
 func (auo *AlertUpdateOne) SetSourceValue(s string) *AlertUpdateOne {
 	auo.mutation.SetSourceValue(s)
+	return auo
+}
+
+// SetNillableSourceValue sets the sourceValue field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableSourceValue(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetSourceValue(*s)
+	}
+	return auo
+}
+
+// ClearSourceValue clears the value of sourceValue.
+func (auo *AlertUpdateOne) ClearSourceValue() *AlertUpdateOne {
+	auo.mutation.ClearSourceValue()
 	return auo
 }
 
@@ -1092,15 +1370,43 @@ func (auo *AlertUpdateOne) SetCapacity(i int32) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableCapacity sets the capacity field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableCapacity(i *int32) *AlertUpdateOne {
+	if i != nil {
+		auo.SetCapacity(*i)
+	}
+	return auo
+}
+
 // AddCapacity adds i to capacity.
 func (auo *AlertUpdateOne) AddCapacity(i int32) *AlertUpdateOne {
 	auo.mutation.AddCapacity(i)
 	return auo
 }
 
+// ClearCapacity clears the value of capacity.
+func (auo *AlertUpdateOne) ClearCapacity() *AlertUpdateOne {
+	auo.mutation.ClearCapacity()
+	return auo
+}
+
 // SetLeakSpeed sets the leakSpeed field.
 func (auo *AlertUpdateOne) SetLeakSpeed(s string) *AlertUpdateOne {
 	auo.mutation.SetLeakSpeed(s)
+	return auo
+}
+
+// SetNillableLeakSpeed sets the leakSpeed field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableLeakSpeed(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetLeakSpeed(*s)
+	}
+	return auo
+}
+
+// ClearLeakSpeed clears the value of leakSpeed.
+func (auo *AlertUpdateOne) ClearLeakSpeed() *AlertUpdateOne {
+	auo.mutation.ClearLeakSpeed()
 	return auo
 }
 
@@ -1320,10 +1626,22 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (a *Alert, err error) {
 			Column: alert.FieldBucketId,
 		})
 	}
+	if auo.mutation.BucketIdCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: alert.FieldBucketId,
+		})
+	}
 	if value, ok := auo.mutation.Message(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: alert.FieldMessage,
+		})
+	}
+	if auo.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: alert.FieldMessage,
 		})
 	}
@@ -1341,6 +1659,12 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (a *Alert, err error) {
 			Column: alert.FieldEventsCount,
 		})
 	}
+	if auo.mutation.EventsCountCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Column: alert.FieldEventsCount,
+		})
+	}
 	if value, ok := auo.mutation.StartedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -1348,10 +1672,22 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (a *Alert, err error) {
 			Column: alert.FieldStartedAt,
 		})
 	}
+	if auo.mutation.StartedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Column: alert.FieldStartedAt,
+		})
+	}
 	if value, ok := auo.mutation.StoppedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
+			Column: alert.FieldStoppedAt,
+		})
+	}
+	if auo.mutation.StoppedAtCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
 			Column: alert.FieldStoppedAt,
 		})
 	}
@@ -1467,10 +1803,22 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (a *Alert, err error) {
 			Column: alert.FieldSourceScope,
 		})
 	}
+	if auo.mutation.SourceScopeCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: alert.FieldSourceScope,
+		})
+	}
 	if value, ok := auo.mutation.SourceValue(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: alert.FieldSourceValue,
+		})
+	}
+	if auo.mutation.SourceValueCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: alert.FieldSourceValue,
 		})
 	}
@@ -1488,10 +1836,22 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (a *Alert, err error) {
 			Column: alert.FieldCapacity,
 		})
 	}
+	if auo.mutation.CapacityCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt32,
+			Column: alert.FieldCapacity,
+		})
+	}
 	if value, ok := auo.mutation.LeakSpeed(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
+			Column: alert.FieldLeakSpeed,
+		})
+	}
+	if auo.mutation.LeakSpeedCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
 			Column: alert.FieldLeakSpeed,
 		})
 	}

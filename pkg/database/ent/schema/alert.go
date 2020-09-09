@@ -21,11 +21,11 @@ func (Alert) Fields() []ent.Field {
 		field.Time("updated_at").
 			Default(time.Now),
 		field.String("scenario"),
-		field.String("bucketId"),
-		field.String("message"),
-		field.Int32("eventsCount"),
-		field.Time("startedAt"),
-		field.Time("stoppedAt"),
+		field.String("bucketId").Default("").Optional(),
+		field.String("message").Default("").Optional(),
+		field.Int32("eventsCount").Default(0).Optional(),
+		field.Time("startedAt").Default(time.Now).Optional(),
+		field.Time("stoppedAt").Default(time.Now).Optional(),
 		field.String("sourceIp").
 			Optional(),
 		field.String("sourceRange").
@@ -40,10 +40,10 @@ func (Alert) Fields() []ent.Field {
 			Optional(),
 		field.Float32("sourceLongitude").
 			Optional(),
-		field.String("sourceScope"),
-		field.String("sourceValue"),
-		field.Int32("capacity"),
-		field.String("leakSpeed"),
+		field.String("sourceScope").Optional(),
+		field.String("sourceValue").Optional(),
+		field.Int32("capacity").Optional(),
+		field.String("leakSpeed").Optional(),
 	}
 }
 

@@ -64,9 +64,25 @@ func (ac *AlertCreate) SetBucketId(s string) *AlertCreate {
 	return ac
 }
 
+// SetNillableBucketId sets the bucketId field if the given value is not nil.
+func (ac *AlertCreate) SetNillableBucketId(s *string) *AlertCreate {
+	if s != nil {
+		ac.SetBucketId(*s)
+	}
+	return ac
+}
+
 // SetMessage sets the message field.
 func (ac *AlertCreate) SetMessage(s string) *AlertCreate {
 	ac.mutation.SetMessage(s)
+	return ac
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (ac *AlertCreate) SetNillableMessage(s *string) *AlertCreate {
+	if s != nil {
+		ac.SetMessage(*s)
+	}
 	return ac
 }
 
@@ -76,15 +92,39 @@ func (ac *AlertCreate) SetEventsCount(i int32) *AlertCreate {
 	return ac
 }
 
+// SetNillableEventsCount sets the eventsCount field if the given value is not nil.
+func (ac *AlertCreate) SetNillableEventsCount(i *int32) *AlertCreate {
+	if i != nil {
+		ac.SetEventsCount(*i)
+	}
+	return ac
+}
+
 // SetStartedAt sets the startedAt field.
 func (ac *AlertCreate) SetStartedAt(t time.Time) *AlertCreate {
 	ac.mutation.SetStartedAt(t)
 	return ac
 }
 
+// SetNillableStartedAt sets the startedAt field if the given value is not nil.
+func (ac *AlertCreate) SetNillableStartedAt(t *time.Time) *AlertCreate {
+	if t != nil {
+		ac.SetStartedAt(*t)
+	}
+	return ac
+}
+
 // SetStoppedAt sets the stoppedAt field.
 func (ac *AlertCreate) SetStoppedAt(t time.Time) *AlertCreate {
 	ac.mutation.SetStoppedAt(t)
+	return ac
+}
+
+// SetNillableStoppedAt sets the stoppedAt field if the given value is not nil.
+func (ac *AlertCreate) SetNillableStoppedAt(t *time.Time) *AlertCreate {
+	if t != nil {
+		ac.SetStoppedAt(*t)
+	}
 	return ac
 }
 
@@ -192,9 +232,25 @@ func (ac *AlertCreate) SetSourceScope(s string) *AlertCreate {
 	return ac
 }
 
+// SetNillableSourceScope sets the sourceScope field if the given value is not nil.
+func (ac *AlertCreate) SetNillableSourceScope(s *string) *AlertCreate {
+	if s != nil {
+		ac.SetSourceScope(*s)
+	}
+	return ac
+}
+
 // SetSourceValue sets the sourceValue field.
 func (ac *AlertCreate) SetSourceValue(s string) *AlertCreate {
 	ac.mutation.SetSourceValue(s)
+	return ac
+}
+
+// SetNillableSourceValue sets the sourceValue field if the given value is not nil.
+func (ac *AlertCreate) SetNillableSourceValue(s *string) *AlertCreate {
+	if s != nil {
+		ac.SetSourceValue(*s)
+	}
 	return ac
 }
 
@@ -204,9 +260,25 @@ func (ac *AlertCreate) SetCapacity(i int32) *AlertCreate {
 	return ac
 }
 
+// SetNillableCapacity sets the capacity field if the given value is not nil.
+func (ac *AlertCreate) SetNillableCapacity(i *int32) *AlertCreate {
+	if i != nil {
+		ac.SetCapacity(*i)
+	}
+	return ac
+}
+
 // SetLeakSpeed sets the leakSpeed field.
 func (ac *AlertCreate) SetLeakSpeed(s string) *AlertCreate {
 	ac.mutation.SetLeakSpeed(s)
+	return ac
+}
+
+// SetNillableLeakSpeed sets the leakSpeed field if the given value is not nil.
+func (ac *AlertCreate) SetNillableLeakSpeed(s *string) *AlertCreate {
+	if s != nil {
+		ac.SetLeakSpeed(*s)
+	}
 	return ac
 }
 
@@ -333,31 +405,24 @@ func (ac *AlertCreate) preSave() error {
 		return &ValidationError{Name: "scenario", err: errors.New("ent: missing required field \"scenario\"")}
 	}
 	if _, ok := ac.mutation.BucketId(); !ok {
-		return &ValidationError{Name: "bucketId", err: errors.New("ent: missing required field \"bucketId\"")}
+		v := alert.DefaultBucketId
+		ac.mutation.SetBucketId(v)
 	}
 	if _, ok := ac.mutation.Message(); !ok {
-		return &ValidationError{Name: "message", err: errors.New("ent: missing required field \"message\"")}
+		v := alert.DefaultMessage
+		ac.mutation.SetMessage(v)
 	}
 	if _, ok := ac.mutation.EventsCount(); !ok {
-		return &ValidationError{Name: "eventsCount", err: errors.New("ent: missing required field \"eventsCount\"")}
+		v := alert.DefaultEventsCount
+		ac.mutation.SetEventsCount(v)
 	}
 	if _, ok := ac.mutation.StartedAt(); !ok {
-		return &ValidationError{Name: "startedAt", err: errors.New("ent: missing required field \"startedAt\"")}
+		v := alert.DefaultStartedAt()
+		ac.mutation.SetStartedAt(v)
 	}
 	if _, ok := ac.mutation.StoppedAt(); !ok {
-		return &ValidationError{Name: "stoppedAt", err: errors.New("ent: missing required field \"stoppedAt\"")}
-	}
-	if _, ok := ac.mutation.SourceScope(); !ok {
-		return &ValidationError{Name: "sourceScope", err: errors.New("ent: missing required field \"sourceScope\"")}
-	}
-	if _, ok := ac.mutation.SourceValue(); !ok {
-		return &ValidationError{Name: "sourceValue", err: errors.New("ent: missing required field \"sourceValue\"")}
-	}
-	if _, ok := ac.mutation.Capacity(); !ok {
-		return &ValidationError{Name: "capacity", err: errors.New("ent: missing required field \"capacity\"")}
-	}
-	if _, ok := ac.mutation.LeakSpeed(); !ok {
-		return &ValidationError{Name: "leakSpeed", err: errors.New("ent: missing required field \"leakSpeed\"")}
+		v := alert.DefaultStoppedAt()
+		ac.mutation.SetStoppedAt(v)
 	}
 	return nil
 }

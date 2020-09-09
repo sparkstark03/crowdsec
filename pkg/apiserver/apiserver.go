@@ -108,6 +108,13 @@ func (s *APIServer) Run() {
 		apiKeyAuth.GET("/decisions/stream", s.controller.StreamDecision)
 	}
 
+	puller, err := NewPuller(s.dbClient)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go puller.Pull()
+
 	router.Run(s.url)
 }
 

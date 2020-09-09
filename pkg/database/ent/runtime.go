@@ -28,6 +28,26 @@ func init() {
 	alertDescUpdatedAt := alertFields[1].Descriptor()
 	// alert.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	alert.DefaultUpdatedAt = alertDescUpdatedAt.Default.(func() time.Time)
+	// alertDescBucketId is the schema descriptor for bucketId field.
+	alertDescBucketId := alertFields[3].Descriptor()
+	// alert.DefaultBucketId holds the default value on creation for the bucketId field.
+	alert.DefaultBucketId = alertDescBucketId.Default.(string)
+	// alertDescMessage is the schema descriptor for message field.
+	alertDescMessage := alertFields[4].Descriptor()
+	// alert.DefaultMessage holds the default value on creation for the message field.
+	alert.DefaultMessage = alertDescMessage.Default.(string)
+	// alertDescEventsCount is the schema descriptor for eventsCount field.
+	alertDescEventsCount := alertFields[5].Descriptor()
+	// alert.DefaultEventsCount holds the default value on creation for the eventsCount field.
+	alert.DefaultEventsCount = alertDescEventsCount.Default.(int32)
+	// alertDescStartedAt is the schema descriptor for startedAt field.
+	alertDescStartedAt := alertFields[6].Descriptor()
+	// alert.DefaultStartedAt holds the default value on creation for the startedAt field.
+	alert.DefaultStartedAt = alertDescStartedAt.Default.(func() time.Time)
+	// alertDescStoppedAt is the schema descriptor for stoppedAt field.
+	alertDescStoppedAt := alertFields[7].Descriptor()
+	// alert.DefaultStoppedAt holds the default value on creation for the stoppedAt field.
+	alert.DefaultStoppedAt = alertDescStoppedAt.Default.(func() time.Time)
 	blockerFields := schema.Blocker{}.Fields()
 	_ = blockerFields
 	// blockerDescCreatedAt is the schema descriptor for created_at field.

@@ -125,4 +125,14 @@ var (
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	DefaultUpdatedAt func() time.Time
+	// DefaultBucketId holds the default value on creation for the bucketId field.
+	DefaultBucketId string
+	// DefaultMessage holds the default value on creation for the message field.
+	DefaultMessage string
+	// DefaultEventsCount holds the default value on creation for the eventsCount field.
+	DefaultEventsCount int32
+	// DefaultStartedAt holds the default value on creation for the startedAt field.
+	DefaultStartedAt func() time.Time
+	// DefaultStoppedAt holds the default value on creation for the stoppedAt field.
+	DefaultStoppedAt func() time.Time
 )
