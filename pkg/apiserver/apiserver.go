@@ -2,6 +2,7 @@ package apiserver
 
 import (
 	"context"
+	"crypto/sha512"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,7 +17,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -116,17 +116,13 @@ func (s *APIServer) Generate(name string) (string, error) {
 		return "", fmt.Errorf("unable to generate api key: %s", err)
 	}
 
-	hashKey, err := bcrypt.GenerateFromPassword([]byte(key), bcrypt.DefaultCost)
-	if err != nil {
-		return "", fmt.Errorf("failed hashing generated key %v: %v", key, err)
-	}
+	hashedKey := sha512.New()
+	hashedKey.Write([]byte(key))
 
-	log.Printf("key : %v", string(key))
-	log.Printf("hashed key : %v", string(hashKey))
 	_, err = s.dbClient.Ent.Blocker.
 		Create().
 		SetName(name).
-		SetAPIKey(fmt.Sprintf("%s", string(hashKey))).
+		SetAPIKey(fmt.Sprintf("%x", hashedKey.Sum(nil))).
 		SetRevoked(false).
 		Save(s.dbClient.CTX)
 	if err != nil {
