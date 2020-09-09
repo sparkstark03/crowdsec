@@ -25,7 +25,7 @@ func NewGenerateCommand() *cobra.Command {
 			}
 			fmt.Printf("Api key for '%s':\n\n", args[0])
 			fmt.Printf("   %s\n\n", key)
-			fmt.Print("Please keep this key since will not be able to retrive it!")
+			fmt.Print("Please keep this key since will not be able to retrive it!\n")
 		},
 	}
 

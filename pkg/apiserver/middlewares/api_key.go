@@ -2,15 +2,14 @@ package middlewares
 
 import (
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"net/http"
 
 	"github.com/crowdsecurity/crowdsec/pkg/apiserver/controllers"
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent/blocker"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -44,11 +43,19 @@ func (a *APIKey) MiddlewareFunc(controller *controllers.Controller) gin.HandlerF
 			return
 		}
 
-		hashedKey := sha256.New()
-		hashedKey.Write([]byte(val[0]))
-
-		hashStr := fmt.Sprintf("%x", hashedKey.Sum(nil))
-		exist, err := controller.DBClient.Ent.Blocker.Query().Where(blocker.APIKeyEQ(hashStr)).Select(blocker.FieldAPIKey).Strings(controller.DBClient.CTX)
+		hashKey, err := bcrypt.GenerateFromPassword([]byte(val[0]), bcrypt.DefaultCost)
+		if err != nil {
+			log.Errorf("failed hashing apiKey %v: %v", val[0], err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+			c.Abort()
+			return
+		}
+		log.Printf("key : %v", val[0])
+		log.Printf("hashed key : %v", string(hashKey))
+		exist, err := controller.DBClient.Ent.Blocker.Query().
+			Where(blocker.APIKeyEQ(string(hashKey))).
+			Select(blocker.FieldAPIKey).
+			Strings(controller.DBClient.CTX)
 		if err != nil {
 			log.Errorf("unable to get current api key: %s", err)
 			c.Abort()
