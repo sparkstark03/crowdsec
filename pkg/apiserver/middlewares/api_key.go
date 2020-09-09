@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/crowdsecurity/crowdsec/pkg/apiserver/controllers"
+	"github.com/crowdsecurity/crowdsec/pkg/database"
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent/blocker"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -19,6 +20,7 @@ var (
 
 type APIKey struct {
 	HeaderName string
+	DbClient   *database.Client
 }
 
 func GenerateKey(n int) (string, error) {
@@ -29,13 +31,14 @@ func GenerateKey(n int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-func NewAPIKey() *APIKey {
+func NewAPIKey(dbClient *database.Client) *APIKey {
 	return &APIKey{
 		HeaderName: APIKeyHeader,
+		DbClient:   dbClient,
 	}
 }
 
-func (a *APIKey) MiddlewareFunc(controller *controllers.Controller) gin.HandlerFunc {
+func (a *APIKey) MiddlewareFunc() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		val, ok := c.Request.Header[APIKeyHeader]
 		if !ok {
@@ -48,10 +51,10 @@ func (a *APIKey) MiddlewareFunc(controller *controllers.Controller) gin.HandlerF
 		hashedKey.Write([]byte(val[0]))
 
 		hashStr := fmt.Sprintf("%x", hashedKey.Sum(nil))
-		exist, err := controller.DBClient.Ent.Blocker.Query().
+		exist, err := a.DbClient.Ent.Blocker.Query().
 			Where(blocker.APIKeyEQ(hashStr)).
 			Select(blocker.FieldAPIKey).
-			Strings(controller.DBClient.CTX)
+			Strings(a.DbClient.CTX)
 		if err != nil {
 			log.Errorf("unable to get current api key: %s", err)
 			c.Abort()

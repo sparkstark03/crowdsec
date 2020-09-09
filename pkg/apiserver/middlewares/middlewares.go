@@ -17,7 +17,7 @@ func NewMiddlewares(dbClient *database.Client) (*Middlewares, error) {
 		return &Middlewares{}, err
 	}
 
-	ret.APIKey = NewAPIKey()
+	ret.APIKey = NewAPIKey(dbClient)
 
 	return ret, nil
 }
