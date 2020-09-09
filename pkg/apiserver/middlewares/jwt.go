@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"os"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent/machine"
 	"github.com/crowdsecurity/crowdsec/pkg/models"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var identityKey = "id"
@@ -51,23 +51,19 @@ func (j *JWT) Authenticator(c *gin.Context) (interface{}, error) {
 	machineID := loginInput.MachineID
 	password := loginInput.Password
 
-	HashedPassword := sha256.New()
-	HashedPassword.Write([]byte(password))
-	hashPassword := fmt.Sprintf("%x", HashedPassword.Sum(nil))
-
-	exist, err := j.DbClient.Ent.Machine.Query().Where(machine.MachineId(machineID)).Where(machine.Password(hashPassword)).Select(machine.FieldID).Strings(j.DbClient.CTX)
+	hashFromDB, err := j.DbClient.Ent.Machine.Query().
+		Where(machine.MachineId(machineID)).
+		Select(machine.FieldPassword).String(j.DbClient.CTX)
 	if err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	if len(exist) == 0 {
+	if err := bcrypt.CompareHashAndPassword([]byte(hashFromDB), []byte(password)); err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	// here implem when is validated machine logic, for now just login with admin/admin or test/test
 	return &models.WatcherAuthRequest{
 		MachineID: machineID,
-		Scenarios: []string{"crowdsecurity/test"},
 	}, nil
 
 }

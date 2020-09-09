@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent"
@@ -40,15 +40,17 @@ func (c *Controller) CreateMachine(gctx *gin.Context) {
 		return
 	}
 
-	HashedPassword := sha256.New()
-	HashedPassword.Write([]byte(input.Password))
-
-	hashPassword := fmt.Sprintf("%x", HashedPassword.Sum(nil))
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Errorf("failed hashing password %v: %v", input.Password, err)
+		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed creating machine"})
+		return
+	}
 
 	machine, err := c.DBClient.Ent.Machine.
 		Create().
 		SetMachineId(input.MachineID).
-		SetPassword(hashPassword).
+		SetPassword(string(hashPassword)).
 		SetIpAddress(gctx.ClientIP()).
 		Save(c.Ectx)
 
