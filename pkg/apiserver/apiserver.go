@@ -101,7 +101,7 @@ func (s *APIServer) Run() {
 	}
 
 	apiKeyAuth := router.Group("/")
-	apiKeyAuth.Use(s.middlewares.APIKey.MiddlewareFunc(s.controller))
+	apiKeyAuth.Use(s.middlewares.APIKey.MiddlewareFunc())
 	{
 		apiKeyAuth.GET("/decisions", s.controller.GetDecision)
 		apiKeyAuth.GET("/decisions/stream", s.controller.StreamDecision)

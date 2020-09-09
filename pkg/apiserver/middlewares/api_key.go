@@ -11,7 +11,6 @@ import (
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent/blocker"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (
