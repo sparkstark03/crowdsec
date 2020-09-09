@@ -90,12 +90,13 @@ func (s *APIServer) Run() {
 		_ = jwt.ExtractClaims(c)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Page not found"})
 	})
+	router.POST("/alerts", s.controller.CreateAlert)
 
 	jwtAuth := router.Group("/")
 	jwtAuth.GET("/refresh_token", s.middlewares.JWT.Middleware.RefreshHandler)
 	jwtAuth.Use(s.middlewares.JWT.Middleware.MiddlewareFunc())
 	{
-		jwtAuth.POST("/alerts", s.controller.CreateAlert)
+		//jwtAuth.POST("/alerts", s.controller.CreateAlert)
 		jwtAuth.GET("/alerts", s.controller.FindAlerts)
 		jwtAuth.DELETE("/alerts", s.controller.DeleteAlerts)
 	}

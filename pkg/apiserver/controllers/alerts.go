@@ -10,6 +10,8 @@ import (
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent"
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent/alert"
 	"github.com/crowdsecurity/crowdsec/pkg/database/ent/decision"
+	"github.com/crowdsecurity/crowdsec/pkg/database/ent/event"
+	"github.com/crowdsecurity/crowdsec/pkg/database/ent/meta"
 	"github.com/crowdsecurity/crowdsec/pkg/models"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -77,6 +79,78 @@ func FormatAlert(result []*ent.Alert) []models.Alert {
 		data = append(data, outputAlert)
 	}
 	return data
+}
+
+func ErrorMessageAlertDeletion(err error, gctx *gin.Context) {
+	log.Errorf("failed deleting alerts: %v", err)
+	gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed deleting alerts"})
+	return
+}
+
+func BuildAlertRequest(alerts *ent.AlertQuery, gctx *gin.Context) (*ent.AlertQuery, error) {
+	var err error
+	var startIP int64
+	var endIP int64
+	var hasActiveDecision bool
+	for param, value := range gctx.Request.URL.Query() {
+		switch param {
+		case "source_scope":
+			alerts = alerts.Where(alert.SourceScopeEQ(value[0]))
+		case "source_value":
+			alerts = alerts.Where(alert.SourceValueEQ(value[0]))
+		case "scenario":
+			alerts = alerts.Where(alert.ScenarioEQ(value[0]))
+		case "ip":
+			isValidIP := IsIpv4(value[0])
+			if !isValidIP {
+				log.Errorf("failed querying alerts: Ip %v is not valid", value[0])
+				return nil, fmt.Errorf("ip is not valid")
+			}
+			startIP, endIP, err = GetIpsFromIpRange(value[0] + "/32")
+			if err != nil {
+				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
+			}
+		case "range":
+			startIP, endIP, err = GetIpsFromIpRange(value[0])
+			if err != nil {
+				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
+				return nil, fmt.Errorf("Range is not valid")
+			}
+		case "since":
+			since, err := time.Parse(time.RFC3339, value[0])
+			if err != nil {
+				log.Errorln(err)
+				return nil, fmt.Errorf("Invalid since param format '%s'", value[0])
+			}
+			alerts = alerts.Where(alert.CreatedAtGTE(since))
+		case "until":
+			until, err := time.Parse(time.RFC3339, value[0])
+			if err != nil {
+				log.Errorln(err)
+				return nil, fmt.Errorf("Invalid until param format '%s'", value[0])
+			}
+			alerts = alerts.Where(alert.CreatedAtLTE(until))
+		case "has_active_decision":
+			if hasActiveDecision, err = strconv.ParseBool(value[0]); err != nil {
+				log.Errorf("failed querying alerts: Bool %v is not valid", value[0])
+				gctx.JSON(http.StatusBadRequest, gin.H{"error": "has_active_decision param not valid"})
+				return nil, fmt.Errorf("has_active_decision param not valid")
+			}
+			if hasActiveDecision {
+				alerts = alerts.Where(alert.HasDecisionsWith(decision.UntilGTE(time.Now())))
+			}
+		default:
+			gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid parameter : %s", param)})
+			return nil, fmt.Errorf("invalid parameter : %s", param)
+		}
+	}
+	if startIP != 0 && endIP != 0 {
+		alerts = alerts.Where(alert.And(
+			alert.HasDecisionsWith(decision.StartIPGTE(startIP)),
+			alert.HasDecisionsWith(decision.EndIP(endIP)),
+		))
+	}
+	return alerts, nil
 }
 
 func (c *Controller) CreateAlert(gctx *gin.Context) {
@@ -209,73 +283,8 @@ func (c *Controller) CreateAlert(gctx *gin.Context) {
 }
 
 func (c *Controller) FindAlerts(gctx *gin.Context) {
-	var err error
-	var startIP int64
-	var endIP int64
-	var hasActiveDecision bool
 	alerts := c.DBClient.Ent.Debug().Alert.Query()
-	for param, value := range gctx.Request.URL.Query() {
-		switch param {
-		case "source_scope":
-			alerts = alerts.Where(alert.SourceScopeEQ(value[0]))
-		case "source_value":
-			alerts = alerts.Where(alert.SourceValueEQ(value[0]))
-		case "scenario":
-			alerts = alerts.Where(alert.ScenarioEQ(value[0]))
-		case "ip":
-			isValidIP := IsIpv4(value[0])
-			if !isValidIP {
-				log.Errorf("failed querying alerts: Ip %v is not valid", value[0])
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": "ip is not valid"})
-				return
-			}
-			startIP, endIP, err = GetIpsFromIpRange(value[0] + "/32")
-			if err != nil {
-				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
-			}
-		case "range":
-			startIP, endIP, err = GetIpsFromIpRange(value[0])
-			if err != nil {
-				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": "Range is not valid"})
-				return
-			}
-		case "since":
-			since, err := time.Parse(time.RFC3339, value[0])
-			if err != nil {
-				log.Errorln(err)
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid since param format '%s'", value[0])})
-				return
-			}
-			alerts = alerts.Where(alert.CreatedAtGTE(since))
-		case "until":
-			until, err := time.Parse(time.RFC3339, value[0])
-			if err != nil {
-				log.Errorln(err)
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid until param format '%s'", value[0])})
-				return
-			}
-			alerts = alerts.Where(alert.CreatedAtLTE(until))
-		case "has_active_decision":
-			if hasActiveDecision, err = strconv.ParseBool(value[0]); err != nil {
-				log.Errorf("failed querying alerts: Bool %v is not valid", value[0])
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": "has_active_decision param not valid"})
-				return
-			}
-			if hasActiveDecision {
-				alerts = alerts.Where(alert.HasDecisionsWith(decision.UntilGTE(time.Now())))
-			}
-		default:
-			gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid parameter : %s", param)})
-			return
-		}
-	}
-	if startIP != 0 && endIP != 0 {
-		alerts = alerts.Where(alert.And(
-			alert.HasDecisionsWith(decision.StartIPGTE(startIP)),
-			alert.HasDecisionsWith(decision.EndIP(endIP)),
-		))
-	}
+	alerts, err := BuildAlertRequest(alerts, gctx)
 	alerts = alerts.
 		WithDecisions().
 		WithEvents().
@@ -299,80 +308,33 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 
 func (c *Controller) DeleteAlerts(gctx *gin.Context) {
 	var err error
-	var startIP int64
-	var endIP int64
-	var hasActiveDecision bool
-	alerts := c.DBClient.Ent.Debug().Alert.Delete()
-	for param, value := range gctx.Request.URL.Query() {
-		switch param {
-		case "source_scope":
-			alerts = alerts.Where(alert.SourceScopeEQ(value[0]))
-		case "source_value":
-			alerts = alerts.Where(alert.SourceValueEQ(value[0]))
-		case "scenario":
-			alerts = alerts.Where(alert.ScenarioEQ(value[0]))
-		case "ip":
-			isValidIP := IsIpv4(value[0])
-			if !isValidIP {
-				log.Errorf("failed querying alerts: Ip %v is not valid", value[0])
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": "ip is not valid"})
-				return
-			}
-			startIP, endIP, err = GetIpsFromIpRange(value[0] + "/32")
-			if err != nil {
-				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
-			}
-		case "range":
-			startIP, endIP, err = GetIpsFromIpRange(value[0])
-			if err != nil {
-				log.Errorf("failed querying alerts: Range %v is not valid", value[0])
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": "Range is not valid"})
-				return
-			}
-		case "since":
-			since, err := time.Parse(time.RFC3339, value[0])
-			if err != nil {
-				log.Errorln(err)
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid since param format '%s'", value[0])})
-				return
-			}
-			alerts = alerts.Where(alert.CreatedAtGTE(since))
-		case "until":
-			until, err := time.Parse(time.RFC3339, value[0])
-			if err != nil {
-				log.Errorln(err)
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Invalid until param format '%s'", value[0])})
-				return
-			}
-			alerts = alerts.Where(alert.CreatedAtLTE(until))
-		case "has_active_decision":
-			if hasActiveDecision, err = strconv.ParseBool(value[0]); err != nil {
-				log.Errorf("failed querying alerts: Bool %v is not valid", value[0])
-				gctx.JSON(http.StatusBadRequest, gin.H{"error": "has_active_decision param not valid"})
-				return
-			}
-			if hasActiveDecision {
-				alerts = alerts.Where(alert.HasDecisionsWith(decision.UntilGTE(time.Now())))
-			}
-		default:
-			gctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid parameter : %s", param)})
-			return
+	alerts := c.DBClient.Ent.Debug().Alert.Query()
+	alerts, err = BuildAlertRequest(alerts, gctx)
+	results, err := alerts.
+		Order(ent.Asc(alert.FieldCreatedAt)).
+		All(c.Ectx)
+	for _, alertItem := range results {
+		_, err = c.DBClient.Ent.Event.Delete().
+			Where(event.HasOwnerWith(alert.IDEQ(alertItem.ID))).Exec(c.Ectx)
+		if err != nil {
+			ErrorMessageAlertDeletion(err, gctx)
+		}
+		_, err = c.DBClient.Ent.Meta.Delete().
+			Where(meta.HasOwnerWith(alert.IDEQ(alertItem.ID))).Exec(c.Ectx)
+		if err != nil {
+			ErrorMessageAlertDeletion(err, gctx)
+		}
+		_, err = c.DBClient.Ent.Decision.Delete().
+			Where(decision.HasOwnerWith(alert.IDEQ(alertItem.ID))).Exec(c.Ectx)
+		if err != nil {
+			ErrorMessageAlertDeletion(err, gctx)
+		}
+		err = c.DBClient.Ent.Alert.DeleteOne(alertItem).Exec(c.Ectx)
+		if err != nil {
+			ErrorMessageAlertDeletion(err, gctx)
 		}
 	}
-	if startIP != 0 && endIP != 0 {
-		alerts = alerts.Where(alert.And(
-			alert.HasDecisionsWith(decision.StartIP(startIP)),
-			alert.HasDecisionsWith(decision.EndIP(endIP)),
-		))
-	}
 
-	deletedNb, err := alerts.Exec(c.Ectx)
-	if err != nil {
-		log.Errorf("failed deleting alerts: %v", err)
-		gctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed deleting alerts"})
-		return
-	}
-
-	gctx.JSON(http.StatusOK, gin.H{"deleted": deletedNb})
+	gctx.JSON(http.StatusOK, gin.H{"deleted": len(results)})
 	return
 }
