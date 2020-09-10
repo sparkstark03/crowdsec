@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func FormatAlert(result []*ent.Alert) []models.Alert {
+func FormatAlerts(result []*ent.Alert) []models.Alert {
 	var data []models.Alert
 	for _, alertItem := range result {
 		var outputAlert models.Alert
@@ -105,7 +105,7 @@ func (c *Controller) FindAlerts(gctx *gin.Context) {
 		c.HandleDBErrors(gctx, err)
 		return
 	}
-	data := FormatAlert(result)
+	data := FormatAlerts(result)
 
 	gctx.JSON(http.StatusOK, data)
 	return
@@ -118,6 +118,6 @@ func (c *Controller) DeleteAlerts(gctx *gin.Context) {
 		c.HandleDBErrors(gctx, err)
 	}
 
-	gctx.JSON(http.StatusOK, gin.H{"deleted": deleted})
+	gctx.JSON(http.StatusOK, gin.H{"deleted": len(deleted)})
 	return
 }
