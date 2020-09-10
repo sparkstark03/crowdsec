@@ -15,13 +15,6 @@ import (
 
 var identityKey = "id"
 
-// User demo
-type User struct {
-	UserName  string
-	FirstName string
-	LastName  string
-}
-
 type JWT struct {
 	Middleware *jwt.GinJWTMiddleware
 	DbClient   *database.Client

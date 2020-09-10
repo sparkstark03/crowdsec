@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -118,6 +119,6 @@ func (c *Controller) DeleteAlerts(gctx *gin.Context) {
 		c.HandleDBErrors(gctx, err)
 	}
 
-	gctx.JSON(http.StatusOK, gin.H{"deleted": len(deleted)})
+	gctx.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("%d deleted alerts", len(deleted))})
 	return
 }

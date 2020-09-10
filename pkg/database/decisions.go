@@ -38,6 +38,7 @@ func (c *Client) QueryDecisionWithFilter(filter map[string][]string) ([]*ent.Dec
 	}
 
 	err = decisions.Select(
+		decision.FieldID,
 		decision.FieldUntil,
 		decision.FieldScenario,
 		decision.FieldType,
@@ -76,4 +77,37 @@ func (c *Client) QueryNewDecisionsSince(since time.Time) ([]*ent.Decision, error
 	}
 
 	return data, nil
+}
+
+func (c *Client) DeleteDecisionById(decisionId int) error {
+	err := c.Ent.Debug().Decision.DeleteOneID(decisionId).Exec(c.CTX)
+	if err != nil {
+		return errors.Wrap(DeleteFail, fmt.Sprintf("decision with id '%d'", decisionId))
+	}
+	return nil
+}
+
+func (c *Client) DeleteDecisionsWithFilter(filter map[string][]string) (int, error) {
+	var err error
+
+	decisions := c.Ent.Debug().Decision.Delete()
+
+	for param, value := range filter {
+		switch param {
+		case "scope":
+			decisions = decisions.Where(decision.ScopeEQ(value[0]))
+		case "value":
+			decisions = decisions.Where(decision.TargetEQ(value[0]))
+		case "type":
+			decisions = decisions.Where(decision.TypeEQ(value[0]))
+		default:
+			return 0, errors.Wrap(InvalidFilter, fmt.Sprintf("'%s' doesn't exist", param))
+		}
+	}
+
+	nbDeleted, err := decisions.Exec(c.CTX)
+	if err != nil {
+		return 0, errors.Wrap(DeleteFail, "decisions with provided filter")
+	}
+	return nbDeleted, nil
 }

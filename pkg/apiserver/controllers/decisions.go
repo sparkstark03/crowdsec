@@ -10,6 +10,7 @@ import (
 	"github.com/crowdsecurity/crowdsec/pkg/models"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 )
 
 func FormatDecisions(decisions []*ent.Decision) ([]*models.Decision, error) {
@@ -48,6 +49,35 @@ func (c *Controller) GetDecision(gctx *gin.Context) {
 	}
 
 	gctx.JSON(http.StatusOK, results)
+}
+
+func (c *Controller) DeleteDecisionById(gctx *gin.Context) {
+	var err error
+
+	decisionIdStr := gctx.Param("decision_id")
+	decisionId, err := strconv.Atoi(decisionIdStr)
+	if err != nil {
+		gctx.JSON(http.StatusBadRequest, gin.H{"message": "decision_id must be valid integer"})
+		return
+	}
+	err = c.DBClient.DeleteDecisionById(decisionId)
+	if err != nil {
+		c.HandleDBErrors(gctx, err)
+	}
+
+	gctx.JSON(http.StatusOK, gin.H{"message": "successfully deleted"})
+	return
+}
+
+func (c *Controller) DeleteDecisions(gctx *gin.Context) {
+	var err error
+
+	nbDeleted, err := c.DBClient.DeleteDecisionsWithFilter(gctx.Request.URL.Query())
+	if err != nil {
+		c.HandleDBErrors(gctx, err)
+	}
+
+	gctx.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("%d deleted decisions", nbDeleted)})
 }
 
 func (c *Controller) StreamDecision(gctx *gin.Context) {
@@ -105,4 +135,5 @@ func (c *Controller) StreamDecision(gctx *gin.Context) {
 	}
 
 	gctx.JSON(http.StatusOK, ret)
+	return
 }

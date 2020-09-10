@@ -103,6 +103,8 @@ func (s *APIServer) Run() {
 	apiKeyAuth.Use(s.middlewares.APIKey.MiddlewareFunc())
 	{
 		apiKeyAuth.GET("/decisions", s.controller.GetDecision)
+		apiKeyAuth.DELETE("/decisions", s.controller.DeleteDecisions)
+		apiKeyAuth.DELETE("/decisions/:decision_id", s.controller.DeleteDecisionById)
 		apiKeyAuth.GET("/decisions/stream", s.controller.StreamDecision)
 	}
 
