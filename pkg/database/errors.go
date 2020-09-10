@@ -8,6 +8,7 @@ var (
 	HashError         = errors.New("unable to hash")
 	InsertFail        = errors.New("unable to insert row")
 	QueryFail         = errors.New("unable to query")
+	UpdateFail        = errors.New("unable to update")
 	DeleteFail        = errors.New("unable to delete")
 	ParseTimeFail     = errors.New("unable to parse time")
 	ParseDurationFail = errors.New("unable to parse duration")

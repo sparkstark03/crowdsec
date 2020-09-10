@@ -37,7 +37,7 @@ func (c *Client) CreateMachine(machineID string, password string, ipAddres strin
 	return machines, nil
 }
 
-func (c *Client) QueryMachine(machineID string) (*ent.Machine, error) {
+func (c *Client) QueryMachineByID(machineID string) (*ent.Machine, error) {
 	machine, err := c.Ent.Debug().Machine.
 		Query().
 		Where(machine.MachineIdEQ(machineID)).
@@ -46,4 +46,34 @@ func (c *Client) QueryMachine(machineID string) (*ent.Machine, error) {
 		return &ent.Machine{}, errors.Wrap(UserNotExists, fmt.Sprintf("user '%s'", machineID))
 	}
 	return machine, nil
+}
+
+func (c *Client) QueryAllMachines() ([]*ent.Machine, error) {
+	var machines []*ent.Machine
+	var err error
+
+	machines, err = c.Ent.Machine.Query().All(c.CTX)
+	if err != nil {
+		return []*ent.Machine{}, errors.Wrap(UpdateFail, "setting machine status")
+	}
+	return machines, nil
+}
+
+func (c *Client) ValidateMachine(machineID string) error {
+	_, err := c.Ent.Machine.Update().Where(machine.MachineIdEQ(machineID)).SetIsValidated(true).Save(c.CTX)
+	if err != nil {
+		return errors.Wrap(UpdateFail, "setting machine status")
+	}
+	return nil
+}
+
+func (c *Client) QueryPendingMachine() ([]*ent.Machine, error) {
+	var machines []*ent.Machine
+	var err error
+
+	machines, err = c.Ent.Machine.Query().Where(machine.IsValidatedEQ(false)).All(c.CTX)
+	if err != nil {
+		return []*ent.Machine{}, errors.Wrap(UpdateFail, "setting machine status")
+	}
+	return machines, nil
 }

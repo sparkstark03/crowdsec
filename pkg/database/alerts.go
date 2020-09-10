@@ -17,7 +17,7 @@ import (
 )
 
 func (c *Client) CreateAlert(alertItem *models.Alert) (int, error) {
-	owner, err := c.QueryMachine(alertItem.MachineID)
+	owner, err := c.QueryMachineByID(alertItem.MachineID)
 	if err != nil {
 		if errors.Cause(err) == UserNotExists {
 			owner = nil
