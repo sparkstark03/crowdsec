@@ -12,7 +12,7 @@ import (
 var configFile = "./api.yaml"
 var username = "machine_test_apil"
 var password = "password_test_apil"
-var pullInterval = "10s"
+var pullInterval = "60m"
 
 type Puller struct {
 	client   *cwapi.ApiCtx
