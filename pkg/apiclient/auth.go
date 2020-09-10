@@ -3,6 +3,7 @@ package apiclient
 import (
 	"bytes"
 	"encoding/json"
+	"time"
 
 	//"errors"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 	"net/http"
 
 	"github.com/crowdsecurity/crowdsec/pkg/models"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	//"google.golang.org/appengine/log"
@@ -51,10 +51,11 @@ func (t *APIKeyTransport) transport() http.RoundTripper {
 }
 
 type JWTTransport struct {
-	MachineID string
-	Password  string
-	token     string
-	Scenarios []string
+	MachineID  string
+	Password   string
+	token      string
+	Expiration time.Time
+	Scenarios  []string
 	// Transport is the underlying HTTP transport to use when making requests.
 	// It will default to http.DefaultTransport if nil.
 	Transport http.RoundTripper
@@ -65,7 +66,7 @@ func (t *JWTTransport) refreshJwtToken() error {
 	var auth = models.WatcherAuthRequest{
 		MachineID: t.MachineID,
 		Password:  t.Password,
-		//Scenarios: t.Scenarios,
+		Scenarios: t.Scenarios,
 	}
 
 	var response models.LoginOK
@@ -85,6 +86,7 @@ func (t *JWTTransport) refreshJwtToken() error {
 	if err != nil {
 		return errors.Wrap(err, "could not create request")
 	}
+	req.Header.Add("Content-Type", "application/json")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -100,18 +102,21 @@ func (t *JWTTransport) refreshJwtToken() error {
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return err
 	}
-	log.Infof("got ittt : %s", spew.Sdump(response))
+	if err := t.Expiration.UnmarshalText([]byte(response.Expire)); err != nil {
+		return errors.Wrap(err, "unable to parse jwt expiration")
+	}
+	t.token = response.Token
 
+	log.Debugf("token %s will expire on %s", t.token, t.Expiration.String())
 	return nil
 }
 
 // RoundTrip implements the RoundTripper interface.
 func (t *JWTTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	if t.token == "" {
+	if t.token == "" || t.Expiration.Add(-time.Minute).Before(time.Now()) {
 		if err := t.refreshJwtToken(); err != nil {
 			return nil, err
 		}
-		//return nil, errors.New("t.token is empty")
 	}
 
 	// We must make a copy of the Request so
@@ -120,7 +125,8 @@ func (t *JWTTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req = cloneRequest(req)
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.token))
 	// Make the HTTP request.
-	return t.transport().RoundTrip(req)
+	resp, err := t.transport().RoundTrip(req)
+	return resp, err
 }
 
 func (t *JWTTransport) Client() *http.Client {
